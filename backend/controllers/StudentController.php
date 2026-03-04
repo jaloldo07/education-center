@@ -4,7 +4,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Student;
-use common\models\User;
+use common\models\User; // User modelini chaqiramiz
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -13,6 +13,9 @@ use yii\filters\AccessControl;
 
 class StudentController extends Controller
 {
+    /**
+     * @inheritDoc
+     */
     public function behaviors()
     {
         return [
@@ -23,7 +26,6 @@ class StudentController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
-                            // ✅ FIXED: Added null check
                             if (Yii::$app->user->isGuest || !Yii::$app->user->identity) {
                                 return false;
                             }
@@ -42,6 +44,10 @@ class StudentController extends Controller
         ];
     }
 
+    /**
+     * Lists all Student models.
+     * @return mixed
+     */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
@@ -56,6 +62,12 @@ class StudentController extends Controller
         ]);
     }
 
+    /**
+     * Displays a single Student model.
+     * @param int $id ID
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionView($id)
     {
         return $this->render('view', [
@@ -63,179 +75,151 @@ class StudentController extends Controller
         ]);
     }
 
+    /**
+     * Creates a new Student model.
+     * Admin qo'lda Login va Parol kiritadi.
+     */
     public function actionCreate()
     {
         $model = new Student();
+        $user = new User();
+        $user->scenario = 'create'; // Parol majburiy
+
+        // Standart qiymatlar
         $model->enrolled_date = date('Y-m-d');
 
-        if ($model->load(Yii::$app->request->post())) {
+        if ($this->request->isPost) {
+            $model->load($this->request->post());
+            $user->load($this->request->post());
 
-            // ✅ FIXED: Generate unique username
-            $user = new User();
-            $baseUsername = strtolower(str_replace(' ', '', $model->full_name));
-            $username = $this->generateUniqueUsername($baseUsername);
-            
-            $user->username = $username;
-            $user->email = $model->email;
-            
-            // ✅ IMPROVED: Generate random secure password
-            $randomPassword = Yii::$app->security->generateRandomString(12);
-            $user->setPassword($randomPassword);
-            
-            $user->generateAuthKey();
-            $user->role = User::ROLE_STUDENT;
-            $user->status = User::STATUS_ACTIVE;
+            // Userdagi emailni Studentga o'tkazamiz (agar student email bo'sh bo'lsa)
+            if (empty($model->email)) {
+                $model->email = $user->email;
+            } else {
+                // Yoki aksincha, student emailini userga
+                $user->email = $model->email;
+            }
 
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
-                if ($user->save()) {
-                    $model->user_id = $user->id;
-                    if ($model->save()) {
-                        $transaction->commit();
-                        
-                        // ✅ Show password to admin (they need to give it to student)
-                        Yii::$app->session->setFlash('success', 
-                            'Student created successfully!<br>' .
-                            '<strong>Username:</strong> ' . $user->username . '<br>' .
-                            '<strong>Password:</strong> ' . $randomPassword . '<br>' .
-                            '<em>(Please save this password and give it to the student)</em>'
-                        );
-                        
-                        // ✅ Log the creation
-                        Yii::info("Student created: ID={$model->id}, Username={$user->username}", __METHOD__);
-                        
-                        return $this->redirect(['view', 'id' => $model->id]);
+            // Ikkalasi ham validatsiyadan o'tadimi?
+            if ($model->validate() && $user->validate()) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    // 1. Userni yaratamiz
+                    $user->setPassword($user->password);
+                    $user->generateAuthKey();
+                    $user->role = User::ROLE_STUDENT; // Rol: Student
+                    $user->status = User::STATUS_ACTIVE;
+                    
+                    if (!$user->save(false)) {
+                        throw new \Exception('Userni saqlab bo\'lmadi.');
                     }
+
+                    // 2. Studentni Userga bog'laymiz
+                    $model->user_id = $user->id;
+
+                    // 3. Studentni saqlaymiz
+                    if (!$model->save(false)) {
+                        throw new \Exception('Studentni saqlab bo\'lmadi.');
+                    }
+
+                    $transaction->commit();
+                    Yii::$app->session->setFlash('success', 'Talaba va uning logini muvaffaqiyatli yaratildi.');
+                    return $this->redirect(['view', 'id' => $model->id]);
+
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::$app->session->setFlash('error', 'Xatolik yuz berdi: ' . $e->getMessage());
                 }
-                $transaction->rollBack();
-                
-                // ✅ Show validation errors
-                $errors = array_merge($user->getErrors(), $model->getErrors());
-                $errorMessage = 'Failed to save student: ' . implode(', ', array_map(function($err) {
-                    return implode(', ', $err);
-                }, $errors));
-                
-                Yii::$app->session->setFlash('error', $errorMessage);
-                Yii::error($errorMessage, __METHOD__);
-                
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                Yii::$app->session->setFlash('error', 'Error: ' . $e->getMessage());
-                Yii::error('Student creation error: ' . $e->getMessage(), __METHOD__);
             }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'user' => $user, // User modelini Viewga yuboramiz
         ]);
     }
 
+    /**
+     * Updates an existing Student model.
+     * Login va Parolni ham tahrirlash imkoniyati bilan.
+     */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $user = $model->user; 
 
-        if ($model->load(Yii::$app->request->post())) {
-            try {
-                if ($model->save()) {
-                    Yii::$app->session->setFlash('success', 'Student has been updated successfully.');
-                    Yii::info("Student updated: ID={$model->id}", __METHOD__);
-                    return $this->redirect(['view', 'id' => $model->id]);
-                } else {
-                    // Show validation errors
-                    $errors = implode(', ', array_map(function($err) {
-                        return implode(', ', $err);
-                    }, $model->getErrors()));
-                    Yii::$app->session->setFlash('error', 'Validation failed: ' . $errors);
+        if (!$user) {
+            // Agar eski bazada user bo'lmasa, yangi obyekt yaratamiz (xato bermasligi uchun)
+            $user = new User(); 
+        }
+
+        if ($this->request->isPost) {
+            $model->load($this->request->post());
+            $user->load($this->request->post());
+            
+            // Email sinxronizatsiyasi
+            $model->email = $user->email;
+
+            // Validatsiya
+            if ($model->validate() && $user->validate(['username', 'email'])) {
+                // Parol maydoni to'ldirilgan bo'lsa, parolni yangilaymiz
+                if (!empty($user->password)) {
+                    $user->setPassword($user->password);
                 }
-            } catch (\Exception $e) {
-                Yii::$app->session->setFlash('error', 'Error updating student: ' . $e->getMessage());
-                Yii::error('Student update error: ' . $e->getMessage(), __METHOD__);
+                
+                $user->save(false);
+                $model->save(false);
+
+                Yii::$app->session->setFlash('success', 'Talaba ma\'lumotlari yangilandi.');
+                return $this->redirect(['view', 'id' => $model->id]);
             }
         }
 
         return $this->render('update', [
             'model' => $model,
+            'user' => $user,
         ]);
     }
 
     /**
-     * ✅ FIXED: Properly delete both student and user
+     * Deletes an existing Student model and associated User.
      */
     public function actionDelete($id)
     {
-        $student = $this->findModel($id);
-        $userId = $student->user_id;
-        $studentName = $student->full_name;
+        $model = $this->findModel($id);
         
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            // First delete the student
-            if (!$student->delete()) {
-                throw new \Exception('Failed to delete student record');
+            // Userni ham o'chirish kerakmi? Ha, odatda shunday qilinadi.
+            if ($model->user) {
+                $model->user->delete();
             }
             
-            // Then delete the associated user
-            if ($userId) {
-                $user = User::findOne($userId);
-                if ($user && !$user->delete()) {
-                    throw new \Exception('Failed to delete user record');
-                }
-            }
-            
+            $model->delete();
             $transaction->commit();
-            
-            Yii::$app->session->setFlash('success', 'Student and associated user have been deleted successfully.');
-            Yii::info("Student deleted: ID={$id}, Name={$studentName}", __METHOD__);
+            Yii::$app->session->setFlash('success', 'Talaba va uning akkaunti o\'chirildi.');
             
         } catch (\Exception $e) {
             $transaction->rollBack();
-            Yii::$app->session->setFlash('error', 'Error deleting student: ' . $e->getMessage());
-            Yii::error('Student deletion error: ' . $e->getMessage(), __METHOD__);
+            Yii::$app->session->setFlash('error', 'O\'chirishda xatolik: ' . $e->getMessage());
         }
-        
+
         return $this->redirect(['index']);
     }
 
+    /**
+     * Finds the Student model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @return Student the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     protected function findModel($id)
     {
         if (($model = Student::findOne($id)) !== null) {
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * ✅ NEW: Generate unique username
-     * @param string $baseUsername Base username (from full name)
-     * @return string Unique username
-     */
-    protected function generateUniqueUsername($baseUsername)
-    {
-        // Try with random 3-digit number first
-        $username = $baseUsername . rand(100, 999);
-        
-        if (!User::findOne(['username' => $username])) {
-            return $username;
-        }
-        
-        // If that exists, try with 4-digit number
-        for ($i = 0; $i < 10; $i++) {
-            $username = $baseUsername . rand(1000, 9999);
-            if (!User::findOne(['username' => $username])) {
-                return $username;
-            }
-        }
-        
-        // Last resort: use timestamp
-        $username = $baseUsername . time();
-        
-        // If even that exists (very unlikely), add counter
-        $counter = 1;
-        while (User::findOne(['username' => $username])) {
-            $username = $baseUsername . time() . $counter++;
-        }
-        
-        return $username;
+        throw new NotFoundHttpException('Sahifa topilmadi.');
     }
 }

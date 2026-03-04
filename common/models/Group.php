@@ -26,6 +26,11 @@ class Group extends ActiveRecord
             [['name', 'course_id', 'teacher_id'], 'required'],
             [['course_id', 'teacher_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
+            
+            // 🔥 YANGI QO'SHILGAN QOIDALAR:
+            [['status', 'schedule', 'room'], 'string', 'max' => 255],
+            [['status'], 'default', 'value' => 'pending'], // Default holat
+
             [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],
             [['teacher_id'], 'exist', 'skipOnError' => true, 'targetClass' => Teacher::class, 'targetAttribute' => ['teacher_id' => 'id']],
         ];
@@ -38,6 +43,10 @@ class Group extends ActiveRecord
             'name' => 'Group Name',
             'course_id' => 'Course',
             'teacher_id' => 'Teacher',
+            // 🔥 YANGI LABELLAR:
+            'status' => 'Status',
+            'schedule' => 'Schedule (Days/Time)',
+            'room' => 'Room Number',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -45,17 +54,17 @@ class Group extends ActiveRecord
 
     public function getCourse()
     {
-        return $this->hasOne(Course::class, ['id' => 'course_id'])->inverseOf('groups');
+        return $this->hasOne(Course::class, ['id' => 'course_id']);
     }
 
     public function getTeacher()
     {
-        return $this->hasOne(Teacher::class, ['id' => 'teacher_id'])->inverseOf('groups');
+        return $this->hasOne(Teacher::class, ['id' => 'teacher_id']);
     }
 
     public function getEnrollments()
     {
-        return $this->hasMany(Enrollment::class, ['group_id' => 'id'])->inverseOf('group');
+        return $this->hasMany(Enrollment::class, ['group_id' => 'id']);
     }
 
     public function getStudents()
@@ -66,6 +75,6 @@ class Group extends ActiveRecord
 
     public function getAttendances()
     {
-        return $this->hasMany(Attendance::class, ['group_id' => 'id'])->inverseOf('group');
+        return $this->hasMany(Attendance::class, ['group_id' => 'id']);
     }
 }

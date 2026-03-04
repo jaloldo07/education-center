@@ -5,9 +5,7 @@ namespace frontend\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
-use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
-use yii\helpers\Json;
 use common\models\Student;
 use common\models\Test;
 use common\models\TestAttempt;
@@ -15,6 +13,7 @@ use common\models\TestQuestion;
 use common\models\TestAnswer;
 use common\models\Enrollment;
 use yii\web\ForbiddenHttpException;
+
 class StudentTestController extends Controller
 {
     public function behaviors()
@@ -35,35 +34,25 @@ class StudentTestController extends Controller
         ];
     }
 
-    /**
-     * Get student profile
-     */
     protected function getStudent()
     {
         $student = Student::findOne(['user_id' => Yii::$app->user->id]);
-
         if (!$student) {
             throw new NotFoundHttpException('Student profile not found.');
         }
-
         return $student;
     }
 
-    /**
-     * List available tests for student
-     */
     public function actionIndex()
     {
         $student = $this->getStudent();
 
-        // Get student's groups
-        $groupIds = Enrollment::find()
+        $myGroupIds = Enrollment::find()
             ->select('group_id')
             ->where(['student_id' => $student->id, 'status' => Enrollment::STATUS_ACTIVE])
             ->column();
 
-        // Get student's courses
-        $courseIds = Enrollment::find()
+        $myCourseIds = Enrollment::find()
             ->select(['course.id'])
             ->leftJoin('group', 'enrollment.group_id = group.id')
             ->leftJoin('course', 'group.course_id = course.id')
@@ -71,19 +60,18 @@ class StudentTestController extends Controller
             ->distinct()
             ->column();
 
-        // Find active tests for student's courses/groups
         $tests = Test::find()
             ->where(['status' => Test::STATUS_ACTIVE])
+            ->andWhere(['course_id' => $myCourseIds])
             ->andWhere([
                 'or',
-                ['course_id' => $courseIds],
-                ['group_id' => $groupIds],
+                ['group_id' => null],
+                ['group_id' => $myGroupIds]
             ])
             ->with(['course', 'group', 'teacher'])
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
-        // Filter available tests
         $availableTests = [];
         foreach ($tests as $test) {
             if ($test->isAvailable()) {
@@ -105,23 +93,28 @@ class StudentTestController extends Controller
         ]);
     }
 
-    /**
-     * Start test (Face control if required)
-     */
     public function actionStart($id)
     {
         $student = $this->getStudent();
-
         $test = Test::findOne($id);
 
         if (!$test || !$test->isAvailable()) {
-            throw new NotFoundHttpException('Test not found or not available.');
+            Yii::$app->session->setFlash('warning', Yii::t('app', 'Ushbu testning vaqti tugagan yoki hozirda yopiq.'));
+            return $this->redirect(Yii::$app->request->referrer ?: ['index']);
         }
 
-        $hasAccess = $this->checkTestAccess($student, $test);
-
-        if (!$hasAccess) {
+        if (!$this->checkTestAccess($student, $test)) {
             Yii::$app->session->setFlash('error', 'You do not have access to this test.');
+            return $this->redirect(['index']);
+        }
+
+        // 🔥 URINISHLAR SONINI TEKSHIRISH (START) 🔥
+        $attemptCount = TestAttempt::find()
+            ->where(['test_id' => $test->id, 'student_id' => $student->id])
+            ->count();
+
+        if ($test->max_attempts > 0 && $attemptCount >= $test->max_attempts) {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Siz ushbu test uchun ajratilgan barcha urinishlardan foydalanib bo\'ldingiz.'));
             return $this->redirect(['index']);
         }
 
@@ -131,26 +124,31 @@ class StudentTestController extends Controller
         ]);
     }
 
-    /**
-     * Upload face photo and begin test
-     */
     public function actionBegin($id)
     {
         $student = $this->getStudent();
-
         $test = Test::findOne($id);
 
         if (!$test || !$test->isAvailable()) {
-            throw new NotFoundHttpException('Test not found or not available.');
+            Yii::$app->session->setFlash('warning', Yii::t('app', 'Ushbu testning vaqti tugagan yoki hozirda yopiq.'));
+            return $this->redirect(Yii::$app->request->referrer ?: ['index']);
         }
 
-        // Check access
         if (!$this->checkTestAccess($student, $test)) {
             Yii::$app->session->setFlash('error', 'You do not have access to this test.');
             return $this->redirect(['index']);
         }
 
-        // Create test attempt
+        // 🔥 URINISHLAR SONINI TEKSHIRISH (BEGIN) 🔥
+        $attemptCount = TestAttempt::find()
+            ->where(['test_id' => $test->id, 'student_id' => $student->id])
+            ->count();
+
+        if ($test->max_attempts > 0 && $attemptCount >= $test->max_attempts) {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Siz ushbu test uchun ajratilgan barcha urinishlardan foydalanib bo\'ldingiz.'));
+            return $this->redirect(['index']);
+        }
+
         $attempt = new TestAttempt();
         $attempt->test_id = $test->id;
         $attempt->student_id = $student->id;
@@ -159,22 +157,17 @@ class StudentTestController extends Controller
         $attempt->ip_address = Yii::$app->request->userIP;
         $attempt->user_agent = Yii::$app->request->userAgent;
 
-        // Handle face photo if required
         if ($test->require_face_control && Yii::$app->request->isPost) {
             $faceData = Yii::$app->request->post('face_photo');
-
             if ($faceData) {
                 $faceData = str_replace('data:image/png;base64,', '', $faceData);
                 $faceData = str_replace(' ', '+', $faceData);
                 $imageData = base64_decode($faceData);
-
+                
                 $filename = 'face_' . $student->id . '_' . time() . '.png';
                 $uploadPath = Yii::getAlias('@frontend/web/uploads/faces/');
-
-                if (!is_dir($uploadPath)) {
-                    mkdir($uploadPath, 0777, true);
-                }
-
+                if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+                
                 file_put_contents($uploadPath . $filename, $imageData);
                 $attempt->face_photo = $filename;
             }
@@ -185,17 +178,13 @@ class StudentTestController extends Controller
             return $this->redirect(['take', 'id' => $attempt->id]);
         }
 
-        Yii::$app->session->setFlash('error', 'Could not start test. Please try again.');
+        Yii::$app->session->setFlash('error', 'Could not start test.');
         return $this->redirect(['start', 'id' => $test->id]);
     }
 
-    /**
-     * Take test (show questions)
-     */
     public function actionTake($id)
     {
         $student = $this->getStudent();
-
         $attempt = TestAttempt::findOne(['id' => $id, 'student_id' => $student->id]);
 
         if (!$attempt || $attempt->status !== TestAttempt::STATUS_IN_PROGRESS) {
@@ -205,7 +194,6 @@ class StudentTestController extends Controller
         $test = $attempt->test;
         $questions = $test->getQuestions()->all();
 
-        // Calculate time remaining
         $timeLimit = $test->duration * 60; 
         $timeElapsed = time() - $attempt->started_at;
         $timeRemaining = max(0, $timeLimit - $timeElapsed);
@@ -218,13 +206,17 @@ class StudentTestController extends Controller
         ]);
     }
 
-    /**
-     * Submit test answers
-     */
+    private function normalizeAnswer($val) {
+        if ($val === null) return '';
+        $val = trim(strval($val));
+        $val = html_entity_decode($val, ENT_QUOTES, 'UTF-8');
+        $val = str_replace(["‘", "’", "`", "´", "ʼ", "ʻ"], "'", $val);
+        return mb_strtolower($val, 'UTF-8');
+    }
+
     public function actionSubmit($id)
     {
         $student = $this->getStudent();
-
         $attempt = TestAttempt::findOne(['id' => $id, 'student_id' => $student->id]);
 
         if (!$attempt || $attempt->status !== TestAttempt::STATUS_IN_PROGRESS) {
@@ -232,48 +224,86 @@ class StudentTestController extends Controller
         }
 
         if (Yii::$app->request->isPost) {
-            $answers = Yii::$app->request->post('answers', []);
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $postAnswers = Yii::$app->request->post('answers', []);
 
-            // Save all answers
-            foreach ($answers as $questionId => $answer) {
-                $question = TestQuestion::findOne($questionId);
+                foreach ($postAnswers as $questionId => $rawValue) {
+                    $question = TestQuestion::findOne($questionId);
 
-                if (!$question || $question->test_id != $attempt->test_id) {
-                    continue;
+                    if (!$question || $question->test_id != $attempt->test_id) {
+                        continue;
+                    }
+
+                    $testAnswer = new TestAnswer();
+                    $testAnswer->attempt_id = $attempt->id;
+                    $testAnswer->question_id = $questionId;
+                    $testAnswer->answered_at = time();
+
+                    $userAnswerArray = [];
+                    if (is_array($rawValue)) {
+                        $userAnswerArray = array_map('strval', $rawValue);
+                        $userAnswerArray = array_filter($userAnswerArray, function($v) { return $v !== ''; });
+                        $userAnswerArray = array_values($userAnswerArray);
+                    } elseif ($rawValue !== null && $rawValue !== '') {
+                        $userAnswerArray = [strval($rawValue)];
+                    }
+
+                    $testAnswer->answerArray = $userAnswerArray;
+                    $testAnswer->answer = json_encode($userAnswerArray);
+
+                    $correctAnswerArray = [];
+                    if (!empty($question->correct_answer)) {
+                        $decoded = json_decode($question->correct_answer, true);
+                        if (is_array($decoded)) {
+                            $correctAnswerArray = array_map('strval', $decoded);
+                        } elseif ($decoded !== null && $decoded !== '') {
+                            $correctAnswerArray = [strval($decoded)];
+                        }
+                    }
+
+                    $isCorrect = false;
+
+                    if ($question->question_type == 'text' || $question->question_type == \common\models\TestQuestion::TYPE_TEXT) { 
+                        
+                        $uText = $this->normalizeAnswer($userAnswerArray[0] ?? '');
+                        $cText = $this->normalizeAnswer($correctAnswerArray[0] ?? '');
+                        
+                        $isCorrect = ($uText === $cText && $uText !== '');
+
+                    } else {
+                        if (!empty($userAnswerArray) && !empty($correctAnswerArray)) {
+                            $diff1 = array_diff($userAnswerArray, $correctAnswerArray);
+                            $diff2 = array_diff($correctAnswerArray, $userAnswerArray);
+                            $isCorrect = empty($diff1) && empty($diff2);
+                        }
+                    }
+
+                    $testAnswer->is_correct = $isCorrect;
+                    $testAnswer->points_awarded = $isCorrect ? $question->points : 0;
+
+                    if (!$testAnswer->save(false)) {
+                        throw new \Exception('Answer save failed for QID: ' . $questionId);
+                    }
                 }
 
-                $testAnswer = new TestAnswer();
-                $testAnswer->attempt_id = $attempt->id;
-                $testAnswer->question_id = $questionId;
-                $testAnswer->answered_at = time();
+                $attempt->complete(); 
+                $transaction->commit();
 
-                // Process answer based on question type
-                if ($question->question_type === TestQuestion::TYPE_SINGLE_CHOICE) {
-                    $testAnswer->answerArray = !empty($answer) ? [$answer] : [];
-                } elseif ($question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE) {
-                    $testAnswer->answerArray = is_array($answer) ? array_filter($answer, function ($v) {
-                        return $v !== '' && $v !== null;
-                    }) : [];
-                } else { // TEXT
-                    $testAnswer->answerArray = !empty($answer) ? [$answer] : [];
-                }
-                $testAnswer->save();
+                Yii::$app->session->setFlash('success', 'Test submitted successfully!');
+                return $this->redirect(['result', 'id' => $attempt->id]);
 
-                $testAnswer->grade();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::error($e->getMessage()); 
+                Yii::$app->session->setFlash('error', 'Error submitting test: ' . $e->getMessage());
+                return $this->redirect(['take', 'id' => $id]);
             }
-
-            $attempt->complete();
-
-            Yii::$app->session->setFlash('success', 'Test submitted successfully!');
-            return $this->redirect(['result', 'id' => $attempt->id]);
         }
 
         return $this->redirect(['take', 'id' => $id]);
     }
 
-    /**
-     * View test result
-     */
     public function actionResult($id)
     {
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->student) {
@@ -301,17 +331,14 @@ class StudentTestController extends Controller
         ]);
     }
 
-    /**
-     * Check if student has access to test
-     */
     protected function checkTestAccess($student, $test)
     {
-        $groupIds = Enrollment::find()
+        $myGroupIds = Enrollment::find()
             ->select('group_id')
             ->where(['student_id' => $student->id, 'status' => Enrollment::STATUS_ACTIVE])
             ->column();
 
-        $courseIds = Enrollment::find()
+        $myCourseIds = Enrollment::find()
             ->select(['course.id'])
             ->leftJoin('group', 'enrollment.group_id = group.id')
             ->leftJoin('course', 'group.course_id = course.id')
@@ -319,14 +346,14 @@ class StudentTestController extends Controller
             ->distinct()
             ->column();
 
-        if ($test->group_id && in_array($test->group_id, $groupIds)) {
-            return true;
+        if (!in_array($test->course_id, $myCourseIds)) {
+            return false;
         }
 
-        if ($test->course_id && in_array($test->course_id, $courseIds)) {
-            return true;
+        if ($test->group_id !== null && !in_array($test->group_id, $myGroupIds)) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 }

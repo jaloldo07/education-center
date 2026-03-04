@@ -2,323 +2,404 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use common\models\TestAttempt;
 
-$this->title = 'Available Tests';
+$this->title = Yii::t('app', 'Mavjud Testlar');
 ?>
 
 <style>
-    /* 🎨 Global */
-    body {
-        background: #f8f9ff;
-    }
-
+    /* 1. Page Container */
     .student-test-page {
-        animation: fadeSlide 0.6s ease;
+        padding: 40px 0;
+        font-family: 'Nunito', sans-serif;
     }
 
-    /* 🔥 Header */
-    .page-header {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
-        color: white;
+    /* 2. Header Gradient */
+    .glass-header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.2);
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
-    .page-header h2 {
-        font-weight: 700;
-        margin: 0;
-    }
-
-    /* 📝 Test Cards */
-    .test-card {
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-        border: 2px solid transparent;
-    }
-
-    .test-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.2);
-        border-color: #4caf50;
-    }
-
-    .test-card-header {
-        background: linear-gradient(135deg, #7c8ac5ff 0%, #9d75c5ff 100%);
+    .header-title h2 {
+        font-weight: 800;
         color: white;
-        padding: 1.5rem;
+        margin: 0;
+        font-size: 2rem;
+        text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+    }
+
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 5px;
+        font-size: 1rem;
+    }
+
+    /* 3. Test Cards (Glass) */
+    .test-glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease;
+    }
+
+    .test-glass-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+
+    /* Card Header */
+    .test-card-header {
+        background: linear-gradient(135deg, #7209b7 0%, #3a0ca3 100%);
+        padding: 20px 25px;
+        color: white;
     }
 
     .test-card-header h4 {
         margin: 0;
         font-weight: 700;
+        font-size: 1.3rem;
     }
 
+    .course-label {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.7);
+        display: block;
+        margin-top: 5px;
+    }
+
+    /* Card Body */
     .test-card-body {
-        padding: 1.5rem;
+        padding: 25px;
+        color: white;
     }
 
+    .test-desc {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    /* Info Rows */
     .test-info-row {
         display: flex;
         align-items: center;
-        margin-bottom: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 10px;
-        background: #f8f9ff;
+        padding: 10px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .test-info-row i {
-        color: #4caf50;
-        margin-right: 0.75rem;
-        font-size: 1.2rem;
+    .info-icon {
+        width: 35px; height: 35px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        margin-right: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .icon-questions { color: #4cc9f0; }
+    .icon-time { color: #f72585; }
+    .icon-score { color: #4ade80; }
+
+    .info-text strong { color: white; }
+    .info-text { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+
+    /* Attempts Badge */
+    .attempts-badge {
+        display: inline-block;
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+    
+    .attempts-badge.limit-reached {
+        background: rgba(248, 113, 113, 0.2);
+        color: #f87171;
+        border-color: rgba(248, 113, 113, 0.4);
     }
 
+    /* Footer & Button */
     .test-card-footer {
-        background: #f8f9ff;
-        padding: 1rem 1.5rem;
-        border-top: 2px solid #efefff;
+        padding: 20px 25px;
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid rgba(255,255,255,0.05);
     }
 
-    /* 🏆 Attempts Sidebar */
-    .attempts-card {
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.08);
-        padding: 1.5rem;
+    a.btn-start-neon,
+    a.btn-start-neon:hover,
+    a.btn-start-neon:focus,
+    a.btn-start-neon:active,
+    a.btn-start-neon:visited {
+        text-decoration: none !important;
+        border-bottom: none !important;
+        outline: none !important;
+        box-shadow: 0 0 15px rgba(74, 222, 128, 0.3) !important;
+    }
+    
+    a.btn-start-neon:hover {
+        box-shadow: 0 0 25px rgba(74, 222, 128, 0.5) !important;
+        transform: translateY(-2px);
+    }
+    .btn-start-neon {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        color: #064e3b;
+        border: none;
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: block;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .btn-locked {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: block;
+        text-align: center;
+        cursor: not-allowed;
+    }
+
+    /* 4. Attempts Sidebar */
+    .attempts-glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
         position: sticky;
         top: 20px;
     }
 
-    .attempts-card h5 {
-        color: #414fde;
+    .sidebar-title {
+        font-size: 1.2rem;
         font-weight: 700;
-        margin-bottom: 1rem;
+        color: white;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .attempt-item {
-        background: #f8f9ff;
+        background: rgba(255,255,255,0.05);
         border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 0.75rem;
-        border-left: 4px solid #414fde;
-        transition: all 0.3s ease;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #4361ee;
+        transition: 0.3s;
     }
-
     .attempt-item:hover {
+        background: rgba(255,255,255,0.08);
         transform: translateX(5px);
-        box-shadow: 0 4px 12px rgba(65, 79, 222, 0.1);
     }
 
+    .attempt-meta {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 5px;
+    }
+    .attempt-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.8);
+        line-height: 1.3;
+    }
     .attempt-score {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #4caf50;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #4ade80;
+    }
+    .attempt-score.failed { color: #f87171; }
+
+    .attempt-footer {
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
     }
 
-    .attempt-score.failed {
-        color: #f44336;
+    .btn-view-sm {
+        background: rgba(67, 97, 238, 0.2);
+        color: #4cc9f0;
+        padding: 4px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: 0.2s;
     }
+    .btn-view-sm:hover { background: #4cc9f0; color: white; }
 
-    /* 🏷️ Badges */
-    .badge {
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .badge.bg-success {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-    }
-
-    .badge.bg-warning {
-        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
-        color: white !important;
-    }
-
-    .badge.bg-danger {
-        background: linear-gradient(135deg, #f44336, #d32f2f) !important;
-    }
-
-    .badge.bg-primary {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-    }
-
-    /* 🔘 Buttons */
-    .btn {
+    /* Alerts */
+    .alert-glass-warning {
+        background: rgba(251, 191, 36, 0.15);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        color: #fde68a;
         border-radius: 12px;
-        padding: 10px 18px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
+        padding: 10px;
+        font-size: 0.9rem;
+        margin-top: 15px;
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
-    }
-
-    .btn-success:hover {
-        background: linear-gradient(135deg, #45a049, #388e3c) !important;
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.3);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-3px);
-    }
-
-    .btn-lg {
-        padding: 14px 28px;
-        font-size: 1.1rem;
-    }
-
-    /* 📌 Empty State */
-    .empty-state {
+    /* Empty State */
+    .empty-glass {
         text-align: center;
-        padding: 4rem 2rem;
-        background: white;
+        padding: 60px;
+        background: rgba(255,255,255,0.05);
         border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.1);
+        border: 1px dashed rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.5);
     }
 
-    .empty-state i {
-        font-size: 5rem;
-        color: #ddd;
-        margin-bottom: 1.5rem;
-    }
-
-    .empty-state h4 {
-        color: #414fde;
-        font-weight: 700;
-    }
-
-    /* ⚠️ Alert */
-    .alert-warning {
-        background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(245, 124, 0, 0.15));
-        border: 2px solid #ff9800;
-        border-radius: 16px;
-        color: #e65100;
-        font-weight: 600;
-    }
-
-    /* ✨ Animations */
-    @keyframes fadeSlide {
-        from {
-            opacity: 0;
-            transform: translateY(-15px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* 📱 Responsive */
-    @media (max-width: 768px) {
-        .attempts-card {
-            position: relative;
-            margin-bottom: 2rem;
-        }
-    }
 </style>
 
-<div class="student-test-page container-fluid py-4">
-    <div class="page-header">
-        <h2><i class="bi bi-clipboard-check"></i> Available Tests</h2>
-        <p class="mb-0">Choose a test to start or view your previous attempts</p>
-    </div>
-
-    <div class="row">
-        <!-- Tests List -->
-        <div class="col-lg-8">
-            <?php if (empty($tests)): ?>
-                <div class="empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <h4>No tests available</h4>
-                    <p class="text-muted">There are no active tests at the moment</p>
-                </div>
-            <?php else: ?>
-                <?php foreach ($tests as $test): ?>
-                    <div class="test-card">
-                        <div class="test-card-header">
-                            <h4><?= Html::encode($test->title) ?></h4>
-                            <small><i class="bi bi-book"></i> <?= Html::encode($test->course->name ?? 'N/A') ?></small>
-                        </div>
-
-                        <div class="test-card-body">
-                            <?php if ($test->description): ?>
-                                <p class="text-muted mb-3"><?= Html::encode($test->description) ?></p>
-                            <?php endif; ?>
-
-                            <div class="test-info-row">
-                                <i class="bi bi-question-circle"></i>
-                                <span><strong>Questions:</strong> <?= $test->total_questions ?></span>
-                            </div>
-
-                            <div class="test-info-row">
-                                <i class="bi bi-clock"></i>
-                                <span><strong>Duration:</strong> <?= $test->duration ?> minutes</span>
-                            </div>
-
-                            <div class="test-info-row">
-                                <i class="bi bi-trophy"></i>
-                                <span><strong>Passing Score:</strong> <?= $test->passing_score ?>%</span>
-                            </div>
-
-                            <?php if ($test->require_face_control): ?>
-                                <div class="alert alert-warning mb-0 mt-3">
-                                    <i class="bi bi-camera"></i> <strong>Face Control Required:</strong> You'll need to take a photo before starting
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="test-card-footer">
-                            <?= Html::a('<i class="bi bi-play-circle"></i> Start Test', ['start', 'id' => $test->id], ['class' => 'btn btn-success btn-lg']) ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+<div class="student-test-page">
+    <div class="container">
+        
+        <div class="glass-header animate__animated animate__fadeInDown">
+            <div class="header-title">
+                <h2><i class="bi bi-clipboard-check text-warning me-2"></i> <?= Yii::t('app', 'Mavjud Testlar') ?></h2>
+                <div class="header-subtitle"><?= Yii::t('app', 'Boshlash uchun testni tanlang yoki oldingi urinishlarni ko\'ring') ?></div>
+            </div>
         </div>
 
-        <!-- My Attempts Sidebar -->
-        <div class="col-lg-4">
-            <div class="attempts-card">
-                <h5><i class="bi bi-clock-history"></i> My Recent Attempts</h5>
-
-                <?php if (empty($attempts)): ?>
-                    <p class="text-muted text-center py-3">No attempts yet</p>
+        <div class="row">
+            <div class="col-lg-8">
+                <?php if (empty($tests)): ?>
+                    <div class="empty-glass animate__animated animate__fadeInUp">
+                        <i class="bi bi-inbox fa-3x mb-3 opacity-50"></i>
+                        <h4 class="text-white"><?= Yii::t('app', 'Testlar mavjud emas') ?></h4>
+                        <p class="mb-0"><?= Yii::t('app', 'Hozircha faol testlar yo\'q') ?></p>
+                    </div>
                 <?php else: ?>
-                    <?php foreach ($attempts as $attempt): ?>
-                        <div class="attempt-item">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <small class="text-muted"><?= Html::encode($attempt->test->title) ?></small>
-                                <span class="attempt-score <?= $attempt->isPassed() ? '' : 'failed' ?>">
-                                    <?= $attempt->score ?>%
-                                </span>
+                    <?php foreach ($tests as $test): 
+                        // 🔥 TALABANING SHU TESTDAGI URINISHLAR SONINI HISOBLASH
+                        $studentAttemptCount = TestAttempt::find()
+                            ->where(['test_id' => $test->id, 'student_id' => $student->id])
+                            ->count();
+                        
+                        $maxAttempts = (int)$test->max_attempts;
+                        $isLocked = ($maxAttempts > 0 && $studentAttemptCount >= $maxAttempts);
+                    ?>
+                        <div class="test-glass-card animate__animated animate__fadeInUp">
+                            <div class="test-card-header">
+                                <h4><?= Html::encode($test->title) ?></h4>
+                                <span class="course-label"><i class="bi bi-book me-1"></i> <?= Html::encode($test->course->name ?? 'N/A') ?></span>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">
-                                    <i class="bi bi-calendar"></i> <?= Yii::$app->formatter->asRelativeTime($attempt->finished_at) ?>
-                                </small>
-                                <!-- ✅ FIXED: Changed 'results' to 'result' -->
-                                <?= Html::a('View', ['result', 'id' => $attempt->id], ['class' => 'btn btn-primary btn-sm']) ?>
+
+                            <div class="test-card-body">
+                                
+                                <div class="attempts-badge <?= $isLocked ? 'limit-reached' : '' ?>">
+                                    <i class="bi bi-arrow-repeat me-1"></i> 
+                                    <?= Yii::t('app', 'Urinishlar:') ?> 
+                                    <strong><?= $studentAttemptCount ?></strong> / <?= $maxAttempts > 0 ? $maxAttempts : Yii::t('app', 'Cheksiz') ?>
+                                </div>
+
+                                <?php if ($test->description): ?>
+                                    <p class="test-desc"><?= Html::encode($test->description) ?></p>
+                                <?php endif; ?>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="test-info-row">
+                                            <div class="info-icon icon-questions"><i class="bi bi-question-circle"></i></div>
+                                            <div class="info-text">
+                                                <strong><?= $test->total_questions ?></strong><br><?= Yii::t('app', 'Savollar') ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="test-info-row">
+                                            <div class="info-icon icon-time"><i class="bi bi-clock"></i></div>
+                                            <div class="info-text">
+                                                <strong><?= $test->duration ?></strong> <?= Yii::t('app', 'daqiqa') ?><br><?= Yii::t('app', 'Vaqt') ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="test-info-row">
+                                            <div class="info-icon icon-score"><i class="bi bi-trophy"></i></div>
+                                            <div class="info-text">
+                                                <strong><?= $test->passing_score ?>%</strong><br><?= Yii::t('app', 'O\'tish balli') ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <?php if ($test->require_face_control): ?>
+                                    <div class="alert-glass-warning">
+                                        <i class="bi bi-camera me-2"></i> <strong><?= Yii::t('app', 'Face Control:') ?></strong> <?= Yii::t('app', 'Boshlashdan oldin rasmga tushish kerak.') ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="test-card-footer">
+                                <?php if ($isLocked): ?>
+                                    <div class="btn-locked">
+                                        <i class="bi bi-lock-fill me-2"></i> <?= Yii::t('app', 'Limit tugadi') ?>
+                                    </div>
+                                <?php else: ?>
+                                    <?= Html::a('<i class="bi bi-play-circle me-2"></i> ' . Yii::t('app', $studentAttemptCount > 0 ? 'Qayta ishlash' : 'Testni Boshlash'), ['start', 'id' => $test->id], ['class' => 'btn-start-neon']) ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
+
+            <div class="col-lg-4">
+                <div class="attempts-glass-card animate__animated animate__fadeInRight">
+                    <div class="sidebar-title">
+                        <i class="bi bi-clock-history me-2 text-info"></i> <?= Yii::t('app', 'Oxirgi Urinishlar') ?>
+                    </div>
+
+                    <?php if (empty($attempts)): ?>
+                        <p class="text-center text-white-50 py-4 mb-0">
+                            <?= Yii::t('app', 'Hali urinishlar yo\'q') ?>
+                        </p>
+                    <?php else: ?>
+                        <?php foreach ($attempts as $attempt): ?>
+                            <div class="attempt-item">
+                                <div class="attempt-meta">
+                                    <div class="attempt-title"><?= Html::encode($attempt->test->title) ?></div>
+                                    <div class="attempt-score <?= $attempt->isPassed() ? '' : 'failed' ?>">
+                                        <?= $attempt->score ?>%
+                                    </div>
+                                </div>
+                                <div class="attempt-footer">
+                                    <span><i class="bi bi-calendar me-1"></i> <?= Yii::$app->formatter->asRelativeTime($attempt->finished_at) ?></span>
+                                    
+                                    <?= Html::a(Yii::t('app', 'Ko\'rish'), ['result', 'id' => $attempt->id], ['class' => 'btn-view-sm']) ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
+
     </div>
 </div>

@@ -26,7 +26,6 @@ class TestController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
-                            // ✅ Added null check
                             if (Yii::$app->user->isGuest || !Yii::$app->user->identity) {
                                 return false;
                             }
@@ -38,9 +37,6 @@ class TestController extends Controller
         ];
     }
 
-    /**
-     * Get teacher profile
-     */
     protected function getTeacher()
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
@@ -52,9 +48,6 @@ class TestController extends Controller
         return $teacher;
     }
 
-    /**
-     * List all tests
-     */
     public function actionIndex()
     {
         $teacher = $this->getTeacher();
@@ -71,9 +64,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * Create new test
-     */
     public function actionCreate()
     {
         $teacher = $this->getTeacher();
@@ -97,9 +87,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * Update test
-     */
     public function actionUpdate($id)
     {
         $teacher = $this->getTeacher();
@@ -125,9 +112,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * View test details
-     */
     public function actionView($id)
     {
         $teacher = $this->getTeacher();
@@ -143,9 +127,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * Delete test
-     */
     public function actionDelete($id)
     {
         $teacher = $this->getTeacher();
@@ -162,9 +143,6 @@ class TestController extends Controller
         return $this->redirect(['index']);
     }
 
-    /**
-     * Manage test questions
-     */
     public function actionManageQuestions($id)
     {
         $teacher = $this->getTeacher();
@@ -186,9 +164,18 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * ✅ FIXED: Add question to test with proper type handling
-     */
+    // SAVOLLARNI TOZALASH UCHUN YORDAMCHI FUNKSIYA
+    private function cleanAnswerString($val) {
+        if ($val === null) return '';
+        $val = trim(strval($val));
+        // HTML kodlarni oddiy belgilarga o'tkazamiz
+        $val = html_entity_decode($val, ENT_QUOTES, 'UTF-8');
+        // O'zbek tilidagi barcha xil tutuq belgilarni bitta qolipga (') tushiramiz
+        $val = str_replace(["‘", "’", "`", "´", "ʼ", "ʻ"], "'", $val);
+        // Matnni kichik harflarga o'tkazamiz (solishtirishda qulay bo'lishi uchun)
+        return mb_strtolower($val, 'UTF-8');
+    }
+
     public function actionAddQuestion($test_id)
     {
         $teacher = $this->getTeacher();
@@ -204,64 +191,42 @@ class TestController extends Controller
         $model->question_type = TestQuestion::TYPE_SINGLE_CHOICE;
         $model->points = 1;
 
-        // Get next order number
         $maxOrder = TestQuestion::find()->where(['test_id' => $test->id])->max('`order`');
         $model->order = $maxOrder !== null ? $maxOrder + 1 : 0;
 
         if (Yii::$app->request->isPost) {
             $model->load(Yii::$app->request->post());
 
-            // Process options and correct answers
             $post = Yii::$app->request->post('TestQuestion', []);
 
-            // ✅ Process options
             if (isset($post['optionsArray'])) {
                 $model->optionsArray = array_filter($post['optionsArray'], function ($val) {
                     return !empty(trim($val));
                 });
             }
 
-            // ✅ FIXED: Process correct answers with proper type normalization
             if (isset($post['correctAnswerArray'])) {
-                if ($model->question_type === TestQuestion::TYPE_TEXT) {
-                    // Text answer
-                    $model->correctAnswerArray = [trim($post['correctAnswerArray'])];
-                } elseif ($model->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE) {
-                    // Multiple choice - normalize to string array
-                    $answers = is_array($post['correctAnswerArray'])
-                        ? $post['correctAnswerArray']
-                        : [$post['correctAnswerArray']];
-
-                    // ✅ Convert all to strings and filter empty
+                if ($model->question_type === TestQuestion::TYPE_TEXT || $model->question_type == 'text') {
+                    // MATNLI JAVOBLAR UCHUN: Matnni saqlashdan oldin "yuvib, tozalab" olamiz
+                    $cleanedAnswer = $this->cleanAnswerString($post['correctAnswerArray']);
+                    $model->correctAnswerArray = [$cleanedAnswer];
+                } elseif ($model->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE || $model->question_type == 'multiple_choice') {
+                    $answers = is_array($post['correctAnswerArray']) ? $post['correctAnswerArray'] : [$post['correctAnswerArray']];
                     $model->correctAnswerArray = array_values(array_filter(
                         array_map('strval', $answers),
-                        function ($v) {
-                            return $v !== '';
-                        }
+                        function ($v) { return $v !== ''; }
                     ));
                 } else {
-                    // Single choice - normalize to string array
                     $model->correctAnswerArray = [strval($post['correctAnswerArray'])];
                 }
             }
-
-            // ✅ Debug logging
-            Yii::info([
-                'question_type' => $model->question_type,
-                'options' => $model->optionsArray,
-                'correct_answer' => $model->correctAnswerArray,
-                'post_data' => $post
-            ], 'test-question-add');
 
             if ($model->save()) {
                 $test->updateTotalQuestions();
                 Yii::$app->session->setFlash('success', 'Question added successfully.');
                 return $this->redirect(['manage-questions', 'id' => $test->id]);
             } else {
-                // Show validation errors
-                $errors = implode(', ', array_map(function ($err) {
-                    return implode(', ', $err);
-                }, $model->getErrors()));
+                $errors = implode(', ', array_map(function ($err) { return implode(', ', $err); }, $model->getErrors()));
                 Yii::$app->session->setFlash('error', 'Failed to save: ' . $errors);
             }
         }
@@ -272,9 +237,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * ✅ FIXED: Edit question with proper type handling
-     */
     public function actionEditQuestion($id)
     {
         $teacher = $this->getTeacher();
@@ -290,60 +252,37 @@ class TestController extends Controller
         if (Yii::$app->request->isPost) {
             $model->load(Yii::$app->request->post());
 
-            // Process options and correct answers
             $post = Yii::$app->request->post('TestQuestion', []);
 
-            // ✅ Process options
             if (isset($post['optionsArray'])) {
                 $model->optionsArray = array_filter($post['optionsArray'], function ($val) {
                     return !empty(trim($val));
                 });
             }
 
-            // ✅ FIXED: Process correct answers with proper type normalization
             if (isset($post['correctAnswerArray'])) {
-                if ($model->question_type === TestQuestion::TYPE_TEXT) {
-                    // Text - single value
-                    $model->correctAnswerArray = [trim($post['correctAnswerArray'])];
-                } elseif ($model->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE) {
-                    // Multiple choice - normalize to string array
-                    $answers = is_array($post['correctAnswerArray'])
-                        ? $post['correctAnswerArray']
-                        : [$post['correctAnswerArray']];
-
-                    // ✅ CRITICAL: Convert to strings and filter empty
+                if ($model->question_type === TestQuestion::TYPE_TEXT || $model->question_type == 'text') {
+                    // MATNLI JAVOBLAR UCHUN: Tahrirlanganda ham matn tozalanadi
+                    $cleanedAnswer = $this->cleanAnswerString($post['correctAnswerArray']);
+                    $model->correctAnswerArray = [$cleanedAnswer];
+                } elseif ($model->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE || $model->question_type == 'multiple_choice') {
+                    $answers = is_array($post['correctAnswerArray']) ? $post['correctAnswerArray'] : [$post['correctAnswerArray']];
                     $model->correctAnswerArray = array_values(array_filter(
                         array_map('strval', $answers),
-                        function ($v) {
-                            return $v !== '';
-                        }
+                        function ($v) { return $v !== ''; }
                     ));
                 } else {
-                    // Single choice - normalize to string array
                     $model->correctAnswerArray = [strval($post['correctAnswerArray'])];
                 }
             } else {
-                // No answer provided
                 $model->correctAnswerArray = [];
             }
-
-            // ✅ Debug logging
-            Yii::info([
-                'question_id' => $model->id,
-                'question_type' => $model->question_type,
-                'options' => $model->optionsArray,
-                'correct_answer' => $model->correctAnswerArray,
-                'post_data' => $post
-            ], 'test-question-edit');
 
             if ($model->save()) {
                 Yii::$app->session->setFlash('success', 'Question updated successfully.');
                 return $this->redirect(['manage-questions', 'id' => $test->id]);
             } else {
-                // Show validation errors
-                $errors = implode(', ', array_map(function ($err) {
-                    return implode(', ', $err);
-                }, $model->getErrors()));
+                $errors = implode(', ', array_map(function ($err) { return implode(', ', $err); }, $model->getErrors()));
                 Yii::$app->session->setFlash('error', 'Failed to update: ' . $errors);
             }
         }
@@ -354,9 +293,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * Delete question
-     */
     public function actionDeleteQuestion($id)
     {
         $teacher = $this->getTeacher();
@@ -378,21 +314,16 @@ class TestController extends Controller
         return $this->redirect(['manage-questions', 'id' => $test_id]);
     }
 
-    /**
-     * View test results
-     */
     public function actionResults($id)
     {
         $teacher = $this->getTeacher();
 
-        // $id = test ID
         $test = Test::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
 
         if (!$test) {
             throw new NotFoundHttpException('Test not found');
         }
 
-        // Get all attempts for this test
         $attempts = TestAttempt::find()
             ->where(['test_id' => $test->id])
             ->with(['student'])
@@ -405,9 +336,6 @@ class TestController extends Controller
         ]);
     }
 
-    /**
-     * View student attempt details
-     */
     public function actionViewAttempt($id)
     {
         $attempt = TestAttempt::findOne($id);

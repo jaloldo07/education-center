@@ -3,156 +3,220 @@ use yii\helpers\Html;
 use yii\bootstrap5\ActiveForm;
 use common\models\Schedule;
 
-$this->title = 'Create Schedule - ' . $group->name;
+$this->title = Yii::t('app', 'Create Schedule') . ' - ' . $group->name;
 ?>
 
 <style>
-/* CREATE SCHEDULE PAGE STYLING */
+    /* 1. Page Container */
+    .create-schedule-page {
+        padding-top: 50px;
+        padding-bottom: 80px;
+        font-family: 'Nunito', sans-serif;
+    }
 
-.create-schedule-page {
-    padding: 20px 0;
-}
+    /* 2. Glass Card */
+    .glass-card {
+        background: rgba(15, 23, 42, 0.75); /* To'q fon */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        color: white;
+    }
 
-.create-schedule-page h4 {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
+    /* 3. Header Gradient */
+    .glass-header {
+        background: linear-gradient(135deg, #7209b7 0%, #4361ee 100%);
+        padding: 25px 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-.create-schedule-page .card {
-    border-radius: 15px;
-    overflow: hidden;
-}
+    .header-icon {
+        font-size: 1.5rem;
+        background: rgba(255,255,255,0.2);
+        width: 50px; height: 50px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    }
 
-.create-schedule-page .card-header {
-    background: linear-gradient(45deg, #702bd1ff, #8455dbff);
-    padding: 18px 25px;
-    border-bottom: none;
-    font-size: 1.25rem;
-}
+    .header-title {
+        font-weight: 800;
+        font-size: 1.5rem;
+        margin: 0;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
 
-.create-schedule-page .card-body {
-    background: #f9fafc;
-}
+    /* 4. Form Inputs (Dark Mode) */
+    .form-glass-input, .form-select-glass {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
 
-/* Form styling */
-.create-schedule-page .form-control,
-.create-schedule-page .form-select {
-    height: 48px;
-    border-radius: 10px;
-    padding-left: 14px;
-    font-size: 15px;
-}
+    .form-glass-input:focus, .form-select-glass:focus {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border-color: #4cc9f0 !important; /* Neon Blue */
+        color: white !important;
+        box-shadow: 0 0 0 4px rgba(76, 201, 240, 0.2) !important;
+        outline: none;
+    }
 
-.create-schedule-page .form-control:focus,
-.create-schedule-page .form-select:focus {
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
+    /* Select arrow fix */
+    .form-select-glass {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    }
 
-/* Alerts */
-.create-schedule-page .alert-info {
-    background: #e8f4ff;
-    border: 1px solid #b8ddff;
-    border-radius: 10px;
-    font-size: 15px;
-}
+    /* Time Input fix icon */
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
 
-.create-schedule-page .alert-warning {
-    background: #fff5e6;
-    border: 1px solid #ffd9a3;
-    border-radius: 10px;
-    font-size: 15px;
-}
+    .form-label {
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
 
-/* Buttons */
-.create-schedule-page .btn-lg {
-    padding: 12px 25px;
-    border-radius: 10px;
-    font-weight: 600;
-}
+    /* 5. Alerts (Glass Style) */
+    .alert-glass-info {
+        background: rgba(67, 97, 238, 0.15);
+        border: 1px solid rgba(67, 97, 238, 0.3);
+        color: #a5b4fc;
+        border-radius: 12px;
+        padding: 15px;
+    }
 
-.create-schedule-page .btn-success {
-    background: linear-gradient(45deg, #702bd1ff, #8455dbff);
-    border: none;
-}
+    .alert-glass-warning {
+        background: rgba(251, 191, 36, 0.15);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        color: #fde68a;
+        border-radius: 12px;
+        padding: 15px;
+        font-size: 0.9rem;
+    }
 
-.create-schedule-page .btn-success:hover {
-    background: linear-gradient(45deg,  #702bd1ff, #8455dbff);
-}
+    /* 6. Buttons */
+    .btn-neon-save {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        color: #064e3b;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 30px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        transition: 0.3s;
+    }
 
-.create-schedule-page .btn-secondary {
-    background: #6c757d;
-}
+    .btn-neon-save:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px rgba(74, 222, 128, 0.6);
+        color: #064e3b;
+    }
 
-.create-schedule-page .btn-secondary:hover {
-    background: #5a6268;
-}
+    .btn-glass-cancel {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        border-radius: 12px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
 
-/* Icon improvements */
-.create-schedule-page .fa-calendar-plus {
-    margin-right: 8px;
-}
+    .btn-glass-cancel:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
 
-.create-schedule-page .alert i {
-    margin-right: 6px;
-}
 </style>
 
-
 <div class="create-schedule-page">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header text-white">
-                    <h4 class="mb-0"><i class="fas fa-calendar-plus"></i> <?= Html::encode($this->title) ?></h4>
-                </div>
-                <div class="card-body p-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="glass-card animate__animated animate__fadeInUp">
                     
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Create a class schedule for <strong><?= Html::encode($group->name) ?></strong> group
-                    </div>
-
-                    <?php $form = ActiveForm::begin(); ?>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <?= $form->field($model, 'day_of_week')->dropDownList(Schedule::getDayNames(), [
-                                'prompt' => 'Select Day',
-                                'class' => 'form-control form-select'
-                            ]) ?>
+                    <div class="glass-header">
+                        <div class="header-icon">
+                            <i class="fas fa-calendar-plus text-white"></i>
                         </div>
-                        <div class="col-md-6">
-                            <?= $form->field($model, 'room')->textInput([
-                                'placeholder' => 'e.g., Room 101, Online, Building A'
-                            ]) ?>
+                        <div>
+                            <h4 class="header-title"><?= Html::encode($this->title) ?></h4>
+                            <small class="text-white-50">Set up timing and room</small>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <?= $form->field($model, 'start_time')->input('time', [
-                                'class' => 'form-control'
-                            ]) ?>
+                    <div class="card-body p-4 p-md-5">
+                        
+                        <div class="alert alert-glass-info mb-4 d-flex align-items-center gap-3">
+                            <i class="fas fa-info-circle fs-4"></i>
+                            <div>
+                                <?= Yii::t('app', 'Create a class schedule for {group} group', ['group' => '<strong class="text-white">' . Html::encode($group->name) . '</strong>']) ?>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <?= $form->field($model, 'end_time')->input('time', [
-                                'class' => 'form-control'
-                            ]) ?>
+
+                        <?php $form = ActiveForm::begin([
+                            'fieldConfig' => [
+                                'inputOptions' => ['class' => 'form-control form-glass-input'],
+                                'labelOptions' => ['class' => 'form-label'],
+                            ]
+                        ]); ?>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <?= $form->field($model, 'day_of_week')->dropDownList(Schedule::getDayNames(), [
+                                    'prompt' => Yii::t('app', 'Select Day'),
+                                    'class' => 'form-select form-select-glass'
+                                ])->label(Yii::t('app', 'Day of Week')) ?>
+                            </div>
+                            <div class="col-md-6">
+                                <?= $form->field($model, 'room')->textInput([
+                                    'placeholder' => Yii::t('app', 'e.g., Room 101 or Online')
+                                ])->label(Yii::t('app', 'Room / Location')) ?>
+                            </div>
                         </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <?= $form->field($model, 'start_time')->input('time')->label(Yii::t('app', 'Start Time')) ?>
+                            </div>
+                            <div class="col-md-6">
+                                <?= $form->field($model, 'end_time')->input('time')->label(Yii::t('app', 'End Time')) ?>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-glass-warning mb-4">
+                            <i class="fas fa-lightbulb me-2"></i> 
+                            <strong><?= Yii::t('app', 'Tip:') ?></strong> <?= Yii::t('app', 'You can create multiple schedules for the same group on different days.') ?>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <?= Html::a('<i class="fas fa-times me-2"></i> ' . Yii::t('app', 'Cancel'), ['schedule', 'id' => $group->id], ['class' => 'btn-glass-cancel']) ?>
+                            <?= Html::submitButton('<i class="fas fa-save me-2"></i> ' . Yii::t('app', 'Create Schedule'), ['class' => 'btn-neon-save']) ?>
+                        </div>
+
+                        <?php ActiveForm::end(); ?>
+
                     </div>
-
-
-                    <div class="alert alert-warning">
-                        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> You can create multiple schedules for the same group on different days
-                    </div>
-
-                    <div class="form-group mt-4">
-                        <?= Html::submitButton('<i class="fas fa-save"></i> Create Schedule', ['class' => 'btn btn-success btn-lg']) ?>
-                        <?= Html::a('<i class="fas fa-times"></i> Cancel', ['schedule', 'id' => $group->id], ['class' => 'btn btn-secondary btn-lg']) ?>
-                    </div>
-
-                    <?php ActiveForm::end(); ?>
-
                 </div>
+
             </div>
         </div>
     </div>

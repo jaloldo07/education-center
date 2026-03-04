@@ -1,7 +1,7 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'My Notifications';
+$this->title = Yii::t('app', 'My Notifications');
 ?>
 
 <div class="notifications-page">
@@ -10,7 +10,7 @@ $this->title = 'My Notifications';
     <?php if (empty($notifications)): ?>
         <div class="alert alert-info text-center py-5">
             <i class="fas fa-bell-slash fa-3x mb-3"></i>
-            <h4>No notifications yet</h4>
+            <h4><?= Yii::t('app', 'No notifications yet') ?></h4>
         </div>
     <?php else: ?>
         <?php foreach ($notifications as $notification): ?>
@@ -29,7 +29,7 @@ $this->title = 'My Notifications';
                     </div>
                     <?php if (!$notification->is_read): ?>
                         <div>
-                            <span class="badge bg-primary">New</span>
+                            <span class="badge bg-primary"><?= Yii::t('app', 'New') ?></span>
                         </div>
                     <?php endif; ?>
                 </div>

@@ -1,8 +1,8 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Create Enrollment';
-$this->params['breadcrumbs'][] = ['label' => 'Enrollments', 'url' => ['index']];
+$this->title = Yii::t('app', 'Create Enrollment');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Enrollments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

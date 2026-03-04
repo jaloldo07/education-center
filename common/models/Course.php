@@ -8,6 +8,9 @@ use yii\behaviors\TimestampBehavior;
 
 class Course extends ActiveRecord
 {
+    const TYPE_FREE = 'free';
+    const TYPE_PREMIUM = 'premium';
+
     public static function tableName()
     {
         return '{{%course}}';
@@ -20,13 +23,10 @@ class Course extends ActiveRecord
         ];
     }
 
-    const TYPE_FREE = 'free';
-    const TYPE_PREMIUM = 'premium';
-
     public function rules()
     {
         return [
-            [['name', 'duration', 'price', 'teacher_id'], 'required'],
+            [['name', 'duration', 'price', 'teacher_id', 'type'], 'required'],
             [['duration', 'teacher_id'], 'integer'],
             [['price'], 'number', 'min' => 0],
             [['description'], 'string'],
@@ -48,15 +48,15 @@ class Course extends ActiveRecord
             'teacher_id' => 'Teacher',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
-            'type' => 'Course Type',
+            'type' => 'Enrollment Type',
         ];
     }
 
     public static function getTypeOptions()
     {
         return [
-            self::TYPE_FREE => 'Free (Auto Enroll)',
-            self::TYPE_PREMIUM => 'Premium (Approval Required)',
+            self::TYPE_FREE => 'Free / Auto-Enroll (Direct Access)',
+            self::TYPE_PREMIUM => 'Premium / Application (Admin Approval)',
         ];
     }
 

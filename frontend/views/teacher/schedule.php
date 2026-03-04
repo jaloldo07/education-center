@@ -4,224 +4,272 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use common\models\Schedule;
 
-$this->title = 'Manage Schedule - ' . $group->name;
+$this->title = Yii::t('app', 'Manage Schedule') . ' - ' . $group->name;
 ?>
 
-
-
 <style>
-    /* ----------- PAGE TITLE ----------- */
-    .schedule-page h1 {
-        font-size: 2.2rem;
-        font-weight: 700;
-        background: linear-gradient(45deg, #0d6efd, #6610f2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    /* 1. Page Container */
+    .schedule-page {
+        padding: 40px 0;
+        font-family: 'Nunito', sans-serif;
+    }
+
+    /* 2. Header */
+    .page-header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
         display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .header-title h1 {
+        font-weight: 800;
+        color: white;
+        margin: 0;
+        font-size: 2rem;
+        text-shadow: 0 0 15px rgba(67, 97, 238, 0.6);
+    }
+
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 5px;
+        font-size: 1rem;
+    }
+    .header-subtitle strong { color: var(--accent-color); }
+
+    /* 3. Glass Table Card */
+    .table-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .table-header-glass {
+        padding: 20px 25px;
+        background: rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    .table-glass {
+        width: 100%;
+        color: white;
+        margin: 0;
+    }
+
+    .table-glass th {
+        padding: 15px 20px;
+        background: rgba(0,0,0,0.2);
+        color: #4cc9f0; /* Neon Blue */
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .table-glass td {
+        padding: 15px 20px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .table-glass tr:last-child td { border-bottom: none; }
+    
+    .table-glass tr:hover td {
+        background: rgba(255,255,255,0.05);
+    }
+
+    /* 4. Badges */
+    .badge-glass {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .badge-info { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-success { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .badge-secondary { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+    /* 5. Summary Stats (Neon Boxes) */
+    .stat-glass-box {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
     }
-
-    .schedule-page h1 i {
-        font-size: 1.9rem;
-        margin-right: 10px;
-        background: inherit;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .stat-glass-box:hover {
+        transform: translateY(-5px);
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.2);
     }
 
-    /* ----------- BUTTON GROUP ----------- */
-    .schedule-page .btn {
-        border-radius: 8px !important;
-        font-weight: 500;
-        padding: 7px 14px;
+    .stat-val { font-size: 2rem; font-weight: 800; color: white; line-height: 1.2; }
+    .stat-lbl { font-size: 0.9rem; color: rgba(255,255,255,0.6); text-transform: uppercase; }
+    
+    .text-neon-blue { color: #4361ee; text-shadow: 0 0 10px rgba(67, 97, 238, 0.4); }
+    .text-neon-green { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
+    .text-neon-cyan { color: #4cc9f0; text-shadow: 0 0 10px rgba(76, 201, 240, 0.4); }
+
+    /* 6. Buttons */
+    .btn-glass-action {
+        width: 35px; height: 35px;
+        border-radius: 8px;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .btn-danger-glass {
+        background: rgba(248, 113, 113, 0.2); color: #f87171;
+        border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+    .btn-danger-glass:hover {
+        background: #f87171; color: white;
+        box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
     }
 
-    .schedule-page .btn i {
-        margin-right: 4px;
-    }
-
-    /* ----------- EMPTY ALERT ----------- */
-    .schedule-page .alert {
-        border-radius: 15px;
-        background: #eef6ff;
-        border: 1px solid #d6eaff;
-    }
-
-    .schedule-page .alert i {
-        color: #0d6efd;
-    }
-
-    .schedule-page .alert h4 {
+    .btn-neon {
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
         font-weight: 700;
+        text-decoration: none;
+        transition: 0.3s;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    
+    .btn-neon-primary {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.4);
+    }
+    .btn-neon-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 25px rgba(67, 97, 238, 0.6);
+        color: white;
     }
 
-    /* ----------- CARD STYLE ----------- */
-    .schedule-page .card {
-        border-radius: 16px;
-        overflow: hidden;
+    .btn-glass-secondary {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
     }
+    .btn-glass-secondary:hover { background: white; color: black; }
 
-    .schedule-page .card-header {
-        font-size: 1.2rem;
-        font-weight: 600;
+    .btn-glass-info {
+        background: rgba(76, 201, 240, 0.2);
+        color: #4cc9f0;
+        border: 1px solid rgba(76, 201, 240, 0.3);
     }
+    .btn-glass-info:hover { background: #4cc9f0; color: white; }
 
-    /* ----------- TABLE STYLE ----------- */
-    .schedule-page table {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    .schedule-page thead.table-light th {
-        background: #e8f1ff !important;
-        font-weight: 700;
-        font-size: 0.95rem;
-    }
-
-    .schedule-page tbody tr {
-        transition: 0.2s ease;
-    }
-
-    .schedule-page tbody tr:hover {
-        background: #f5f9ff;
-        transform: scale(1.01);
-    }
-
-    /* Table icons */
-    .schedule-page td i {
-        margin-right: 4px;
-    }
-
-    /* BADGES */
-    .schedule-page .badge {
-        padding: 6px 10px;
-        font-size: 0.85rem;
-        border-radius: 6px;
-    }
-
-    /* ----------- ACTIONS COLUMN ----------- */
-    .schedule-page .btn-danger {
-        border-radius: 6px !important;
-        padding: 4px 8px;
-        box-shadow: 0 3px 8px rgba(255, 0, 0, 0.15);
-    }
-
-    /* ----------- SUMMARY CARDS ----------- */
-    .schedule-page .row .card {
-        border-radius: 18px;
+    /* Empty State */
+    .empty-glass {
         text-align: center;
-        padding: 20px 0;
+        padding: 60px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 20px;
+        border: 1px dashed rgba(255,255,255,0.2);
     }
 
-    .schedule-page .row .card h3 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .schedule-page .row .card p {
-        font-size: 1rem;
-        margin: 0;
-        font-weight: 500;
-    }
-
-    /* Responsive */
-    @media(max-width: 768px) {
-        .schedule-page h1 {
-            font-size: 1.8rem;
-        }
-
-        .schedule-page .btn {
-            margin-bottom: 5px;
-        }
-    }
 </style>
 
-
-
-
 <div class="schedule-page">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1><i class="fas fa-calendar-alt"></i> Class Schedule</h1>
-            <p class="mb-0 text-light">
-                Group: <strong><?= Html::encode($group->name) ?></strong> |
-                Course: <strong><?= Html::encode($group->course->name) ?></strong>
-            </p>
-        </div>
-        <div>
-            <?= Html::a('<i class="fas fa-calendar"></i> Full Calendar', ['calendar'], ['class' => 'btn btn-info']) ?>
-            <?= Html::a('<i class="fas fa-plus"></i> Add Schedule', ['create-schedule', 'id' => $group->id], ['class' => 'btn btn-success']) ?>
-            <?= Html::a('<i class="fas fa-arrow-left"></i> Back', ['group', 'id' => $group->id], ['class' => 'btn btn-secondary']) ?>
-        </div>
-    </div>
-
-    <?php if (empty($schedules)): ?>
-        <div class="alert alert-info text-center py-5">
-            <i class="fas fa-calendar-plus fa-3x mb-3"></i>
-            <h4>No schedule created yet</h4>
-            <p class="text-muted">Create a class schedule to organize your teaching time</p>
-            <?= Html::a('<i class="fas fa-plus"></i> Create First Schedule', ['create-schedule', 'id' => $group->id], ['class' => 'btn btn-primary btn-lg']) ?>
-        </div>
-    <?php else: ?>
-        <!-- Weekly Schedule View -->
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-calendar-week"></i> Weekly Schedule</h5>
+    <div class="container">
+        
+        <div class="page-header animate__animated animate__fadeInDown">
+            <div class="header-title">
+                <h1><i class="fas fa-calendar-alt text-warning me-2"></i> <?= Yii::t('app', 'Class Schedule') ?></h1>
+                <div class="header-subtitle">
+                    <?= Yii::t('app', 'Group') ?>: <strong><?= Html::encode($group->name) ?></strong> | 
+                    <?= Yii::t('app', 'Course') ?>: <strong><?= Html::encode($group->course->name) ?></strong>
+                </div>
             </div>
-            <div class="card-body p-0">
+            <div class="d-flex gap-2">
+                <?= Html::a('<i class="fas fa-calendar me-1"></i> ' . Yii::t('app', 'Calendar'), ['calendar'], ['class' => 'btn-neon btn-glass-info']) ?>
+                <?= Html::a('<i class="fas fa-plus me-1"></i> ' . Yii::t('app', 'Add'), ['create-schedule', 'id' => $group->id], ['class' => 'btn-neon btn-neon-primary']) ?>
+                <?= Html::a('<i class="fas fa-arrow-left me-1"></i> ' . Yii::t('app', 'Back'), ['/teacher/dashboard'],  ['class' => 'btn-neon btn-glass-secondary']) ?>
+            </div>
+        </div>
+
+        <?php if (empty($schedules)): ?>
+            <div class="empty-glass animate__animated animate__fadeInUp">
+                <i class="fas fa-calendar-plus fa-4x mb-3 text-white-50"></i>
+                <h4 class="text-white"><?= Yii::t('app', 'No schedule created yet') ?></h4>
+                <p class="text-white-50 mb-4"><?= Yii::t('app', 'Create a class schedule to organize your teaching time') ?></p>
+                <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Create First Schedule'), ['create-schedule', 'id' => $group->id], ['class' => 'btn-neon btn-neon-primary']) ?>
+            </div>
+        <?php else: ?>
+            
+            <div class="table-card animate__animated animate__fadeInUp">
+                <div class="table-header-glass">
+                    <i class="fas fa-calendar-week text-info"></i> <?= Yii::t('app', 'Weekly Schedule') ?>
+                </div>
+                
                 <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
-                        <thead class="table-light">
+                    <table class="table-glass">
+                        <thead>
                             <tr>
-                                <th>Day</th>
-                                <th>Time</th>
-                                <th>Duration</th>
-                                <th>Room</th>
-                                <th>Status</th>
-                                <th width="100">Actions</th>
+                                <th><?= Yii::t('app', 'Day') ?></th>
+                                <th><?= Yii::t('app', 'Time') ?></th>
+                                <th><?= Yii::t('app', 'Duration') ?></th>
+                                <th><?= Yii::t('app', 'Room') ?></th>
+                                <th><?= Yii::t('app', 'Status') ?></th>
+                                <th class="text-end"><?= Yii::t('app', 'Actions') ?></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($schedules as $schedule): ?>
                                 <tr>
                                     <td>
-                                        <strong>
+                                        <div class="d-flex align-items-center gap-2">
                                             <i class="fas fa-calendar-day text-primary"></i>
-                                            <?= $schedule->getDayName() ?>
-                                        </strong>
+                                            <span class="fw-bold text-white"><?= Yii::t('app', $schedule->getDayName()) ?></span>
+                                        </div>
                                     </td>
                                     <td>
-                                        <i class="fas fa-clock text-success"></i>
-                                        <?= date('H:i', strtotime($schedule->start_time)) ?> -
-                                        <?= date('H:i', strtotime($schedule->end_time)) ?>
+                                        <div class="text-white-50">
+                                            <i class="far fa-clock me-1 text-success"></i>
+                                            <?= date('H:i', strtotime($schedule->start_time)) ?> - <?= date('H:i', strtotime($schedule->end_time)) ?>
+                                        </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info">
-                                            <?= $schedule->getDuration() ?> hours
+                                        <span class="badge-glass badge-info">
+                                            <?= $schedule->getDuration() ?> <?= Yii::t('app', 'hours') ?>
                                         </span>
                                     </td>
-                                    <td><?= Html::encode($schedule->room ?: 'Not specified') ?></td>
                                     <td>
-                                        <?php // if ($schedule->is_active): 
-                                        ?>
-                                        <span class="badge bg-success">Active</span>
-                                        <?php // else: 
-                                        ?>
-                                        <span class="badge bg-secondary">Inactive</span>
-                                        <?php // endif; 
-                                        ?>
+                                        <span class="text-white"><?= Html::encode($schedule->room ?: Yii::t('app', 'Not specified')) ?></span>
                                     </td>
                                     <td>
-                                        <?= Html::a(
-                                            '<i class="fas fa-trash"></i>',
-                                            ['delete-schedule', 'id' => $schedule->id],
-                                            [
-                                                'class' => 'btn btn-sm btn-danger',
-                                                'data-confirm' => 'Are you sure?',
-                                                'data-method' => 'post',
-                                            ]
-                                        ) ?>
+                                        <span class="badge-glass badge-success"><?= Yii::t('app', 'Active') ?></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <?= Html::a('<i class="fas fa-trash"></i>', ['delete-schedule', 'id' => $schedule->id], [
+                                            'class' => 'btn-glass-action btn-danger-glass',
+                                            'data-confirm' => Yii::t('app', 'Are you sure?'),
+                                            'data-method' => 'post',
+                                            'title' => Yii::t('app', 'Delete')
+                                        ]) ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -229,46 +277,41 @@ $this->title = 'Manage Schedule - ' . $group->name;
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- Summary Card -->
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <?= Html::a(
-                    '<div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                <h3>' . count($schedules) . '</h3>
-                <p class="mb-0">Classes per Week</p>
+            <div class="row animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="col-md-4 mb-3">
+                    <?= Html::a(
+                        '<div class="stat-glass-box">
+                            <div class="stat-val text-neon-blue">' . count($schedules) . '</div>
+                            <div class="stat-lbl">' . Yii::t('app', 'Classes per Week') . '</div>
+                        </div>',
+                        ['calendar'],
+                        ['style' => 'text-decoration: none; display: block; height: 100%;']
+                    ) ?>
                 </div>
-                </div>',
-                    ['calendar'],
-                    ['style' => 'text-decoration: none;']
-                ) ?>
-            </div>
-            <div class="col-md-4">
-                <?= Html::a(
-                    '<div class="card bg-success text-white">
-                <div class="card-body text-center">
-                <h3>' . array_sum(array_map(fn($s) => $s->getDuration(), $schedules))  . '</h3>
-                <p class="mb-0">Total Hours per Week</p>
+                <div class="col-md-4 mb-3">
+                    <?= Html::a(
+                        '<div class="stat-glass-box">
+                            <div class="stat-val text-neon-green">' . array_sum(array_map(fn($s) => $s->getDuration(), $schedules)) . '</div>
+                            <div class="stat-lbl">' . Yii::t('app', 'Total Hours/Week') . '</div>
+                        </div>',
+                        ['calendar'],
+                        ['style' => 'text-decoration: none; display: block; height: 100%;']
+                    ) ?>
                 </div>
-                </div>',
-                    ['calendar'],
-                    ['style' => 'text-decoration: none;']
-                ) ?>
-            </div>
-            <div class="col-md-4">
-                <?= Html::a(
-                    '<div class="card bg-info text-white">
-                <div class="card-body text-center">
-                <h3>' . count($group->students) . '</h3>
-                <p class="mb-0">Students Enrolled</p>
+                <div class="col-md-4 mb-3">
+                    <?= Html::a(
+                        '<div class="stat-glass-box">
+                            <div class="stat-val text-neon-cyan">' . count($group->students) . '</div>
+                            <div class="stat-lbl">' . Yii::t('app', 'Students Enrolled') . '</div>
+                        </div>',
+                        ['calendar'],
+                        ['style' => 'text-decoration: none; display: block; height: 100%;']
+                    ) ?>
                 </div>
-                </div>',
-                    ['calendar'],
-                    ['style' => 'text-decoration: none;']
-                ) ?>
             </div>
-        </div>
-    <?php endif; ?>
+
+        <?php endif; ?>
+
+    </div>
 </div>

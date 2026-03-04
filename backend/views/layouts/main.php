@@ -49,10 +49,15 @@ use yii\bootstrap5\NavBar;
             color: var(--dark-color);
         }
 
+        /* --- NAVBAR TUZATILDI (Z-INDEX) --- */
         .navbar {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            /* Qo'shildi */
+            z-index: 1050;
+            /* Qo'shildi: Dropdown eng ustda turishi uchun */
         }
 
         .navbar-brand {
@@ -174,6 +179,7 @@ use yii\bootstrap5\NavBar;
             position: sticky;
             top: 70px;
             overflow-y: auto;
+            z-index: 1000;
         }
 
         .sidebar::-webkit-scrollbar {
@@ -289,6 +295,7 @@ use yii\bootstrap5\NavBar;
             animation: slideIn 0.5s ease;
         }
 
+        /* --- JADVAL DIZAYNI TUZATILDI --- */
         .table {
             background: white;
             border-radius: 16px;
@@ -303,9 +310,25 @@ use yii\bootstrap5\NavBar;
             border: none;
         }
 
+        /* Table Header ichidagi linklarni (sortirovka) oq rang qilish */
+        .table th a {
+            color: #fff !important;
+            text-decoration: none !important;
+            display: block;
+            /* Butun katakni bosiladigan qilish uchun */
+        }
+
+        .table th a:hover {
+            color: #e2e8f0 !important;
+            text-decoration: none !important;
+        }
+
         .table td {
             border-top: 1px solid #f1f5f9;
+            vertical-align: middle;
         }
+
+        /* --- */
 
         @keyframes fadeInUp {
             from {
@@ -384,30 +407,44 @@ use yii\bootstrap5\NavBar;
 
     <?php
     NavBar::begin([
-        'brandLabel' => '<i class="fas fa-graduation-cap"></i> Admin Panel - Education Center',
+        'brandLabel' => '<i class="fas fa-graduation-cap"></i> ' . Yii::t('app', 'Admin Panel'),
         'brandUrl' => Yii::$app->homeUrl,
         'options' => ['class' => 'navbar navbar-expand-lg navbar-dark mb-0'],
         'innerContainerOptions' => ['class' => 'container-fluid px-4']
     ]);
 
-
+    // Search Input
     echo '<div class="search-container">';
-    echo '<input class="search-input" type="text" placeholder="🔍 Search students, teachers, courses...">';
+    echo '<input class="search-input" id="backend-search" type="text" placeholder="' . Yii::t('app', '🔍 Search students, teachers, courses...') . '">';
     echo '<div id="search-results" class="mt-2"></div>';
     echo '</div>';
 
+    $menuItems = [];
+
     if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+        $menuItems[] = ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']];
     } else {
         $menuItems[] = '<li class="nav-item ms-3">'
             . Html::beginForm(['/site/logout'], 'post', ['class' => 'd-inline'])
             . Html::submitButton(
-                '<i class="fas fa-sign-out-alt"></i> Logout (' . Yii::$app->user->identity->username . ')',
+                '<i class="fas fa-sign-out-alt"></i> ' . Yii::t('app', 'Logout') . ' (' . Yii::$app->user->identity->username . ')',
                 ['class' => 'btn btn-outline-light btn-sm']
             )
             . Html::endForm()
             . '</li>';
     }
+
+    // Language Menu
+    $langLabel = strtoupper(substr(Yii::$app->language, 0, 2));
+    $menuItems[] = [
+        'label' => '<i class="fas fa-globe"></i> ' . $langLabel,
+        'items' => [
+            ['label' => '🇺🇿 O\'zbek', 'url' => \yii\helpers\Url::current(['lang' => 'uz-UZ'])],
+            ['label' => '🇬🇧 English', 'url' => \yii\helpers\Url::current(['lang' => 'en-US'])],
+            ['label' => '🇷🇺 Русский', 'url' => \yii\helpers\Url::current(['lang' => 'ru-RU'])],
+        ],
+        'options' => ['class' => 'nav-item dropdown'],
+    ];
 
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav ms-auto'],
@@ -415,51 +452,49 @@ use yii\bootstrap5\NavBar;
         'encodeLabels' => false,
     ]);
 
-
     NavBar::end();
     ?>
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
             <nav class="col-md-3 col-lg-2 d-md-block sidebar px-0">
                 <div class="position-sticky pt-4 pb-4">
                     <ul class="nav flex-column px-3">
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-tachometer-alt"></i> Dashboard', ['/dashboard/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-tachometer-alt"></i> ' . Yii::t('app', 'Dashboard'), ['/dashboard/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-file-alt"></i>Teacher Apps', ['/teacher-application/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-file-alt"></i> ' . Yii::t('app', 'Teacher Apps'), ['/teacher-application/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-file-alt"></i>Enroll Apps', ['/enrollment-application/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-file-alt"></i> ' . Yii::t('app', 'Enroll Apps'), ['/enrollment-application/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-chalkboard-teacher"></i> Teachers', ['/teacher/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-user-plus"></i> ' . Yii::t('app', 'Enrollments'), ['/enrollment/index'], ['class' => 'nav-link']) ?>
+                        </li>                        
+                        <li class="nav-item mb-1">
+                            <?= Html::a('<i class="fas fa-chalkboard-teacher"></i> ' . Yii::t('app', 'Teachers'), ['/teacher/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-users"></i> Students', ['/student/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-users"></i> ' . Yii::t('app', 'Students'), ['/student/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-book"></i> Courses', ['/course/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-book"></i> ' . Yii::t('app', 'Courses'), ['/course/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-layer-group"></i> Groups', ['/group/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-layer-group"></i> ' . Yii::t('app', 'Groups'), ['/group/index'], ['class' => 'nav-link']) ?>
+                        </li>
+
+                        <li class="nav-item mb-1">
+                            <?= Html::a('<i class="fas fa-money-bill-wave"></i> ' . Yii::t('app', 'Payments'), ['/payment/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-user-plus"></i> Enrollments', ['/enrollment/index'], ['class' => 'nav-link']) ?>
-                        </li>
-                        <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-money-bill-wave"></i> Payments', ['/payment/index'], ['class' => 'nav-link']) ?>
-                        </li>
-                        <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-headset"></i> Support Tickets', ['/support/index'], ['class' => 'nav-link']) ?>
+                            <?= Html::a('<i class="fas fa-headset"></i> ' . Yii::t('app', 'Support Tickets'), ['/support/index'], ['class' => 'nav-link']) ?>
                         </li>
                     </ul>
                 </div>
             </nav>
 
-            <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="content-wrapper">
                     <?php if (Yii::$app->session->hasFlash('success')): ?>
@@ -485,59 +520,110 @@ use yii\bootstrap5\NavBar;
     </div>
 
     <?php
+    $searchUrl = \yii\helpers\Url::to(['/site/search']);
+    $noResultsText = Yii::t('app', 'No results found');
+
     $this->registerJs("
-let searchTimeout;
-$('.search-input').on('keyup', function() {
-    clearTimeout(searchTimeout);
-    let query = $(this).val();
+(function() {
+    'use strict';
     
-    if(query.length < 2) {
-        $('#search-results').fadeOut();
-        return;
-    }
-    
-    searchTimeout = setTimeout(function() {
-        $.ajax({
-            url: '" . \yii\helpers\Url::to(['/site/search']) . "',
-            data: {q: query},
-            success: function(data) {
-                if(data.results.length === 0) {
-                    $('#search-results').html('<div class=\"search-item text-center text-muted py-4\"><i class=\"fas fa-search me-2\"></i>No results found</div>').fadeIn();
+    try {
+        let searchTimeout;
+        
+        // Search input mavjudligini tekshirish
+        const searchInput = $('.search-input');
+        const searchResults = $('#search-results');
+        
+        if (!searchInput.length || !searchResults.length) {
+            console.warn('Search elements not found');
+            return;
+        }
+        
+        // Search functionality
+        searchInput.on('keyup', function() {
+            try {
+                clearTimeout(searchTimeout);
+                let query = $(this).val();
+                
+                if(query.length < 2) {
+                    searchResults.fadeOut();
                     return;
                 }
                 
-                let html = '';
-                $.each(data.results, function(i, item) {
-                    html += '<a href=\"' + item.url + '\" class=\"search-item hover-lift\">';
-                    html += '  <div class=\"search-item-icon bg-gradient-' + item.color + '\"> <i class=\"fas ' + item.icon + '\"></i> </div>';
-                    html += '  <div class=\"search-item-content\">';
-                    html += '    <h4>' + item.title + '</h4>';
-                    html += '    <p>' + item.subtitle + '</p>';
-                    html += '    <span class=\"badge bg-' + item.color + ' badge-sm\">' + item.type + '</span>';
-                    html += '  </div>';
-                    html += '</a>';
-                });
-                
-                $('#search-results').html(html).fadeIn();
+                searchTimeout = setTimeout(function() {
+                    $.ajax({
+                        url: '$searchUrl',
+                        data: {q: query},
+                        success: function(data) {
+                            try {
+                                if(data.results.length === 0) {
+                                    searchResults.html('<div class=\"search-item text-center text-muted py-4\"><i class=\"fas fa-search me-2\"></i>$noResultsText</div>').fadeIn();
+                                    return;
+                                }
+                                
+                                let html = '';
+                                $.each(data.results, function(i, item) {
+                                    html += '<a href=\"' + item.url + '\" class=\"search-item hover-lift\">';
+                                    html += '  <div class=\"search-item-icon bg-gradient-' + item.color + '\"> <i class=\"fas ' + item.icon + '\"></i> </div>';
+                                    html += '  <div class=\"search-item-content\">';
+                                    html += '    <h4>' + item.title + '</h4>';
+                                    html += '    <p>' + item.subtitle + '</p>';
+                                    html += '    <span class=\"badge bg-' + item.color + ' badge-sm\">' + item.type + '</span>';
+                                    html += '  </div>';
+                                    html += '</a>';
+                                });
+                                
+                                searchResults.html(html).fadeIn();
+                            } catch (e) {
+                                console.error('Search results processing error:', e);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Search AJAX error:', error);
+                        }
+                    });
+                }, 300);
+            } catch (e) {
+                console.error('Search keyup error:', e);
             }
         });
-    }, 300);
-});
 
-$(document).click(function(e) {
-    if(!$(e.target).closest('.search-container').length) {
-        $('#search-results').fadeOut();
+        // Click outside to close
+        $(document).click(function(e) {
+            try {
+                if(!$(e.target).closest('.search-container').length) {
+                    searchResults.fadeOut();
+                }
+            } catch (e) {
+                console.error('Click outside error:', e);
+            }
+        });
+
+        // Hover effects
+        $(document).on('mouseenter', '.search-item', function() {
+            try {
+                $(this).css('background', 'linear-gradient(90deg, var(--primary-color), var(--accent-color))');
+                $(this).find('h4, p').css('color', 'white');
+            } catch (e) {
+                console.error('Hover error:', e);
+            }
+        }).on('mouseleave', '.search-item', function() {
+            try {
+                $(this).css('background', 'white');
+                $(this).find('h4, p').css('color', 'var(--dark-color)');
+            } catch (e) {
+                console.error('Hover leave error:', e);
+            }
+        });
+        
+        console.log('✅ Global Search initialized successfully');
+        
+    } catch (error) {
+        console.error('❌ Global Search initialization failed:', error);
     }
-});
+})();
+", \yii\web\View::POS_READY);
 
-$(document).on('mouseenter', '.search-item', function() {
-    $(this).css('background', 'linear-gradient(90deg, var(--primary-color), var(--accent-color))');
-    $(this).find('h4, p').css('color', 'white');
-}).on('mouseleave', '.search-item', function() {
-    $(this).css('background', 'white');
-    $(this).find('h4, p').css('color', 'var(--dark-color)');
-});
-");
     ?>
 
     <?php $this->endBody() ?>

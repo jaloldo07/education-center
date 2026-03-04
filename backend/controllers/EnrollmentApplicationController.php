@@ -13,8 +13,6 @@ use common\models\Notification;
 
 class EnrollmentApplicationController extends Controller
 {
-
-
     public function behaviors()
     {
         return [
@@ -36,7 +34,6 @@ class EnrollmentApplicationController extends Controller
             ],
         ];
     }
-
 
     public function actionIndex()
     {
@@ -75,7 +72,9 @@ class EnrollmentApplicationController extends Controller
             $enrollment->student_id = $application->student_id;
             $enrollment->group_id = $application->group_id;
             $enrollment->enrolled_on = date('Y-m-d');
-            $enrollment->status = Enrollment::STATUS_ACTIVE;
+            
+            // 🔥 MUHIM: Statusni Waiting Payment qilamiz
+            $enrollment->status = Enrollment::STATUS_WAITING_PAYMENT;
 
             if (!$enrollment->save()) {
                 throw new \Exception('Failed to create enrollment');
@@ -89,15 +88,15 @@ class EnrollmentApplicationController extends Controller
 
             Notification::notify(
                 $application->student->user_id,
-                '✅ Enrollment Approved!',
-                'Congratulations! Your enrollment application for "' . $application->course->name . '" has been approved. You are now enrolled in ' . $application->group->name . '.',
+                '✅ Application Approved!',
+                'Your application for "' . $application->course->name . '" is approved. Please verify payment to start.',
                 Notification::TYPE_SUCCESS,
-                '/student/dashboard'
+                '/student/dashboard' // Ular dashboardda pay tugmasini ko'rishadi
             );
 
             $transaction->commit();
 
-            Yii::$app->session->setFlash('success', '✅ Application approved! Student enrolled successfully.');
+            Yii::$app->session->setFlash('success', '✅ Application approved! Enrollment created (Waiting for Payment).');
             return $this->redirect(['view', 'id' => $id]);
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -136,7 +135,6 @@ class EnrollmentApplicationController extends Controller
     {
         $application = $this->findModel($id);
 
-        // Agar application approve bo'lgan bo'lsa, enrollmentni ham o'chirish kerak
         if ($application->status === EnrollmentApplication::STATUS_APPROVED) {
             $enrollment = Enrollment::findOne([
                 'student_id' => $application->student_id,

@@ -1,0 +1,14 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+
+    # 1. Admin panelga yo'naltirish (sayt.uz/admin)
+    RewriteCond %{REQUEST_URI} ^/admin
+    RewriteRule ^admin\/?(.*) backend/web/$1 [L]
+
+    # 2. Asosiy saytga yo'naltirish (sayt.uz)
+    RewriteCond %{REQUEST_URI} !^/backend/web/(.*)$ 
+    RewriteCond %{REQUEST_URI} !^/frontend/web/(.*)$ 
+    RewriteRule ^(.*)$ frontend/web/$1 [L]
+</IfModule>

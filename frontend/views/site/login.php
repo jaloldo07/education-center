@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\bootstrap5\ActiveForm;
 
-$this->title = 'Login';
+$this->title = Yii::t('app', 'Login');
 ?>
 
 <style>
@@ -93,6 +93,8 @@ $this->title = 'Login';
     }
 </style>
 
+
+
 <div class="site-login">
     <div class="row justify-content-center">
         <div class="col-lg-5">
@@ -102,49 +104,50 @@ $this->title = 'Login';
                         <i class="fas fa-sign-in-alt text-primary"></i> <?= Html::encode($this->title) ?>
                     </h1>
 
-                    <p class="text-center text-muted">Please fill out the following fields to login:</p>
+                    <p class="text-center text-muted"><?= Yii::t('app', 'Please fill out the following fields to login:') ?></p>
 
                     <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
 
                     <?= $form->field($model, 'username')->textInput([
                         'autofocus' => true,
-                        'placeholder' => 'Enter your username',
+                        'placeholder' => Yii::t('app', 'Enter your username'),
                         'class' => 'form-control form-control-lg'
-                    ])->label('<i class="fas fa-user"></i> Username') ?>
+                    ])->label('<i class="fas fa-user"></i> ' . Yii::t('app', 'Username')) ?>
 
                     <?= $form->field($model, 'password')->passwordInput([
-                        'placeholder' => 'Enter your password',
+                        'placeholder' => Yii::t('app', 'Enter your password'),
                         'class' => 'form-control form-control-lg'
-                    ])->label('<i class="fas fa-lock"></i> Password') ?>
+                    ])->label('<i class="fas fa-lock"></i> ' . Yii::t('app', 'Password')) ?>
 
-                    <?= $form->field($model, 'rememberMe')->checkbox() ?>
+                    <?= $form->field($model, 'rememberMe')->checkbox([
+                        'label' => Yii::t('app', 'Remember Me') // Model labelini override qilamiz
+                    ]) ?>
 
                     <div class="form-group">
-                        <?= Html::submitButton('Login', ['class' => 'btn btn-primary btn-lg w-100 btn-hover', 'name' => 'login-button']) ?>
+                        <?= Html::submitButton(Yii::t('app', 'Login'), ['class' => 'btn btn-primary btn-lg w-100 btn-hover', 'name' => 'login-button']) ?>
                     </div>
 
                     <div class="text-center mt-3">
-                        <p>Don't have an account? <?= Html::a('Register here', ['signup'], ['class' => 'text-primary']) ?></p>
+                        <p><?= Yii::t('app', 'Don\'t have an account?') ?> <?= Html::a(Yii::t('app', 'Register here'), ['signup'], ['class' => 'text-primary']) ?></p>
                     </div>
 
                     <?php ActiveForm::end(); ?>
 
                     <hr class="my-4">
 
-                    <!-- ✨ ADMIN PANEL BUTTON -->
                     <div class="text-center">
-                        <p class="text-muted mb-2">
-                            <i class="fas fa-shield-alt"></i> Are you an administrator?
-                        </p>
-                        <?= Html::a(
-                            '<i class="fas fa-user-shield"></i> Admin Panel Login',
-                            'http://admin.education-center.local',
-                            [
-                                'class' => 'btn btn-outline-danger w-100',
-                                'target' => '_blank'
-                            ]
-                        ) ?>
-                    </div>
+   						<p class="text-muted mb-2">
+        					<i class="fas fa-shield-alt"></i> <?= Yii::t('app', 'Are you an administrator?') ?>
+    					</p>
+    					<?= Html::a(
+        				'<i class="fas fa-user-shield"></i> ' . Yii::t('app', 'Admin Panel Login'),
+        				'/admin',
+       				 	[
+            			'class' => 'btn btn-outline-danger w-100',
+            			'target' => '_blank'
+        				]
+   						 ) ?>
+					</div>
                 </div>
             </div>
         </div>

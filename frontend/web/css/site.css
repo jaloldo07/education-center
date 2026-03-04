@@ -101,3 +101,33 @@ a.desc:after {
 {
     text-decoration: none;
 }
+
+
+
+
+
+/* O'qish rejimi uchun maxsus stil */
+.reading-mode {
+    background-color: #ffffff !important; /* Oppog' fon */
+    color: #333333 !important; /* To'q kulrang yozuv (ko'zni charchatmaydi) */
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Ichidagi barcha yozuvlarni majburan qora qilish */
+.reading-mode h1, 
+.reading-mode h2, 
+.reading-mode h3, 
+.reading-mode p, 
+.reading-mode li, 
+.reading-mode span,
+.reading-mode label {
+    color: #333333 !important;
+}
+
+/* Test variantlari uchun */
+.reading-mode .radio,
+.reading-mode .checkbox {
+    color: #000000 !important;
+}

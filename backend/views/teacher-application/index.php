@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use common\models\TeacherApplication;
 
-$this->title = 'Teacher Applications';
+$this->title = Yii::t('app', 'Teacher Applications');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -38,6 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'full_name',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Full Name'),
                         'value' => function($model) {
                             return Html::a(
                                 '<i class="fas fa-user text-primary"></i> ' . Html::encode($model->full_name),
@@ -48,16 +49,25 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
                     
                     'email:email',
-                    'subject',
-                    'experience_years',
+                    [
+                        'attribute' => 'subject',
+                        'label' => Yii::t('app', 'Subject'),
+                    ],
+                    [
+                        'attribute' => 'experience_years',
+                        'label' => Yii::t('app', 'Experience (Years)'),
+                    ],
                     
                     [
                         'attribute' => 'status',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Status'),
                         'value' => function ($model) {
                             $class = TeacherApplication::getStatusBadgeClass($model->status);
-                            $text = TeacherApplication::getStatusOptions()[$model->status];
-                            return '<span class="badge bg-' . $class . '">' . $text . '</span>';
+                            // Statuslarni tarjima qilish kerak bo'lsa, bu yerda arraydan olish mumkin
+                            // Lekin modelda getStatusOptions() borligini hisobga olib:
+                            $text = TeacherApplication::getStatusOptions()[$model->status]; 
+                            return '<span class="badge bg-' . $class . '">' . Yii::t('app', $text) . '</span>';
                         },
                         'filter' => TeacherApplication::getStatusOptions(),
                     ],
@@ -65,7 +75,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'created_at',
                         'format' => ['date', 'php:Y-m-d H:i'],
-                        'label' => 'Applied At',
+                        'label' => Yii::t('app', 'Applied At'),
                     ],
                     
                     [
@@ -75,14 +85,14 @@ $this->params['breadcrumbs'][] = $this->title;
                             'view' => function ($url) {
                                 return Html::a('<i class="fas fa-eye"></i>', $url, [
                                     'class' => 'btn btn-sm btn-info',
-                                    'title' => 'View',
+                                    'title' => Yii::t('app', 'View'),
                                 ]);
                             },
                             'delete' => function ($url) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'title' => 'Delete',
-                                    'data-confirm' => 'Are you sure?',
+                                    'title' => Yii::t('app', 'Delete'),
+                                    'data-confirm' => Yii::t('app', 'Are you sure?'),
                                     'data-method' => 'post',
                                 ]);
                             },

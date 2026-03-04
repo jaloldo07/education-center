@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use common\models\EnrollmentApplication;
 
-$this->title = 'Enrollment Applications';
+$this->title = Yii::t('app', 'Enrollment Applications');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -40,6 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'student_id',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Student'),
                         'value' => function ($model) {
                             return Html::a(
                                 '<i class="fas fa-user text-primary"></i> ' . Html::encode($model->student->full_name),
@@ -50,26 +51,32 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
                     [
                         'attribute' => 'course_id',
+                        'label' => Yii::t('app', 'Course'),
                         'value' => function ($model) {
-                            return $model->course->name . ' (' . $model->course->type . ')';
+                            return $model->course->name . ' (' . strtoupper($model->course->type) . ')';
                         }
                     ],
                     [
                         'attribute' => 'group_id',
+                        'label' => Yii::t('app', 'Group'),
                         'value' => 'group.name',
                     ],
                     [
                         'attribute' => 'status',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Status'),
                         'value' => function ($model) {
                             $class = EnrollmentApplication::getStatusBadgeClass($model->status);
-                            return '<span class="badge bg-' . $class . '">' . ucfirst($model->status) . '</span>';
+                            // Tarjima qilingan status matni
+                            $statusText = Yii::t('app', ucfirst($model->status));
+                            return '<span class="badge bg-' . $class . '">' . $statusText . '</span>';
                         },
                         'filter' => EnrollmentApplication::getStatusOptions(),
                     ],
                     [
                         'attribute' => 'created_at',
                         'format' => ['date', 'php:Y-m-d H:i'],
+                        'label' => Yii::t('app', 'Applied At'),
                     ],
 
                     [
@@ -80,7 +87,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
                                     'data' => [
-                                        'confirm' => 'Are you sure you want to delete this item?',
+                                        'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
                                         'method' => 'post',
                                     ],
                                 ]);

@@ -1,4 +1,5 @@
 <?php
+
 namespace common\models;
 
 use Yii;
@@ -9,6 +10,7 @@ class Enrollment extends ActiveRecord
 {
     const STATUS_ACTIVE = 'active';
     const STATUS_COMPLETED = 'completed';
+    const STATUS_WAITING_PAYMENT = 'waiting_payment'; // 🔥 Yangi status
 
     public static function tableName()
     {
@@ -29,7 +31,8 @@ class Enrollment extends ActiveRecord
             [['student_id', 'group_id'], 'integer'],
             [['enrolled_on'], 'safe'],
             [['status'], 'string', 'max' => 20],
-            [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_COMPLETED]],
+            // 🔥 Yangi status range ichiga qo'shildi
+            [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_COMPLETED, self::STATUS_WAITING_PAYMENT]],
             [['student_id'], 'exist', 'skipOnError' => true, 'targetClass' => Student::class, 'targetAttribute' => ['student_id' => 'id']],
             [['group_id'], 'exist', 'skipOnError' => true, 'targetClass' => Group::class, 'targetAttribute' => ['group_id' => 'id']],
         ];
@@ -56,5 +59,11 @@ class Enrollment extends ActiveRecord
     public function getGroup()
     {
         return $this->hasOne(Group::class, ['id' => 'group_id'])->inverseOf('enrollments');
+    }
+    
+    public function getCourse()
+    {
+        return $this->hasOne(Course::class, ['id' => 'course_id'])
+            ->via('group'); 
     }
 }

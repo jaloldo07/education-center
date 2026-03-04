@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-$this->title = 'Courses';
+$this->title = Yii::t('app', 'Courses');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <h1><?= Html::encode($this->title) ?></h1>
-                <?= Html::a('<i class="fas fa-plus"></i> Add Course', ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+                <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Add Course'), ['create'], ['class' => 'btn btn-success btn-hover']) ?>
             </div>
         </div>
         <div class="card-body">
@@ -41,6 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'name',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Name'),
                         'value' => function ($model) {
                             return Html::a(
                                 '<i class="fas fa-book text-info"></i> ' . Html::encode($model->name),
@@ -51,13 +52,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
                     [
                         'attribute' => 'duration',
+                        'label' => Yii::t('app', 'Duration'),
                         'value' => function ($model) {
-                            return $model->duration . ' months';
+                            return $model->duration . ' ' . Yii::t('app', 'months');
                         }
                     ],
                     [
                         'attribute' => 'type',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Type'),
                         'value' => function ($model) {
                             $badge = $model->type === 'free' ? 'success' : 'warning';
                             return '<span class="badge bg-' . $badge . '">' . strtoupper($model->type) . '</span>';
@@ -67,19 +70,22 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'price',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Price'),
                         'value' => function ($model) {
-                            return number_format($model->price, 0) . ' UZS';
+                            return number_format($model->price, 0) . ' ' . Yii::t('app', 'UZS');
                         }
                     ],
                     [
                         'attribute' => 'teacher_id',
+                        'label' => Yii::t('app', 'Teacher'),
                         'value' => function ($model) {
-                            return $model->teacher->full_name ?? 'N/A';
+                            return $model->teacher->full_name ?? Yii::t('app', 'N/A');
                         }
                     ],
                     [
                         'attribute' => 'created_at',
                         'format' => ['date', 'php:Y-m-d'],
+                        'label' => Yii::t('app', 'Created At'),
                     ],
 
                     [
@@ -89,20 +95,20 @@ $this->params['breadcrumbs'][] = $this->title;
                             'view' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-eye"></i>', $url, [
                                     'class' => 'btn btn-sm btn-info',
-                                    'title' => 'View',
+                                    'title' => Yii::t('app', 'View'),
                                 ]);
                             },
                             'update' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-edit"></i>', $url, [
                                     'class' => 'btn btn-sm btn-primary',
-                                    'title' => 'Update',
+                                    'title' => Yii::t('app', 'Update'),
                                 ]);
                             },
                             'delete' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'title' => 'Delete',
-                                    'data-confirm' => 'Are you sure you want to delete this course?',
+                                    'title' => Yii::t('app', 'Delete'),
+                                    'data-confirm' => Yii::t('app', 'Are you sure you want to delete this course?'),
                                     'data-method' => 'post',
                                 ]);
                             },

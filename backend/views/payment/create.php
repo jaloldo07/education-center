@@ -1,8 +1,14 @@
 <?php
+
 use yii\helpers\Html;
 
-$this->title = 'Record Payment';
-$this->params['breadcrumbs'][] = ['label' => 'Payments', 'url' => ['index']];
+/* @var $this yii\web\View */
+/* @var $model common\models\Payment */
+/* @var $students array */
+/* @var $courses array */
+
+$this->title = Yii::t('app', 'Record Payment');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Payments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -12,7 +18,11 @@ $this->params['breadcrumbs'][] = $this->title;
             <h4 class="mb-0"><i class="fas fa-money-bill-wave"></i> <?= Html::encode($this->title) ?></h4>
         </div>
         <div class="card-body">
-            <?= $this->render('_form', ['model' => $model, 'students' => $students, 'courses' => $courses]) ?>
+            <?= $this->render('_form', [
+                'model' => $model, 
+                'students' => $students, 
+                'courses' => $courses
+            ]) ?>
         </div>
     </div>
 </div>

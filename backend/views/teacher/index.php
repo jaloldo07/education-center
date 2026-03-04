@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-$this->title = 'Teachers';
+$this->title = Yii::t('app', 'Teachers');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <h1><?= Html::encode($this->title) ?></h1>
-                <?= Html::a('<i class="fas fa-plus"></i> Add Teacher', ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+                <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Add Teacher'), ['create'], ['class' => 'btn btn-success btn-hover']) ?>
             </div>
         </div>
         <div class="card-body">
@@ -39,6 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'full_name',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Full Name'),
                         'value' => function ($model) {
                             return Html::a(
                                 '<i class="fas fa-chalkboard-teacher text-success"></i> ' . Html::encode($model->full_name),
@@ -47,17 +48,23 @@ $this->params['breadcrumbs'][] = $this->title;
                             );
                         },
                     ],
-                    'subject',
-                    'experience_years',
+                    [
+                        'attribute' => 'subject',
+                        'label' => Yii::t('app', 'Subject'),
+                    ],
+                    [
+                        'attribute' => 'experience_years',
+                        'label' => Yii::t('app', 'Experience (Years)'),
+                    ],
                     [
                         'attribute' => 'rating',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Rating'),
                         'value' => function ($model) {
                             $stars = '';
                             for ($i = 0; $i < floor($model->rating); $i++) {
                                 $stars .= '<i class="fas fa-star text-warning"></i>';
                             }
-                            // Qoldiq yulduzcha uchun (agar rating butun son bo'lmasa)
                             if ($model->rating - floor($model->rating) >= 0.5) {
                                 $stars .= '<i class="fas fa-star-half-alt text-warning"></i>';
                             }
@@ -67,6 +74,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'created_at',
                         'format' => ['date', 'php:Y-m-d H:i'],
+                        'label' => Yii::t('app', 'Created At'),
                     ],
 
                     [
@@ -76,20 +84,20 @@ $this->params['breadcrumbs'][] = $this->title;
                             'view' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-eye"></i>', $url, [
                                     'class' => 'btn btn-sm btn-info',
-                                    'title' => 'View',
+                                    'title' => Yii::t('app', 'View'),
                                 ]);
                             },
                             'update' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-edit"></i>', $url, [
                                     'class' => 'btn btn-sm btn-primary',
-                                    'title' => 'Update',
+                                    'title' => Yii::t('app', 'Update'),
                                 ]);
                             },
                             'delete' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'title' => 'Delete',
-                                    'data-confirm' => 'Are you sure you want to delete this teacher?',
+                                    'title' => Yii::t('app', 'Delete'),
+                                    'data-confirm' => Yii::t('app', 'Are you sure you want to delete this teacher?'),
                                     'data-method' => 'post',
                                 ]);
                             },

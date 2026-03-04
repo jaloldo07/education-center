@@ -68,24 +68,40 @@ class SupportController extends Controller
     /**
      * Reply to ticket
      */
+    /**
+     * Reply to ticket
+     */
+    /**
+     * Reply to ticket
+     */
     public function actionReply($id)
     {
         $model = $this->findModel($id);
 
         if (Yii::$app->request->isPost) {
             $model->admin_reply = Yii::$app->request->post('admin_reply');
-            $model->status = Yii::$app->request->post('status', SupportTicket::STATUS_REPLIED);
-            $model->admin_replied_at = date('Y-m-d H:i:s');
+            $model->status = Yii::$app->request->post('status', 'replied'); // SupportTicket::STATUS_REPLIED o'rniga to'g'ridan-to'g'ri qiymat beramiz
+            
+            // Vaqtni matn emas, Timestamp (raqam) ko'rinishida berib ko'ramiz
+            $model->admin_replied_at = time(); // date('Y-m-d H:i:s') o'rniga
 
+            // Agar qaysidir Rule (qoida) xalaqit berayotgan bo'lsa, save(false) yordamida majburan saqlashimiz ham mumkin, lekin avval xatoni ko'raylik:
             if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Reply sent successfully');
-                return $this->redirect(['view', 'id' => $model->id]);
+                Yii::$app->session->setFlash('success', 'Javob muvaffaqiyatli yuborildi!');
+            } else {
+                // XATONING ASL SABABINI EKRANGA CHIQARAMIZ:
+                $errors = $model->getErrors();
+                $errorMessage = '';
+                foreach ($errors as $field => $messages) {
+                    $errorMessage .= $field . ': ' . implode(', ', $messages) . ' | ';
+                }
+                Yii::$app->session->setFlash('error', 'Saqlashda xatolik: ' . $errorMessage);
             }
+            
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
-        return $this->render('reply', [
-            'model' => $model,
-        ]);
+        return $this->redirect(['view', 'id' => $model->id]);
     }
 
     /**

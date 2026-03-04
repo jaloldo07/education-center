@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 $this->title = $model->full_name;
-$this->params['breadcrumbs'][] = ['label' => 'Teachers', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Teachers'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -11,11 +11,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="d-flex justify-content-between mb-3">
         <h1><i class="fas fa-chalkboard-teacher"></i> <?= Html::encode($this->title) ?></h1>
         <div>
-            <?= Html::a('<i class="fas fa-arrow-left"></i> Back to List', ['index'], ['class' => 'btn btn-secondary']) ?>
-            <?= Html::a('<i class="fas fa-edit"></i> Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-            <?= Html::a('<i class="fas fa-trash"></i> Delete', ['delete', 'id' => $model->id], [
+            <?= Html::a('<i class="fas fa-arrow-left"></i> ' . Yii::t('app', 'Back to List'), ['index'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::a('<i class="fas fa-edit"></i> ' . Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('<i class="fas fa-trash"></i> ' . Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
                 'class' => 'btn btn-danger',
-                'data-confirm' => 'Are you sure?',
+                'data-confirm' => Yii::t('app', 'Are you sure you want to delete this teacher?'),
                 'data-method' => 'post',
             ]) ?>
         </div>
@@ -27,15 +27,42 @@ $this->params['breadcrumbs'][] = $this->title;
                 'model' => $model,
                 'attributes' => [
                     'id',
-                    'full_name',
-                    'subject',
-                    'experience_years',
-                    'phone',
+                    [
+                        'attribute' => 'full_name',
+                        'label' => Yii::t('app', 'Full Name'),
+                    ],
+                    [
+                        'attribute' => 'subject',
+                        'label' => Yii::t('app', 'Subject'),
+                    ],
+                    [
+                        'attribute' => 'experience_years',
+                        'label' => Yii::t('app', 'Experience (Years)'),
+                    ],
+                    [
+                        'attribute' => 'phone',
+                        'label' => Yii::t('app', 'Phone'),
+                    ],
                     'email:email',
-                    'bio:ntext',
-                    'rating',
-                    'created_at:datetime',
-                    'updated_at:datetime',
+                    [
+                        'attribute' => 'bio',
+                        'label' => Yii::t('app', 'Bio'),
+                        'format' => 'ntext',
+                    ],
+                    [
+                        'attribute' => 'rating',
+                        'label' => Yii::t('app', 'Rating'),
+                    ],
+                    [
+                        'attribute' => 'created_at',
+                        'label' => Yii::t('app', 'Created At'),
+                        'format' => 'datetime',
+                    ],
+                    [
+                        'attribute' => 'updated_at',
+                        'label' => Yii::t('app', 'Updated At'),
+                        'format' => 'datetime',
+                    ],
                 ],
             ]) ?>
         </div>

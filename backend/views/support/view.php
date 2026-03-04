@@ -6,8 +6,8 @@ use yii\widgets\DetailView;
 /** @var yii\web\View $this */
 /** @var common\models\SupportTicket $model */
 
-$this->title = 'Ticket #' . $model->id . ': ' . $model->subject;
-$this->params['breadcrumbs'][] = ['label' => 'Support Tickets', 'url' => ['index']];
+$this->title = Yii::t('app', 'Ticket #') . $model->id . ': ' . $model->subject;
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Support Tickets'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -19,26 +19,25 @@ $this->params['breadcrumbs'][] = $this->title;
                     <h3 class="card-title mb-0"><?= Html::encode($this->title) ?></h3>
                     <div>
                         <?php if ($model->status !== 'closed'): ?>
-                            <?= Html::a('Close Ticket', ['update-status', 'id' => $model->id, 'status' => 'closed'], [
+                            <?= Html::a(Yii::t('app', 'Close Ticket'), ['update-status', 'id' => $model->id, 'status' => 'closed'], [
                                 'class' => 'btn btn-warning',
                                 'data' => [
-                                    'confirm' => 'Are you sure you want to close this ticket?',
+                                    'confirm' => Yii::t('app', 'Are you sure you want to close this ticket?'),
                                     'method' => 'post',
                                 ],
                             ]) ?>
                         <?php endif; ?>
-                        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+                        <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
                             'class' => 'btn btn-danger',
                             'data' => [
-                                'confirm' => 'Are you sure you want to delete this ticket?',
+                                'confirm' => Yii::t('app', 'Are you sure you want to delete this ticket?'),
                                 'method' => 'post',
                             ],
                         ]) ?>
-                        <?= Html::a('Back to List', ['index'], ['class' => 'btn btn-secondary']) ?>
+                        <?= Html::a(Yii::t('app', 'Back to List'), ['index'], ['class' => 'btn btn-secondary']) ?>
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Ticket Status Badge -->
                     <div class="mb-3">
                         <?php
                         $statusClass = [
@@ -48,65 +47,67 @@ $this->params['breadcrumbs'][] = $this->title;
                         ];
                         ?>
                         <span class="<?= $statusClass[$model->status] ?? 'badge bg-secondary' ?>">
-                            <?= strtoupper($model->status) ?>
+                            <?= Yii::t('app', strtoupper($model->status)) ?>
                         </span>
                     </div>
 
-                    <!-- Ticket Details -->
                     <?= DetailView::widget([
                         'model' => $model,
                         'attributes' => [
                             'id',
                             [
                                 'attribute' => 'user_id',
-                                'value' => $model->user->username ?? 'Unknown',
-                                'label' => 'User',
+                                'value' => $model->user->username ?? Yii::t('app', 'Unknown'),
+                                'label' => Yii::t('app', 'User'),
                             ],
-                            'subject',
+                            [
+                                'attribute' => 'subject',
+                                'label' => Yii::t('app', 'Subject'),
+                            ],
                             [
                                 'attribute' => 'message',
                                 'format' => 'ntext',
-                                'label' => 'User Message',
+                                'label' => Yii::t('app', 'User Message'),
                             ],
-                            'created_at:datetime',
+                            [
+                                'attribute' => 'created_at',
+                                'format' => 'datetime',
+                                'label' => Yii::t('app', 'Created At'),
+                            ],
                         ],
                     ]) ?>
 
-                    <!-- Admin Reply Section -->
                     <?php if ($model->admin_reply): ?>
                         <div class="alert alert-info mt-4">
-                            <h5><i class="bi bi-reply"></i> Admin Reply:</h5>
+                            <h5><i class="bi bi-reply"></i> <?= Yii::t('app', 'Admin Reply:') ?></h5>
                             <p><?= nl2br(Html::encode($model->admin_reply)) ?></p>
-                            <small class="text-muted">Replied at: <?= Yii::$app->formatter->asDatetime($model->admin_replied_at) ?></small>
+                            <small class="text-muted"><?= Yii::t('app', 'Replied at:') ?> <?= Yii::$app->formatter->asDatetime($model->admin_replied_at) ?></small>
                         </div>
                     <?php endif; ?>
 
-                    <!-- Reply Form -->
                     <div class="mt-4">
-                        <h4><?= $model->admin_reply ? 'Update Reply' : 'Reply to Ticket' ?></h4>
-                        <?php $form = \yii\widgets\ActiveForm::begin([
-                            'action' => ['reply', 'id' => $model->id],
-                            'method' => 'post',
-                        ]); ?>
+                        <h4><?= $model->admin_reply ? Yii::t('app', 'Update Reply') : Yii::t('app', 'Reply to Ticket') ?></h4>
+                        
+                        <?= Html::beginForm(['reply', 'id' => $model->id], 'post') ?>
 
                         <div class="mb-3">
-                            <label class="form-label">Reply Message</label>
+                            <label class="form-label"><?= Yii::t('app', 'Reply Message') ?></label>
                             <textarea name="admin_reply" class="form-control" rows="5" required><?= Html::encode($model->admin_reply) ?></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Status</label>
+                            <label class="form-label"><?= Yii::t('app', 'Status') ?></label>
                             <select name="status" class="form-control">
-                                <option value="replied" <?= $model->status === 'replied' ? 'selected' : '' ?>>Replied</option>
-                                <option value="closed" <?= $model->status === 'closed' ? 'selected' : '' ?>>Closed</option>
+                                <option value="replied" <?= $model->status === 'replied' ? 'selected' : '' ?>><?= Yii::t('app', 'Replied') ?></option>
+                                <option value="closed" <?= $model->status === 'closed' ? 'selected' : '' ?>><?= Yii::t('app', 'Closed') ?></option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <?= Html::submitButton('Send Reply', ['class' => 'btn btn-primary']) ?>
+                            <?= Html::submitButton(Yii::t('app', 'Send Reply'), ['class' => 'btn btn-primary']) ?>
                         </div>
 
-                        <?php \yii\widgets\ActiveForm::end(); ?>
+                        <?= Html::endForm() ?>
                     </div>
                 </div>
             </div>

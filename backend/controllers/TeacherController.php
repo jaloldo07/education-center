@@ -4,6 +4,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Teacher;
+use common\models\User; // User modelini chaqiramiz
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -61,38 +62,114 @@ class TeacherController extends Controller
         ]);
     }
 
+    /**
+     * 🔥 YANGILANGAN CREATE: User + Teacher yaratish
+     */
     public function actionCreate()
     {
         $model = new Teacher();
+        $user = new User();
+        $user->scenario = 'create';
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Teacher has been created successfully.');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost) {
+            $model->load($this->request->post());
+            $user->load($this->request->post());
+
+            // 🔥 TUZATISH: Userdagi emailni Teacherga o'zlashtiramiz
+            // Shunda admin 2 marta email yozishi shart emas
+            $model->email = $user->email;
+
+            // Endi validatsiya qilamiz
+            $isValidModel = $model->validate();
+            $isValidUser = $user->validate();
+
+            if ($isValidModel && $isValidUser) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    // 1. Userni saqlash
+                    $user->setPassword($user->password);
+                    $user->generateAuthKey();
+                    $user->role = User::ROLE_TEACHER;
+                    $user->status = User::STATUS_ACTIVE;
+                    
+                    if (!$user->save(false)) {
+                        throw new \Exception('Userni saqlab bo\'lmadi.');
+                    }
+
+                    // 2. Teacherni bog'lash va saqlash
+                    $model->user_id = $user->id;
+                    
+                    if (!$model->save(false)) {
+                        throw new \Exception('Teacherni saqlab bo\'lmadi.');
+                    }
+
+                    $transaction->commit();
+                    Yii::$app->session->setFlash('success', 'Teacher muvaffaqiyatli qo\'shildi.');
+                    return $this->redirect(['view', 'id' => $model->id]);
+
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::$app->session->setFlash('error', 'Xatolik: ' . $e->getMessage());
+                }
+            }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'user' => $user,
         ]);
     }
 
+    /**
+     * YANGILANGAN UPDATE: User ma'lumotlarini ham tahrirlash (agar kerak bo'lsa)
+     */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $user = $model->user; // Bog'langan Userni olamiz
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Teacher has been updated successfully.');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if (!$user) {
+            // Agar eski ma'lumotlarda User yo'q bo'lsa, xatolik chiqmasligi uchun
+            $user = new User(); 
+        }
+
+        if ($this->request->isPost) {
+            $model->load($this->request->post());
+            $user->load($this->request->post());
+
+            if ($model->validate() && $user->validate(['username', 'email'])) {
+                // Parol o'zgargan bo'lsa yangilaymiz
+                if (!empty($user->password)) {
+                    $user->setPassword($user->password);
+                }
+                
+                $user->save(false);
+                $model->save(false);
+
+                Yii::$app->session->setFlash('success', 'Teacher updated successfully.');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [
             'model' => $model,
+            'user' => $user,
         ]);
     }
 
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-        Yii::$app->session->setFlash('success', 'Teacher has been deleted successfully.');
+        $model = $this->findModel($id);
+        
+        // Agar User bog'langan bo'lsa, uni ham o'chiramiz (yoki o'chirmaslik - biznes mantiqqa bog'liq)
+        // Hozircha Userni ham o'chiramiz:
+        if ($model->user) {
+            $model->user->delete();
+        }
+        
+        $model->delete();
+
+        Yii::$app->session->setFlash('success', 'Teacher deleted successfully.');
         return $this->redirect(['index']);
     }
 

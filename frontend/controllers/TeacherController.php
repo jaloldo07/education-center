@@ -14,7 +14,6 @@ use common\models\Test;
 use common\models\TestQuestion;
 use common\models\TestAttempt;
 
-
 class TeacherController extends Controller
 {
     public function behaviors()
@@ -53,6 +52,13 @@ class TeacherController extends Controller
             ->where(['teacher_id' => $teacher->id])
             ->all();
 
+        // 🔥 YANGI: O'qituvchining dars jadvallarini tortib olamiz
+        $schedules = Schedule::find()
+            ->where(['teacher_id' => $teacher->id])
+            ->with(['group', 'group.course'])
+            ->orderBy(['day_of_week' => SORT_ASC, 'start_time' => SORT_ASC])
+            ->all();
+
         $stats = [
             'totalGroups' => count($groups),
             'totalCourses' => count($courses),
@@ -67,6 +73,7 @@ class TeacherController extends Controller
             'teacher' => $teacher,
             'groups' => $groups,
             'courses' => $courses,
+            'schedules' => $schedules, // 🔥 Dashboardga yuboramiz
             'stats' => $stats,
         ]);
     }

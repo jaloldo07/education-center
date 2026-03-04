@@ -5,274 +5,286 @@ use yii\helpers\ArrayHelper;
 use common\models\Course;
 use common\models\Group;
 
-$this->title = 'Update Test';
+$this->title = Yii::t('app', 'Update Test') . ': ' . $model->title;
 ?>
 
 <style>
-    body {
-        background: #f8f9ff;
-    }
-
+    /* 1. Page Container */
     .update-test-page {
-        animation: fadeSlide 0.6s ease;
+        padding: 40px 0;
+        font-family: 'Nunito', sans-serif;
     }
 
-    .page-header {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
+    /* 2. Glass Card */
+    .glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        overflow: hidden;
+    }
+
+    /* 3. Header Gradient (Purple/Pink for Update) */
+    .glass-header {
+        background: linear-gradient(135deg, #7209b7 0%, #f72585 100%);
+        padding: 30px;
         color: white;
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
-    .page-header h2 {
-        font-weight: 700;
+    .header-title h2 {
+        font-weight: 800;
         margin: 0;
+        font-size: 1.8rem;
+        text-shadow: 0 0 15px rgba(247, 37, 133, 0.5);
     }
 
-    .form-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.1);
-        padding: 2.5rem;
-        margin-bottom: 2rem;
+    /* 4. Form Sections */
+    .form-section {
+        background: rgba(255,255,255,0.03);
+        padding: 25px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(255,255,255,0.05);
+        position: relative;
+        overflow: hidden;
     }
 
-    .form-card h4 {
-        color: #414fde;
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 4px;
+    }
+
+    /* Section Colors */
+    .section-purple::before { background: #b5179e; }
+    .title-purple { color: #b5179e; }
+
+    .section-orange::before { background: #f8961e; }
+    .title-orange { color: #f8961e; }
+
+    .section-cyan::before { background: #4cc9f0; }
+    .title-cyan { color: #4cc9f0; }
+
+    .section-title {
         font-weight: 700;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 3px solid #efefff;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        display: flex; align-items: center; gap: 10px;
     }
 
-    .form-group {
-        margin-bottom: 1.5rem;
+    /* 5. Inputs (Dark Mode) */
+    .form-glass-control {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-glass-control:focus {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border-color: #f72585 !important;
+        color: white !important;
+        box-shadow: 0 0 0 4px rgba(247, 37, 133, 0.2) !important;
+        outline: none;
+    }
+
+    /* Fix Date Input Icon */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
     }
 
     .form-label {
         font-weight: 600;
-        color: #414fde;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-control,
-    .form-select {
-        border-radius: 12px;
-        border: 2px solid #efefff;
-        padding: 12px 16px;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #414fde;
-        box-shadow: 0 0 0 0.2rem rgba(65, 79, 222, 0.15);
-    }
-
-    textarea.form-control {
-        min-height: 120px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 8px;
+        font-size: 0.9rem;
     }
 
     .form-text {
-        color: #6c6e8a;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.8rem;
+        margin-top: 5px;
     }
 
-    .form-check {
-        background: #f8f9ff;
-        padding: 1rem;
-        border-radius: 12px;
-        margin-top: 1rem;
-    }
-
-    .form-check-input {
-        width: 1.5rem;
-        height: 1.5rem;
-        border: 2px solid #414fde;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .form-check-input:checked {
-        background-color: #414fde;
-        border-color: #414fde;
-    }
-
-    .form-check-label {
-        margin-left: 0.5rem;
-        font-weight: 600;
-        color: #414fde;
-    }
-
-    .btn {
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+    /* 6. Buttons */
+    .btn-update-neon {
+        background: linear-gradient(135deg, #f72585, #b5179e);
+        color: white;
         border: none;
+        padding: 12px 40px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(247, 37, 133, 0.4);
+        transition: 0.3s;
     }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.3);
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #333dcc, #5563ff) !important;
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.4);
-    }
-
-    .btn-secondary {
-        background: linear-gradient(135deg, #6c757d, #5a6268) !important;
-        box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
-    }
-
-    .btn-secondary:hover {
+    .btn-update-neon:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(108, 117, 125, 0.4);
+        box-shadow: 0 0 30px rgba(247, 37, 133, 0.6);
+        color: white;
     }
 
-    .btn-lg {
-        padding: 14px 28px;
-        font-size: 1.1rem;
+    .btn-glass-back {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 10px 20px;
+        border-radius: 12px;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-glass-back:hover { background: white; color: black; }
+
+    /* Custom Checkbox Container */
+    .checkbox-glass {
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .badge {
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .row {
-        margin-bottom: 1rem;
-    }
-
-    @keyframes fadeSlide {
-        from {
-            opacity: 0;
-            transform: translateY(-15px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .form-card {
-            padding: 1.5rem;
-        }
-        .page-header {
-            padding: 1.5rem;
-        }
-    }
 </style>
 
-<div class="update-test-page container-fluid py-4">
-    <div class="page-header">
-        <h2><i class="bi bi-pencil"></i> Update Test</h2>
-        <p class="mb-0">Modify test settings and information</p>
-    </div>
+<div class="update-test-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                
+                <div class="glass-card animate__animated animate__fadeInUp">
+                    <div class="glass-header">
+                        <div class="header-title">
+                            <h2><i class="bi bi-pencil-square me-2"></i> <?= Yii::t('app', 'Update Test') ?></h2>
+                            <small class="text-white-50"><?= Yii::t('app', 'Editing:') ?> <strong><?= Html::encode($model->title) ?></strong></small>
+                        </div>
+                        <?= Html::a('<i class="bi bi-arrow-left"></i> ' . Yii::t('app', 'Back'), ['index'], ['class' => 'btn-glass-back']) ?>
+                    </div>
 
-    <div class="form-card">
-        <?php $form = ActiveForm::begin([
-            'options' => ['class' => 'test-form']
-        ]); ?>
+                    <div class="card-body p-4 p-md-5">
+                        <?php $form = ActiveForm::begin([
+                            'options' => ['class' => 'test-form'],
+                            'fieldConfig' => [
+                                'inputOptions' => ['class' => 'form-control form-glass-control'],
+                                'labelOptions' => ['class' => 'form-label'],
+                                'hintOptions' => ['class' => 'form-text'],
+                            ]
+                        ]); ?>
 
-        <h4><i class="bi bi-info-circle"></i> Basic Information</h4>
-        
-        <div class="row">
-            <div class="col-md-8">
-                <?= $form->field($model, 'title')->textInput([
-                    'placeholder' => 'e.g., Midterm Exam - Mathematics',
-                    'class' => 'form-control'
-                ])->label('Test Title <span class="text-danger">*</span>') ?>
-            </div>
-            <div class="col-md-4">
-                <?= $form->field($model, 'status')->dropDownList([
-                    'draft' => 'Draft',
-                    'active' => 'Active',
-                    'closed' => 'Closed'
-                ], ['class' => 'form-select'])->label('Status <span class="text-danger">*</span>') ?>
+                        <div class="form-section section-purple">
+                            <h5 class="section-title title-purple"><i class="bi bi-info-circle-fill"></i> <?= Yii::t('app', 'Basic Information') ?></h5>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <?= $form->field($model, 'title')->textInput([
+                                        'placeholder' => 'e.g., Midterm Exam - Mathematics'
+                                    ])->label(Yii::t('app', 'Test Title')) ?>
+                                </div>
+                                <div class="col-md-4">
+                                    <?= $form->field($model, 'status')->dropDownList([
+                                        'draft' => '📝 Draft',
+                                        'active' => '✅ Active',
+                                        'closed' => '🔒 Closed'
+                                    ], ['class' => 'form-select form-glass-control'])->label(Yii::t('app', 'Status')) ?>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <?= $form->field($model, 'course_id')->dropDownList(
+                                        ArrayHelper::map(Course::find()->all(), 'id', 'name'),
+                                        ['prompt' => 'Select Course...', 'class' => 'form-select form-glass-control']
+                                    )->label(Yii::t('app', 'Course')) ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <?= $form->field($model, 'group_id')->dropDownList(
+                                        ArrayHelper::map(Group::find()->all(), 'id', 'name'),
+                                        ['prompt' => 'All Students (Optional)', 'class' => 'form-select form-glass-control']
+                                    )->label(Yii::t('app', 'Specific Group'))->hint(Yii::t('app', 'Leave empty to assign to all students in the course')) ?>
+                                </div>
+                            </div>
+
+                            <?= $form->field($model, 'description')->textarea([
+                                'rows' => 3,
+                                'placeholder' => 'Instructions for students...'
+                            ])->label(Yii::t('app', 'Description')) ?>
+                        </div>
+
+                        <div class="form-section section-orange">
+                            <h5 class="section-title title-orange"><i class="bi bi-sliders"></i> <?= Yii::t('app', 'Test Rules & Settings') ?></h5>
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <?= $form->field($model, 'duration')->textInput([
+                                        'type' => 'number', 'min' => 1
+                                    ])->label(Yii::t('app', 'Duration (min)')) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($model, 'passing_score')->textInput([
+                                        'type' => 'number', 'min' => 0, 'max' => 100
+                                    ])->label(Yii::t('app', 'Pass Score (%)')) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <?= $form->field($model, 'max_attempts')->dropDownList([
+                                        0 => Yii::t('app', 'Unlimited (Cheksiz)'),
+                                        1 => '1 marta',
+                                        2 => '2 marta',
+                                        3 => '3 marta',
+                                        4 => '4 marta',
+                                        5 => '5 marta',
+                                        10 => '10 marta',
+                                    ], ['class' => 'form-select form-glass-control'])->label(Yii::t('app', 'Max Attempts')) ?>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="checkbox-glass mt-1">
+                                        <div class="form-check form-switch">
+                                            <?= $form->field($model, 'require_face_control')->checkbox([
+                                                'class' => 'form-check-input',
+                                                'labelOptions' => ['class' => 'form-check-label text-white fw-bold']
+                                            ])->hint(Yii::t('app', 'Takes photo before starting')) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section section-cyan">
+                            <h5 class="section-title title-cyan"><i class="bi bi-calendar-range"></i> <?= Yii::t('app', 'Availability Schedule') ?></h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <?= $form->field($model, 'start_date')->input('datetime-local', [
+                                        'value' => $model->start_date ? date('Y-m-d\TH:i', strtotime($model->start_date)) : ''
+                                    ])->label(Yii::t('app', 'Opens At')) ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <?= $form->field($model, 'end_date')->input('datetime-local', [
+                                        'value' => $model->end_date ? date('Y-m-d\TH:i', strtotime($model->end_date)) : ''
+                                    ])->label(Yii::t('app', 'Closes At')) ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <?= Html::a(Yii::t('app', 'Cancel'), ['index'], ['class' => 'text-white-50 text-decoration-none']) ?>
+                            <?= Html::submitButton('<i class="bi bi-check-circle me-2"></i> ' . Yii::t('app', 'Update Test'), ['class' => 'btn-update-neon']) ?>
+                        </div>
+
+                        <?php ActiveForm::end(); ?>
+                    </div>
+                </div>
+
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <?= $form->field($model, 'course_id')->dropDownList(
-                    ArrayHelper::map(Course::find()->all(), 'id', 'name'),
-                    ['prompt' => 'Select Course', 'class' => 'form-select']
-                )->label('Course <span class="text-danger">*</span>') ?>
-            </div>
-            <div class="col-md-6">
-                <?= $form->field($model, 'group_id')->dropDownList(
-                    ArrayHelper::map(Group::find()->all(), 'id', 'name'),
-                    ['prompt' => 'Select Group (Optional)', 'class' => 'form-select']
-                )->label('Group')->hint('Leave empty for all students in the course') ?>
-            </div>
-        </div>
-
-        <?= $form->field($model, 'description')->textarea([
-            'rows' => 4,
-            'placeholder' => 'Describe the test objectives, topics covered, and any special instructions...',
-            'class' => 'form-control'
-        ])->label('Description')->hint('Optional: Provide additional context for students') ?>
-
-        <h4 class="mt-4"><i class="bi bi-gear"></i> Test Settings</h4>
-
-        <div class="row">
-            <div class="col-md-4">
-                <?= $form->field($model, 'duration')->textInput([
-                    'type' => 'number',
-                    'min' => 1,
-                    'placeholder' => '60',
-                    'class' => 'form-control'
-                ])->label('Duration (minutes) <span class="text-danger">*</span>')->hint('How long students have to complete the test') ?>
-            </div>
-            <div class="col-md-4">
-                <?= $form->field($model, 'passing_score')->textInput([
-                    'type' => 'number',
-                    'min' => 0,
-                    'max' => 100,
-                    'placeholder' => '60',
-                    'class' => 'form-control'
-                ])->label('Passing Score (%) <span class="text-danger">*</span>')->hint('Minimum score to pass') ?>
-            </div>
-            <div class="col-md-4">
-                <?= $form->field($model, 'require_face_control')->checkbox([
-                    'label' => 'Require Face Control',
-                    'class' => 'form-check-input'
-                ])->hint('Students must take a photo before starting')->label(false) ?>
-            </div>
-        </div>
-
-        <h4 class="mt-4"><i class="bi bi-calendar"></i> Schedule (Optional)</h4>
-
-        <div class="row">
-            <div class="col-md-6">
-                <?= $form->field($model, 'start_date')->input('datetime-local', [
-                    'class' => 'form-control',
-                    'value' => $model->start_date ? date('Y-m-d\TH:i', strtotime($model->start_date)) : ''
-                ])->label('Start Date & Time')->hint('When students can start taking the test') ?>
-            </div>
-            <div class="col-md-6">
-                <?= $form->field($model, 'end_date')->input('datetime-local', [
-                    'class' => 'form-control',
-                    'value' => $model->end_date ? date('Y-m-d\TH:i', strtotime($model->end_date)) : ''
-                ])->label('End Date & Time')->hint('Deadline for test submission') ?>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between mt-4">
-            <?= Html::a('<i class="bi bi-arrow-left"></i> Cancel', ['view', 'id' => $model->id], ['class' => 'btn btn-secondary']) ?>
-            <?= Html::submitButton('<i class="bi bi-check-circle"></i> Update Test', ['class' => 'btn btn-primary btn-lg']) ?>
-        </div>
-
-        <?php ActiveForm::end(); ?>
     </div>
 </div>

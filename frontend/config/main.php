@@ -14,14 +14,22 @@ return [
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
+            'baseUrl' => '',
+            // 'tempPath' => '@frontend/runtime/upload-temp',
         ],
         'user' => [
             'identityClass' => 'common\models\User',
             'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-frontend', 'httpOnly' => true],
+            'identityCookie' => ['name' => '_identity-frontend',
+                                 'httpOnly' => true,
+                                 'path' => '/',
+                                ],   
         ],
         'session' => [
             'name' => 'advanced-frontend',
+            'cookieParams' => [
+            'path' => '/',  
+        ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -60,6 +68,11 @@ return [
                 '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
                 'teacher-detail/<id:\d+>' => 'site/teacher-detail',
+
+                'support-api/get-tickets' => 'support-api/get-tickets',
+                'support-api/get-ticket/<id:\d+>' => 'support-api/get-ticket',
+                'support-api/create' => 'support-api/create',
+                'support-api/delete-ticket' => 'support-api/delete-ticket',
 
                 'teacher/my-students' => 'teacher/my-students',
                 'teacher/attendance-history/<id:\d+>' => 'teacher/attendance-history',

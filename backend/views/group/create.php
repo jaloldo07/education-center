@@ -1,8 +1,8 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Create Group';
-$this->params['breadcrumbs'][] = ['label' => 'Groups', 'url' => ['index']];
+$this->title = Yii::t('app', 'Create Group');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Groups'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

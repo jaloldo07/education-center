@@ -39,7 +39,9 @@ class TeacherApplication extends ActiveRecord
             [['email'], 'email'],
             [['email'], 'unique'],
             [['status'], 'in', 'range' => [self::STATUS_PENDING, self::STATUS_APPROVED, self::STATUS_REJECTED]],
-            [['cvFileUpload'], 'file', 'extensions' => 'pdf, doc, docx', 'maxSize' => 1024 * 1024 * 5], // 5MB
+            
+            // O'ZGARISH SHU YERDA: 'checkExtensionByMimeType' => false qo'shildi
+            [['cvFileUpload'], 'file', 'extensions' => 'pdf, doc, docx', 'maxSize' => 1024 * 1024 * 5, 'checkExtensionByMimeType' => false], 
         ];
     }
 
@@ -66,9 +68,13 @@ class TeacherApplication extends ActiveRecord
     public function upload()
     {
         if ($this->validate()) {
+            // Fayl nomini xavfsiz qilish va unikal qilish
             $filename = 'cv_' . time() . '_' . uniqid() . '.' . $this->cvFileUpload->extension;
+            
+            // Frontend papkasiga saqlash
             $path = Yii::getAlias('@frontend/web/uploads/cv/') . $filename;
 
+            // Papka yo'q bo'lsa yaratish
             if (!is_dir(Yii::getAlias('@frontend/web/uploads/cv/'))) {
                 mkdir(Yii::getAlias('@frontend/web/uploads/cv/'), 0777, true);
             }

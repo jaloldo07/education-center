@@ -1,325 +1,303 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use common\models\Test;
 
-$this->title = 'My Tests';
+$this->title = Yii::t('app', 'My Tests');
 ?>
 
 <style>
-    /* 🎨 Global Styles */
-    body {
-        background: #f8f9ff;
-    }
-
+    /* 1. Page Container */
     .test-list-page {
-        animation: fadeSlide 0.6s ease;
+        padding: 40px 0;
+        font-family: 'Nunito', sans-serif;
     }
 
-    /* 🔥 Page Header */
-    .page-header {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
-        color: white;
+    /* 2. Glass Header */
+    .glass-header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.2);
-    }
-
-    .page-header h2 {
-        font-weight: 700;
-        margin: 0;
-    }
-
-    /* 📝 Test Cards */
-    .test-card {
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-        border: 2px solid transparent;
-    }
-
-    .test-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.15);
-        border-color: #414fde;
-    }
-
-    .test-card-header {
-        background: linear-gradient(135deg, #7c8ac5ff 0%, #9d75c5ff 100%);
-        color: white;
-        padding: 1.5rem;
-        border-bottom: none;
-    }
-
-    .test-card-header h4 {
-        margin: 0;
-        font-weight: 700;
-    }
-
-    .test-card-body {
-        padding: 1.5rem;
-    }
-
-    .test-info-row {
+        padding: 30px;
+        margin-bottom: 40px;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 10px;
-        background: #f8f9ff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
-    .test-info-row i {
-        color: #414fde;
-        margin-right: 0.75rem;
-        font-size: 1.2rem;
+    .header-title h2 {
+        font-weight: 800;
+        color: white;
+        margin: 0;
+        font-size: 2rem;
+        text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
     }
 
-    .test-card-footer {
-        background: #f8f9ff;
-        padding: 2px;
-        border-top: 2px solid #efefff;
-    }
-
-    /* 🏷️ Badges */
-    .badge {
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .badge.bg-success {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
-    }
-
-    .badge.bg-warning {
-        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
-        color: white !important;
-    }
-
-    .badge.bg-secondary {
-        background: linear-gradient(135deg, #6c757d, #5a6268) !important;
-    }
-
-    .badge.bg-primary {
-        background: linear-gradient(135deg, #414fde, #333dcc) !important;
-    }
-
-    /* 🔘 Buttons */
-    .btn {
-        border-radius: 12px;
-        padding: 10px 18px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.3);
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #333dcc, #5563ff) !important;
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.4);
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
-    }
-
-    .btn-success:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
-    }
-
-    .btn-info {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.3);
-    }
-
-    .btn-info:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.4);
-    }
-
-    .btn-warning {
-        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
-        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
-    }
-
-    .btn-warning:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(255, 152, 0, 0.4);
-    }
-
-    .btn-danger {
-        background: linear-gradient(135deg, #f44336, #d32f2f) !important;
-        box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
-    }
-
-    .btn-danger:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(244, 67, 54, 0.4);
-    }
-
-    .btn-sm {
-        padding: 6px 12px;
-        font-size: 0.875rem;
-    }
-
-    /* 📌 Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: white;
+    /* 3. Test Cards (Glass) */
+    .test-glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
     }
 
-    .empty-state i {
-        font-size: 5rem;
-        color: #ddd;
-        margin-bottom: 1.5rem;
+    .test-glass-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
     }
 
-    .empty-state h4 {
-        color: #414fde;
-        font-weight: 700;
+    /* Card Top Gradient */
+    .card-top-gradient {
+        height: 6px;
+        width: 100%;
+        background: linear-gradient(90deg, #4361ee, #f72585);
     }
 
-    /* 🔔 Alert */
-    .alert {
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .alert-success {
-        background: linear-gradient(135deg, #4caf50, #45a049);
+    /* Card Body */
+    .card-body-glass {
+        padding: 25px;
+        flex-grow: 1;
         color: white;
     }
 
-    /* ✨ Animations */
-    @keyframes fadeSlide {
-        from {
-            opacity: 0;
-            transform: translateY(-15px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .test-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+    .test-title a { color: white; text-decoration: none; transition: 0.2s; }
+    .test-title a:hover { color: #4cc9f0; }
+
+    /* Meta Info */
+    .test-meta {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.6);
+        margin-bottom: 20px;
+        display: flex; flex-wrap: wrap; gap: 15px;
+    }
+    .meta-item { display: flex; align-items: center; gap: 6px; }
+    .meta-item i { color: #4cc9f0; }
+
+    /* Stats Grid inside card */
+    .card-stats-grid {
+        display: flex;
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 15px;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .stat-item { text-align: center; }
+    .stat-val { font-weight: 800; font-size: 1.1rem; color: white; display: block; }
+    .stat-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+
+    /* Status Badges */
+    .status-badge {
+        position: absolute;
+        top: 20px; right: 20px;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+    }
+    .status-active { background: rgba(74, 222, 128, 0.2); color: #4ade80; border-color: rgba(74, 222, 128, 0.3); }
+    .status-draft { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
+    .status-closed { background: rgba(248, 113, 113, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
+
+    /* Footer Actions */
+    .card-footer-glass {
+        padding: 15px 25px;
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    /* 📱 Responsive */
-    @media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-        }
-        .test-card-header,
-        .test-card-body {
-            padding: 1rem;
-        }
+    .action-group { display: flex; gap: 8px; }
+
+    .btn-glass-icon {
+        width: 35px; height: 35px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.7);
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: 0.2s;
+        text-decoration: none;
     }
+    .btn-glass-icon:hover { color: white; background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    
+    .btn-manage { color: #4cc9f0; border-color: rgba(76, 201, 240, 0.3); background: rgba(76, 201, 240, 0.1); }
+    .btn-manage:hover { background: #4cc9f0; color: white; }
+
+    /* Buttons */
+    .btn-create-neon {
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        color: #064e3b;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-create-neon:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(74, 222, 128, 0.6);
+        color: #064e3b;
+    }
+
+    .btn-glass-back {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 12px 25px;
+        border-radius: 12px;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .btn-glass-back:hover { background: white; color: black; }
+
+    /* Empty State */
+    .empty-glass {
+        text-align: center;
+        padding: 80px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 20px;
+        border: 1px dashed rgba(255,255,255,0.2);
+    }
+
 </style>
 
-<div class="test-list-page container-fluid py-4">
-    <!-- Header -->
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h2><i class="bi bi-list-check"></i> My Tests</h2>
-        <?= Html::a('<i class="bi bi-plus-circle"></i> Create New Test', ['create'], ['class' => 'btn btn-light']) ?>
-    </div>
-
-    <?php if (Yii::$app->session->hasFlash('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="bi bi-check-circle"></i> <?= Yii::$app->session->getFlash('success') ?>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+<div class="test-list-page">
+    <div class="container">
+        
+        <div class="glass-header animate__animated animate__fadeInDown">
+            <div class="header-title">
+                <h2><i class="bi bi-folder2-open text-primary me-2"></i> <?= Yii::t('app', 'My Tests') ?></h2>
+            </div>
+            <div class="d-flex gap-3">
+                <?= Html::a('<i class="bi bi-plus-lg me-1"></i> ' . Yii::t('app', 'Create Test'), ['create'], ['class' => 'btn-create-neon']) ?>
+                <?= Html::a('<i class="bi bi-arrow-left me-1"></i> ' . Yii::t('app', 'Lessons'), ['/lesson/index'], ['class' => 'btn-glass-back']) ?>
+            </div>
         </div>
-    <?php endif; ?>
 
-    <!-- Tests Grid -->
-    <div class="row">
         <?php if (empty($tests)): ?>
-            <div class="col-12">
-                <div class="empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <h4>No tests yet</h4>
-                    <p class="text-muted">Create your first test to get started</p>
-                    <?= Html::a('<i class="bi bi-plus-circle"></i> Create Test', ['create'], ['class' => 'btn btn-primary mt-3']) ?>
-                </div>
+            <div class="empty-glass animate__animated animate__fadeInUp">
+                <i class="bi bi-clipboard-x fa-4x mb-3 text-white-50"></i>
+                <h4 class="text-white"><?= Yii::t('app', 'No tests found') ?></h4>
+                <p class="text-white-50 mb-4"><?= Yii::t('app', 'Create your first test to assess your students.') ?></p>
+                <?= Html::a(Yii::t('app', 'Create New Test'), ['create'], ['class' => 'btn-create-neon']) ?>
             </div>
         <?php else: ?>
-            <?php foreach ($tests as $test): ?>
-                <div class="col-md-6 col-lg-4">
-                    <div class="test-card">
-                        <!-- Card Header -->
-                        <div class="test-card-header">
-                            <h4><?= Html::encode($test->title) ?></h4>
-                            <span class="badge bg-<?= $test->status === Test::STATUS_ACTIVE ? 'success' : ($test->status === Test::STATUS_DRAFT ? 'warning' : 'secondary') ?>">
-                                <?= ucfirst($test->status) ?>
+            
+            <div class="row">
+                <?php foreach ($tests as $test): ?>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="test-glass-card animate__animated animate__fadeInUp">
+                            <div class="card-top-gradient"></div>
+                            
+                            <?php 
+                            $statusClass = 'status-draft';
+                            $statusIcon = 'bi-pencil-square';
+                            if ($test->status === Test::STATUS_ACTIVE) { $statusClass = 'status-active'; $statusIcon = 'bi-check-circle'; }
+                            elseif ($test->status === Test::STATUS_CLOSED) { $statusClass = 'status-closed'; $statusIcon = 'bi-lock'; }
+                            ?>
+                            <span class="status-badge <?= $statusClass ?>">
+                                <i class="bi <?= $statusIcon ?> me-1"></i> <?= Yii::t('app', ucfirst($test->status)) ?>
                             </span>
-                        </div>
 
-                        <!-- Card Body -->
-                        <div class="test-card-body">
-                            <div class="test-info-row">
-                                <i class="bi bi-book"></i>
-                                <span><strong>Course:</strong> <?= Html::encode($test->course->name ?? 'N/A') ?></span>
-                            </div>
-
-                            <?php if ($test->group): ?>
-                                <div class="test-info-row">
-                                    <i class="bi bi-people"></i>
-                                    <span><strong>Group:</strong> <?= Html::encode($test->group->name) ?></span>
+                            <div class="card-body-glass">
+                                <div class="test-title">
+                                    <?= Html::encode($test->title) ?>
                                 </div>
-                            <?php endif; ?>
 
-                            <div class="test-info-row">
-                                <i class="bi bi-question-circle"></i>
-                                <span><strong>Questions:</strong> <?= $test->total_questions ?> questions</span>
-                            </div>
-
-                            <div class="test-info-row">
-                                <i class="bi bi-clock"></i>
-                                <span><strong>Duration:</strong> <?= $test->duration ?> minutes</span>
-                            </div>
-
-                            <div class="test-info-row">
-                                <i class="bi bi-trophy"></i>
-                                <span><strong>Pass Score:</strong> <?= $test->passing_score ?>%</span>
-                            </div>
-
-                            <?php if ($test->require_face_control): ?>
-                                <div class="test-info-row">
-                                    <i class="bi bi-camera"></i>
-                                    <span class="badge bg-primary">Face Control Required</span>
+                                <div class="test-meta">
+                                    <div class="meta-item" title="<?= Yii::t('app', 'Course') ?>">
+                                        <i class="bi bi-book"></i> <?= Html::encode($test->course->name ?? Yii::t('app', 'No Course')) ?>
+                                    </div>
+                                    <?php if ($test->group): ?>
+                                        <div class="meta-item" title="<?= Yii::t('app', 'Group') ?>">
+                                            <i class="bi bi-people"></i> <?= Html::encode($test->group->name) ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                            <?php endif; ?>
-                        </div>
 
-                        <!-- Card Footer -->
-                        <div class="test-card-footer d-flex gap-2 flex-wrap">
-                            <?= Html::a('<i class="bi bi-list-ul"></i> Questions', ['manage-questions', 'id' => $test->id], ['class' => 'btn btn-success btn-sm']) ?>
-                            <?= Html::a('<i class="bi bi-eye"></i> View', ['view', 'id' => $test->id], ['class' => 'btn btn-info btn-sm']) ?>
-                            <?= Html::a('<i class="bi bi-bar-chart"></i> Results', ['results', 'id' => $test->id], ['class' => 'btn btn-warning btn-sm']) ?>
-                            <?= Html::a('<i class="bi bi-pencil"></i>', ['update', 'id' => $test->id], ['class' => 'btn btn-primary btn-sm']) ?>
-                            <?= Html::a('<i class="bi bi-trash"></i>', ['delete', 'id' => $test->id], [
-                                'class' => 'btn btn-danger btn-sm',
-                                'data-method' => 'post',
-                                'data-confirm' => 'Are you sure you want to delete this test?'
-                            ]) ?>
+                                <div class="card-stats-grid">
+                                    <div class="stat-item">
+                                        <span class="stat-val"><?= $test->duration ?></span>
+                                        <span class="stat-lbl"><?= Yii::t('app', 'Mins') ?></span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-val"><?= $test->total_questions ?></span>
+                                        <span class="stat-lbl"><?= Yii::t('app', 'Questions') ?></span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-val"><?= $test->passing_score ?>%</span>
+                                        <span class="stat-lbl"><?= Yii::t('app', 'Pass') ?></span>
+                                    </div>
+                                </div>
+
+                                <?php if ($test->require_face_control): ?>
+                                    <div class="text-white-50 small mb-2">
+                                        <i class="bi bi-camera-video me-1 text-warning"></i> <?= Yii::t('app', 'Face Control Enabled') ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="card-footer-glass">
+                                <?= Html::a('<i class="bi bi-list-check me-2"></i> ' . Yii::t('app', 'Questions'), ['manage-questions', 'id' => $test->id], [
+                                    'class' => 'btn-glass-icon btn-manage', 
+                                    'style' => 'width: auto; padding: 0 15px; font-weight: 600;',
+                                    'title' => Yii::t('app', 'Manage Questions')
+                                ]) ?>
+
+                                <div class="action-group">
+                                    <?= Html::a('<i class="bi bi-bar-chart"></i>', ['results', 'id' => $test->id], [
+                                        'class' => 'btn-glass-icon',
+                                        'title' => Yii::t('app', 'View Results')
+                                    ]) ?>
+                                    <?= Html::a('<i class="bi bi-pencil-square"></i>', ['update', 'id' => $test->id], [
+                                        'class' => 'btn-glass-icon',
+                                        'title' => Yii::t('app', 'Edit Settings')
+                                    ]) ?>
+                                    <?= Html::a('<i class="bi bi-trash3"></i>', ['delete', 'id' => $test->id], [
+                                        'class' => 'btn-glass-icon text-danger',
+                                        'title' => Yii::t('app', 'Delete'),
+                                        'data' => [
+                                            'confirm' => Yii::t('app', 'Are you sure you want to delete this test?'),
+                                            'method' => 'post',
+                                        ],
+                                    ]) ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
+
         <?php endif; ?>
+
     </div>
 </div>

@@ -23,14 +23,26 @@ class Student extends ActiveRecord
     public function rules()
     {
         return [
-            [['full_name', 'email', 'enrolled_date'], 'required'], // user_id o'chirildi
+            // birth_date ham majburiy qilindi, aks holda yoshini tekshira olmaymiz
+            [['full_name', 'email', 'enrolled_date', 'birth_date'], 'required'], 
+            
             [['user_id'], 'integer'],
-            [['birth_date', 'enrolled_date'], 'safe'],
+            [['enrolled_date'], 'safe'],
             [['address'], 'string'],
             [['full_name', 'email'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 20],
             [['email'], 'email'],
             [['email'], 'unique'],
+            
+            // 🔥 YOSH CHEGARASI VA SANA TEKSHIRUVI
+            ['birth_date', 'date', 'format' => 'php:Y-m-d', 
+                // Maksimum sana: Bugundan 7 yil oldingi sana.
+                // Masalan, bugun 2026 yil bo'lsa, 2019 dan keyingi (katta) sanalarni qabul qilmaydi.
+                'max' => date('Y-m-d', strtotime('-7 years')), 
+                'tooBig' => Yii::t('app', 'Talaba kamida 7 yosh bo\'lishi kerak.'),
+                'message' => Yii::t('app', 'Sana formati noto\'g\'ri (YYYY-MM-DD).')
+            ],
+
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -40,22 +52,20 @@ class Student extends ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
-            'full_name' => 'Full Name',
-            'birth_date' => 'Birth Date',
-            'phone' => 'Phone',
-            'email' => 'Email',
-            'address' => 'Address',
-            'enrolled_date' => 'Enrolled Date',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'full_name' => Yii::t('app', 'Full Name'),
+            'birth_date' => Yii::t('app', 'Birth Date'),
+            'phone' => Yii::t('app', 'Phone'),
+            'email' => Yii::t('app', 'Email'),
+            'address' => Yii::t('app', 'Address'),
+            'enrolled_date' => Yii::t('app', 'Enrolled Date'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'updated_at' => Yii::t('app', 'Updated At'),
         ];
     }
-
 
     public function getEnrollments()
     {
         return $this->hasMany(Enrollment::class, ['student_id' => 'id'])->inverseOf('student');
-        // return $this->hasMany(Enrollment::class, ['student_id' => 'id']);
     }
 
     public function getPayments()
@@ -73,6 +83,7 @@ class Student extends ActiveRecord
     {
         return $this->hasMany(Attendance::class, ['student_id' => 'id'])->inverseOf('student');
     }
+
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);

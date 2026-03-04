@@ -1,364 +1,567 @@
 <?php
+
 use yii\helpers\Html;
-use yii\helpers\Url;
 use common\models\TestQuestion;
 
-$this->title = 'Taking Test: ' . $test->title;
+/* @var $this yii\web\View */
+/* @var $attempt common\models\TestAttempt */
+/* @var $test common\models\Test */
+/* @var $questions common\models\TestQuestion[] */
+/* @var $timeRemaining int */
+
+$this->title = Yii::t('app', 'Taking Test') . ': ' . $test->title;
 ?>
 
 <style>
+    /* 1. Page Container */
+    .take-test-page {
+        padding: 20px 0 60px 0;
+        font-family: 'Nunito', sans-serif;
+    }
 
-    /* ⏰ Sticky Timer Header */
-    .timer-header {
-        background: white;
+    /* 2. Sticky Header (Timer & Progress) */
+    .timer-glass-header {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.15);
-        padding: 1.5rem;
+        padding: 15px 25px;
         position: sticky;
-        top: 10px;
+        top: 20px;
         z-index: 1000;
-        margin-bottom: 2rem;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
     }
 
-    .timer-header h5 {
-        color: #414fde;
-        font-weight: 700;
+    .test-info h5 {
         margin: 0;
-    }
-
-    /* 📊 Progress Bar */
-    .progress {
-        height: 20px;
-        border-radius: 10px;
-        background: #efefff;
-        overflow: hidden;
-    }
-
-    .progress-bar {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
-        border-radius: 10px;
-        transition: width 0.3s ease;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    /* ⏱️ Timer Badge */
-    .timer-badge {
-        background: linear-gradient(135deg, #f44336, #d32f2f);
         color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-size: 1.3rem;
         font-weight: 700;
-        box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
-        display: inline-block;
-    }
-
-    .timer-badge.warning {
-        background: linear-gradient(135deg, #ff9800, #f57c00);
-    }
-
-    .timer-badge.danger {
-        background: linear-gradient(135deg, #212121, #424242);
-        animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
-    /* 📝 Question Cards */
-    .question-card {
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.08);
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-    }
-
-    .question-card:hover {
-        border-color: #414fde;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.15);
-    }
-
-    .question-header {
-        background: linear-gradient(135deg, #7c8ac5ff 0%, #9d75c5ff 100%);
-        color: white;
-        padding: 1.25rem;
-    }
-
-    .question-header h5 {
-        margin: 0;
-        font-weight: 700;
-    }
-
-    .question-body {
-        padding: 2rem;
-    }
-
-    .question-text {
-        font-size: 1.15rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 1.5rem;
-    }
-
-    /* 🏷️ Badges */
-    .badge {
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .badge.bg-primary {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-    }
-
-    .badge.bg-secondary {
-        background: linear-gradient(135deg, #6c757d, #5a6268) !important;
-    }
-
-    .badge.bg-info {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
-    }
-
-    /* ✅ Form Options */
-    .form-check {
-        background: #f8f9ff;
-        padding: 1rem;
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .form-check:hover {
-        background: #efefff;
-        border-color: #414fde;
-    }
-
-    .form-check-input {
-        width: 1.5rem;
-        height: 1.5rem;
-        border: 2px solid #414fde;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .form-check-input:checked {
-        background-color: #414fde;
-        border-color: #414fde;
-    }
-
-    .form-check-input[type="radio"] {
-        border-radius: 50%;
-    }
-
-    .form-check-label {
-        font-weight: 500;
-        color: #333;
-        cursor: pointer;
-        margin-left: 0.5rem;
-    }
-
-    /* 📝 Textarea */
-    textarea.form-control {
-        border-radius: 12px;
-        border: 2px solid #efefff;
-        padding: 1rem;
-        min-height: 120px;
-        transition: all 0.3s ease;
-    }
-
-    textarea.form-control:focus {
-        border-color: #414fde;
-        box-shadow: 0 0 0 0.2rem rgba(65, 79, 222, 0.15);
-    }
-
-    /* 🔔 Alert */
-    .alert-info {
-        background: linear-gradient(135deg, rgba(65, 79, 222, 0.1), rgba(107, 116, 255, 0.1));
-        border: 2px solid #414fde;
-        border-radius: 12px;
-        color: #414fde;
-        font-weight: 600;
-    }
-
-    /* 🔘 Submit Section */
-    .submit-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.2);
-        border: 3px solid #4caf50;
-        padding: 2.5rem;
-        text-align: center;
-    }
-
-    .submit-card h5 {
-        color: #4caf50;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    /* 🔘 Buttons */
-    .btn {
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
         font-size: 1.1rem;
-        padding: 14px 32px;
     }
 
-    .btn-success:hover {
-        background: linear-gradient(135deg, #45a049, #388e3c) !important;
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.5);
+    /* Progress Bar */
+    .progress-container {
+        flex-grow: 1;
+        margin: 0 30px;
+        position: relative;
     }
 
-    /* 📱 Responsive */
+    .progress-glass {
+        height: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar-neon {
+        height: 100%;
+        background: linear-gradient(90deg, #4361ee, #f72585);
+        width: 0%;
+        transition: width 0.3s ease;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+    }
+
+    .progress-text {
+        position: absolute;
+        top: -20px;
+        right: 0;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Timer Badge */
+    .timer-neon-badge {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 130px;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .timer-neon-badge.warning {
+        border-color: #fbbf24;
+        color: #fbbf24;
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+    }
+
+    .timer-neon-badge.danger {
+        border-color: #f87171;
+        color: #f87171;
+        box-shadow: 0 0 15px rgba(248, 113, 113, 0.3);
+        animation: pulseRed 1s infinite;
+    }
+
+    @keyframes pulseRed {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* 3. Question Cards */
+    .question-glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .question-glass-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .q-header {
+        padding: 20px 30px;
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .q-number {
+        font-weight: 800;
+        color: #4cc9f0;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .q-points {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .q-body {
+        padding: 30px;
+    }
+
+    .q-text {
+        font-size: 1.2rem;
+        color: white;
+        margin-bottom: 25px;
+        font-weight: 600;
+        line-height: 1.6;
+    }
+
+    /* 4. Options (Custom Radio/Checkbox) */
+    .option-wrapper {
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .option-input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .option-label {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+    }
+
+    .option-label:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .option-marker {
+        width: 24px;
+        height: 24px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        /* Radio by default */
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+        flex-shrink: 0;
+    }
+
+    /* Checkbox square style */
+    .option-input[type="checkbox"]+.option-label .option-marker {
+        border-radius: 6px;
+    }
+
+    .option-marker::after {
+        content: '';
+        width: 12px;
+        height: 12px;
+        background: white;
+        border-radius: 50%;
+        /* Radio */
+        opacity: 0;
+        transform: scale(0);
+        transition: 0.2s;
+    }
+
+    .option-input[type="checkbox"]+.option-label .option-marker::after {
+        border-radius: 2px;
+        /* Checkbox */
+    }
+
+    /* Checked State */
+    .option-input:checked+.option-label {
+        background: rgba(67, 97, 238, 0.2);
+        border-color: #4361ee;
+        color: white;
+        box-shadow: 0 0 20px rgba(67, 97, 238, 0.2);
+    }
+
+    .option-input:checked+.option-label .option-marker {
+        border-color: #4361ee;
+        background: #4361ee;
+    }
+
+    .option-input:checked+.option-label .option-marker::after {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Textarea */
+    .glass-textarea {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 12px;
+        padding: 15px;
+        width: 100%;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .glass-textarea:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 10px rgba(67, 97, 238, 0.3);
+    }
+
+    /* 5. Submit Section */
+    .submit-section {
+        background: rgba(15, 23, 42, 0.7);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 40px;
+    }
+
+    .btn-finish-neon {
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        color: #064e3b;
+        border: none;
+        padding: 15px 50px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        transition: 0.3s;
+    }
+
+    .btn-finish-neon:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 35px rgba(74, 222, 128, 0.6);
+        color: #064e3b;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-        .timer-header {
-            padding: 1rem;
+        .timer-glass-header {
+            flex-direction: column;
+            align-items: stretch;
+            top: 0;
         }
-        .timer-badge {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
+
+        .progress-container {
+            margin: 10px 0;
         }
-        .question-body {
-            padding: 1.5rem;
+
+        .timer-neon-badge {
+            width: 100%;
         }
     }
 </style>
 
-<div class="container-fluid py-3">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <!-- Timer & Progress Bar -->
-            <div class="timer-header">
-                <div class="row align-items-center g-3">
-                    <div class="col-md-4">
-                        <h5><i class="bi bi-file-text"></i> <?= Html::encode($test->title) ?></h5>
+<div class="take-test-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+
+                <div class="timer-glass-header animate__animated animate__fadeInDown">
+                    <div class="test-info">
+                        <h5><i class="bi bi-file-earmark-text me-2"></i> <?= Html::encode($test->title) ?></h5>
                     </div>
-                    <div class="col-md-4">
-                        <div class="progress">
-                            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                <span id="progress-text">0 / <?= count($questions) ?></span>
-                            </div>
+
+                    <div class="progress-container">
+                        <div class="progress-text"><span id="answered-count">0</span> / <?= count($questions) ?></div>
+                        <div class="progress-glass">
+                            <div id="progress-bar" class="progress-bar-neon"></div>
                         </div>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <span class="timer-badge" id="timer-badge">
-                            <i class="bi bi-clock"></i> <span id="time-display"><?= floor($timeRemaining / 60) ?>:<?= str_pad($timeRemaining % 60, 2, '0', STR_PAD_LEFT) ?></span>
-                        </span>
+
+                    <div class="timer-neon-badge" id="timer-badge">
+                        <i class="bi bi-stopwatch"></i>
+                        <span id="time-display"><?= floor($timeRemaining / 60) ?>:<?= str_pad($timeRemaining % 60, 2, '0', STR_PAD_LEFT) ?></span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Questions Form -->
-            <?= Html::beginForm(['submit', 'id' => $attempt->id], 'post', ['id' => 'test-form']) ?>
-                
+                <?= Html::beginForm(['submit', 'id' => $attempt->id], 'post', ['id' => 'test-form']) ?>
+
                 <?php foreach ($questions as $index => $question): ?>
-                    <div class="question-card" data-question="<?= $index ?>">
-                        <div class="question-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5>
-                                    <span class="badge bg-primary">Question <?= $index + 1 ?></span>
-                                    <span class="badge bg-secondary"><?= $question->points ?> point<?= $question->points > 1 ? 's' : '' ?></span>
-                                </h5>
-                                <span class="badge bg-info">
-                                    <i class="bi bi-<?= $question->question_type === TestQuestion::TYPE_TEXT ? 'keyboard' : 'check-square' ?>"></i>
-                                    <?= TestQuestion::getTypeOptions()[$question->question_type] ?>
-                                </span>
+                    <div class="question-glass-card animate__animated animate__fadeInUp" data-question="<?= $index ?>">
+                        <div class="q-header">
+                            <div class="q-number">
+                                <i class="bi bi-question-circle-fill"></i> <?= Yii::t('app', 'Question') ?> <?= $index + 1 ?>
+                            </div>
+                            <div class="q-points">
+                                <?= $question->points ?> pts
                             </div>
                         </div>
-                        <div class="question-body">
-                            <p class="question-text"><?= Html::encode($question->question_text) ?></p>
+
+                        <div class="q-body">
+                            <div class="q-text">
+                                <?= Html::encode($question->question_text) ?>
+                            </div>
 
                             <?php if ($question->question_type === TestQuestion::TYPE_SINGLE_CHOICE): ?>
-                                <!-- Single Choice -->
-                                <?php foreach ($question->optionsArray as $optIndex => $option): ?>
-                                    <div class="form-check">
-                                        <input class="form-check-input answer-input" 
-                                               type="radio" 
-                                               name="answers[<?= $question->id ?>]" 
-                                               value="<?= $optIndex ?>" 
-                                               id="q<?= $question->id ?>_opt<?= $optIndex ?>"
-                                               data-question="<?= $index ?>">
-                                        <label class="form-check-label" for="q<?= $question->id ?>_opt<?= $optIndex ?>">
-                                            <strong><?= chr(65 + $optIndex) ?>.</strong> <?= Html::encode($option) ?>
+
+                                <?php foreach ($question->optionsArray as $key => $option): ?>
+                                    <div class="option-wrapper">
+                                        <input class="option-input answer-input"
+                                            type="radio"
+                                            name="answers[<?= $question->id ?>]"
+                                            value="<?= $key ?>"
+                                            id="q<?= $question->id ?>_opt<?= $key ?>"
+                                            data-question="<?= $index ?>">
+                                        <label class="option-label" for="q<?= $question->id ?>_opt<?= $key ?>">
+                                            <span class="option-marker"></span>
+                                            <?= Html::encode($option) ?>
                                         </label>
                                     </div>
                                 <?php endforeach; ?>
 
                             <?php elseif ($question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE): ?>
-                                <!-- Multiple Choice -->
-                                <div class="alert alert-info mb-3">
-                                    <i class="bi bi-info-circle"></i> <strong>Select all correct answers</strong>
-                                </div>
-                                <?php foreach ($question->optionsArray as $optIndex => $option): ?>
-                                    <div class="form-check">
-                                        <input class="form-check-input answer-input" 
-                                               type="checkbox" 
-                                               name="answers[<?= $question->id ?>][]" 
-                                               value="<?= $optIndex ?>" 
-                                               id="q<?= $question->id ?>_opt<?= $optIndex ?>"
-                                               data-question="<?= $index ?>">
-                                        <label class="form-check-label" for="q<?= $question->id ?>_opt<?= $optIndex ?>">
-                                            <strong><?= chr(65 + $optIndex) ?>.</strong> <?= Html::encode($option) ?>
+
+                                <p class="text-white-50 small mb-3"><i class="bi bi-check-all me-1"></i> <?= Yii::t('app', 'Select all correct answers') ?></p>
+                                <?php foreach ($question->optionsArray as $key => $option): ?>
+                                    <div class="option-wrapper">
+                                        <input class="option-input answer-input"
+                                            type="checkbox"
+                                            name="answers[<?= $question->id ?>][]"
+                                            value="<?= $key ?>"
+                                            id="q<?= $question->id ?>_opt<?= $key ?>"
+                                            data-question="<?= $index ?>">
+                                        <label class="option-label" for="q<?= $question->id ?>_opt<?= $key ?>">
+                                            <span class="option-marker"></span>
+                                            <?= Html::encode($option) ?>
                                         </label>
                                     </div>
                                 <?php endforeach; ?>
 
                             <?php else: ?>
-                                <!-- Text Answer -->
-                                <textarea name="answers[<?= $question->id ?>]" 
-                                          class="form-control answer-input" 
-                                          rows="4" 
-                                          placeholder="Type your answer here..."
-                                          data-question="<?= $index ?>"></textarea>
+
+                                <div class="form-group">
+                                    <textarea name="answers[<?= $question->id ?>]"
+                                        class="glass-textarea answer-input"
+                                        rows="5"
+                                        placeholder="<?= Yii::t('app', 'Type your answer here...') ?>"
+                                        data-question="<?= $index ?>"></textarea>
+                                </div>
+
                             <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
 
-                <!-- Submit Button -->
-                <div class="submit-card">
-                    <h5><i class="bi bi-check-circle"></i> Ready to submit your test?</h5>
-                    <p class="text-muted mb-3">Make sure you've answered all questions!</p>
-                    <?= Html::submitButton('<i class="bi bi-send-fill"></i> Submit Test', [
-                        'class' => 'btn btn-success',
-                        'id' => 'submit-btn',
-                        'onclick' => 'return confirmSubmit()'
+                <div class="submit-section animate__animated animate__fadeInUp">
+                    <h4 class="text-white mb-3"><?= Yii::t('app', 'All set?') ?></h4>
+                    <p class="text-white-50 mb-4"><?= Yii::t('app', 'Review your answers before submitting. Good luck!') ?></p>
+                    <?= Html::button('<i class="bi bi-send-check me-2"></i> ' . Yii::t('app', 'Submit Test'), [
+                        'class' => 'btn-finish-neon',
+                        'id' => 'custom-submit-btn'
                     ]) ?>
                 </div>
 
-            <?= Html::endForm() ?>
+                <?= Html::endForm() ?>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .test-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .test-modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .test-modal-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        color: white;
+        max-width: 400px;
+        width: 90%;
+        transform: scale(0.8);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .test-modal-overlay.active .test-modal-box {
+        transform: scale(1);
+    }
+
+    .test-modal-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        text-shadow: 0 0 20px currentColor;
+    }
+    .glass-textarea {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        color: #fff !important;
+        padding: 15px;
+        width: 100%;
+        pointer-events: auto !important; /* 🔥 Asosiy yechim: Bosishga ruxsat berish */
+        position: relative;
+        z-index: 50; /* Boshqa qatlamlar to'sib qo'ymasligi uchun */
+    }
+    .glass-textarea:focus {
+        background: rgba(255, 255, 255, 0.1);
+        outline: none;
+        border-color: #4cc9f0;
+        box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
+    }
+</style>
+
+<div id="custom-test-modal" class="test-modal-overlay">
+    <div class="test-modal-box">
+        <div id="modal-icon" class="test-modal-icon"></div>
+        <h4 id="modal-title" class="mb-3 fw-bold"></h4>
+        <p id="modal-message" class="text-white-50 mb-4" style="line-height: 1.6;"></p>
+        <div id="modal-buttons" class="d-flex justify-content-center gap-3">
+            <button class="btn btn-secondary px-4 rounded-pill" onclick="closeTestModal()"><?= Yii::t('app', 'Bekor qilish') ?></button>
+            <button class="btn btn-primary px-4 rounded-pill" id="modal-confirm-btn"><?= Yii::t('app', 'Tasdiqlash') ?></button>
         </div>
     </div>
 </div>
 
 <script>
-// Timer
-let timeRemaining = <?= $timeRemaining ?>; // seconds
+// Modal boshqaruvi
+const modalOverlay = document.getElementById('custom-test-modal');
+const modalIcon = document.getElementById('modal-icon');
+const modalTitle = document.getElementById('modal-title');
+const modalMessage = document.getElementById('modal-message');
+const modalBtns = document.getElementById('modal-buttons');
+const confirmBtn = document.getElementById('modal-confirm-btn');
+
+function showTestModal(icon, iconClass, title, message, showCancel = true, confirmAction = null) {
+    modalIcon.innerHTML = `<i class="${icon}"></i>`;
+    modalIcon.className = `test-modal-icon ${iconClass}`;
+    modalTitle.textContent = title;
+    modalMessage.innerHTML = message;
+    
+    if (showCancel) {
+        modalBtns.style.display = 'flex';
+        confirmBtn.onclick = confirmAction;
+    } else {
+        modalBtns.style.display = 'none'; // Vaqt tugaganda tugmalar kerak emas
+    }
+    modalOverlay.classList.add('active');
+}
+
+function closeTestModal() {
+    modalOverlay.classList.remove('active');
+}
+
+let isSubmitting = false;
+
+function forceSubmit() {
+    isSubmitting = true; // Jo'natishni boshladik, brauzerga jim turishni aytamiz
+    document.getElementById('test-form').submit();
+}
+
+// Sahifadan tasodifan chiqib ketishni tasdiqlash
+window.addEventListener('beforeunload', function(e) {
+    if (!isSubmitting) { // 🔥 Agar forma jo'natilmayotgan bo'lsagina brauzer alerti chiqsin
+        e.preventDefault(); 
+        e.returnValue = '';
+    }
+});
+
+// Vaqt mantig'i (Timer logic)
+let timeRemaining = <?= $timeRemaining ?>;
 const timerDisplay = document.getElementById('time-display');
 const timerBadge = document.getElementById('timer-badge');
 
 function updateTimer() {
     if (timeRemaining <= 0) {
-        alert('⏰ Time is up! Submitting your test...');
-        document.getElementById('test-form').submit();
+        // Eski xunuk alert o'rniga:
+        showTestModal('bi bi-alarm', 'text-danger', '<?= Yii::t('app', 'Vaqt tugadi!') ?>', '<?= Yii::t('app', 'Test avtomatik ravishda yakunlanmoqda...') ?>', false);
+        setTimeout(forceSubmit, 2000); // 2 soniyadan keyin avtomat jo'natadi
         return;
     }
     
@@ -366,58 +569,77 @@ function updateTimer() {
     const seconds = timeRemaining % 60;
     timerDisplay.textContent = minutes + ':' + seconds.toString().padStart(2, '0');
     
-    // Warning colors
     if (timeRemaining <= 60) {
-        timerBadge.classList.remove('warning');
-        timerBadge.classList.add('danger');
+        timerBadge.className = 'timer-neon-badge danger';
     } else if (timeRemaining <= 300) {
-        timerBadge.classList.add('warning');
+        timerBadge.className = 'timer-neon-badge warning';
     }
-    
     timeRemaining--;
 }
 
-// Start timer
+setInterval(updateTimer, 1000);
 updateTimer();
-const timerInterval = setInterval(updateTimer, 1000);
 
-// Progress tracking
+// Javoblarni kuzatish (Progress Tracking)
 const answerInputs = document.querySelectorAll('.answer-input');
 const progressBar = document.getElementById('progress-bar');
-const progressText = document.getElementById('progress-text');
+const answeredCountEl = document.getElementById('answered-count');
 const totalQuestions = <?= count($questions) ?>;
-let answeredQuestions = new Set();
+let answeredSet = new Set();
 
 answerInputs.forEach(input => {
-    input.addEventListener('change', function() {
-        const questionIndex = this.getAttribute('data-question');
-        answeredQuestions.add(questionIndex);
+    // 🔥 Textarea uchun har bir harf yozganda (input), boshqalar uchun belgilaganda (change) ishlaydi
+    let eventType = input.tagName === 'TEXTAREA' ? 'input' : 'change';
+
+    input.addEventListener(eventType, () => {
+        if (input.tagName === 'TEXTAREA') {
+            if (input.value.trim().length > 0) {
+                answeredSet.add(input.getAttribute('data-question'));
+            } else {
+                answeredSet.delete(input.getAttribute('data-question'));
+            }
+        } else {
+            answeredSet.add(input.getAttribute('data-question'));
+        }
         updateProgress();
     });
+    
+    // Sahifa yuklanganda avvaldan yozilgan matn bo'lsa tekshirish
+    if (input.tagName === 'TEXTAREA' && input.value.trim().length > 0) {
+        answeredSet.add(input.getAttribute('data-question'));
+    }
 });
 
 function updateProgress() {
-    const answered = answeredQuestions.size;
-    const percentage = Math.round((answered / totalQuestions) * 100);
-    progressBar.style.width = percentage + '%';
-    progressBar.setAttribute('aria-valuenow', percentage);
-    progressText.textContent = answered + ' / ' + totalQuestions;
+    const count = answeredSet.size;
+    progressBar.style.width = Math.round((count / totalQuestions) * 100) + '%';
+    answeredCountEl.textContent = count;
 }
 
-function confirmSubmit() {
-    clearInterval(timerInterval);
-    const answered = answeredQuestions.size;
+// Eski confirm() o'rniga Custom Modalni chaqirish
+document.getElementById('custom-submit-btn').addEventListener('click', function() {
+    const answered = answeredSet.size;
     
     if (answered < totalQuestions) {
-        return confirm('⚠️ You have only answered ' + answered + ' out of ' + totalQuestions + ' questions.\n\nSubmit anyway?');
+        showTestModal(
+            'bi bi-exclamation-triangle-fill', 'text-warning',
+            '<?= Yii::t('app', 'Diqqat!') ?>',
+            '<?= Yii::t('app', 'Sizda belgilanmagan savollar bor.<br>Haqiqatan ham testni yakunlamoqchimisiz?') ?>',
+            true, forceSubmit
+        );
+    } else {
+        showTestModal(
+            'bi bi-check-circle-fill', 'text-success',
+            '<?= Yii::t('app', 'Ajoyib!') ?>',
+            '<?= Yii::t('app', 'Barcha savollarga javob berdingiz.<br>Testni yakunlaysizmi?') ?>',
+            true, forceSubmit
+        );
     }
-    
-    return confirm('✅ Are you sure you want to submit your test?');
-}
+});
 
-// Prevent accidental page close
+// Sahifadan chiqib ketishni tasdiqlash
 window.addEventListener('beforeunload', function(e) {
-    e.preventDefault();
-    e.returnValue = 'You have an active test. Are you sure you want to leave?';
+    e.preventDefault(); 
+    e.returnValue = '';
 });
 </script>

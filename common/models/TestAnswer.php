@@ -121,21 +121,21 @@ class TestAnswer extends ActiveRecord
     /**
      * Grade the answer
      */
+    /**
+     * Grade the answer
+     */
     public function grade()
     {
         $question = $this->question;
+        $studentAnswer = $this->answerArray; // Default holatda massivni olamiz
 
-        // Pass answer in correct format
-        if ($question->question_type === TestQuestion::TYPE_SINGLE_CHOICE) {
-            // For single choice, pass the first element, not array
-            $studentAnswer = isset($this->answerArray[0]) ? $this->answerArray[0] : null;
-        } elseif ($question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE) {
-            // For multiple choice, pass the full array
-            $studentAnswer = $this->answerArray;
-        } else {
-            // For text, pass the string
-            $studentAnswer = $this->answerArray[0] ?? '';
+        // Faqat Matnli savol bo'lsagina stringga o'giramiz
+        if ($question->question_type === TestQuestion::TYPE_TEXT) {
+             $studentAnswer = isset($this->answerArray[0]) ? $this->answerArray[0] : '';
         }
+        
+        // Single Choice va Multiple Choice uchun MASSIV ($this->answerArray) ketadi.
+        // Chunki checkAnswer() funksiyasi array_diff bilan ishlaydi.
 
         $this->is_correct = $question->checkAnswer($studentAnswer);
         $this->points_awarded = $this->is_correct ? $question->points : 0;

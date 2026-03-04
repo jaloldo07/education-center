@@ -1,10 +1,10 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Update Enrollment #' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Enrollments', 'url' => ['index']];
+$this->title = Yii::t('app', 'Update Enrollment') . ' #' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Enrollments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => '#' . $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 ?>
 
 <div class="enrollment-update">

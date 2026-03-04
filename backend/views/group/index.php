@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-$this->title = 'Groups';
+$this->title = Yii::t('app', 'Groups');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -21,70 +21,86 @@ $this->params['breadcrumbs'][] = $this->title;
 </style>
 
 <div class="group-index">
-    <div class="card">
-        <div class="card-header">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <h1><?= Html::encode($this->title) ?></h1>
-                <?= Html::a('<i class="fas fa-plus"></i> Add Group', ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+                <h4 class="mb-0 text-white"><?= Html::encode($this->title) ?></h4>
+                <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Add Group'), ['create'], ['class' => 'btn btn-light text-primary fw-bold']) ?>
             </div>
         </div>
         <div class="card-body">
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-                'tableOptions' => ['class' => 'table table-striped table-hover'],
+                'tableOptions' => ['class' => 'table table-striped table-hover align-middle'],
                 'columns' => [
                     ['class' => 'yii\grid\SerialColumn'],
 
-                    'id',
+                    // 'id',
                     [
                         'attribute' => 'name',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Name'),
                         'value' => function ($model) {
                             return Html::a(
-                                '<i class="fas fa-users text-warning"></i> ' . Html::encode($model->name),
+                                '<i class="fas fa-users text-warning me-1"></i> ' . Html::encode($model->name),
                                 ['/group/view', 'id' => $model->id],
-                                ['style' => 'text-decoration: none; font-weight: bold;']
+                                ['class' => 'text-decoration-none fw-bold text-dark']
                             );
                         },
                     ],
                     [
                         'attribute' => 'course_id',
+                        'label' => Yii::t('app', 'Course'),
                         'value' => function ($model) {
-                            return $model->course->name ?? 'N/A';
+                            return $model->course->name ?? Yii::t('app', 'N/A');
                         }
                     ],
                     [
                         'attribute' => 'teacher_id',
+                        'label' => Yii::t('app', 'Teacher'),
                         'value' => function ($model) {
-                            return $model->teacher->full_name ?? 'N/A';
+                            return $model->teacher->full_name ?? Yii::t('app', 'N/A');
                         }
                     ],
+                    
+                    // 🔥 YANGI USTUNLAR
+                    'schedule',
+                    'room',
+                    [
+                        'attribute' => 'status',
+                        'format' => 'raw',
+                        'value' => function($model) {
+                            $colors = [
+                                'active' => 'success',
+                                'pending' => 'warning',
+                                'finished' => 'secondary'
+                            ];
+                            $color = $colors[$model->status] ?? 'primary';
+                            return "<span class='badge bg-{$color}'>" . ucfirst($model->status) . "</span>";
+                        }
+                    ],
+
                     [
                         'attribute' => 'created_at',
                         'format' => ['date', 'php:Y-m-d'],
+                        'label' => Yii::t('app', 'Created'),
                     ],
 
                     [
                         'class' => 'yii\grid\ActionColumn',
+                        'header' => 'Actions',
                         'template' => '{view} {update} {delete}',
                         'buttons' => [
                             'view' => function ($url, $model) {
-                                return Html::a('<i class="fas fa-eye"></i>', $url, [
-                                    'class' => 'btn btn-sm btn-info',
-                                    'title' => 'View',
-                                ]);
+                                return Html::a('<i class="fas fa-eye"></i>', $url, ['class' => 'btn btn-sm btn-info text-white me-1']);
                             },
                             'update' => function ($url, $model) {
-                                return Html::a('<i class="fas fa-edit"></i>', $url, [
-                                    'class' => 'btn btn-sm btn-primary',
-                                    'title' => 'Update',
-                                ]);
+                                return Html::a('<i class="fas fa-edit"></i>', $url, ['class' => 'btn btn-sm btn-primary me-1']);
                             },
                             'delete' => function ($url, $model) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'title' => 'Delete',
-                                    'data-confirm' => 'Are you sure you want to delete this group?',
+                                    'data-confirm' => Yii::t('app', 'Delete group?'),
                                     'data-method' => 'post',
                                 ]);
                             },

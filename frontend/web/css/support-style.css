@@ -1,0 +1,170 @@
+/* ==============================================
+   FLOATING CHAT WIDGET - RESTORED & POLISHED
+   ============================================== */
+
+/* 1. Basic Resets */
+* {
+    box-sizing: border-box;
+}
+
+/* 2. Tab System (ORIGINAL LOGIKA SAQLANDI) */
+.tab-content {
+    display: none;
+    height: 100%; /* Balandlikni to'g'rilash */
+}
+
+.tab-content.active {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+/* Tab tugmalari stili */
+.tab-btn {
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.tab-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.tab-btn.active {
+    background: white !important;
+    color: #4e54c8 !important; /* Brend rangi */
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    opacity: 1;
+}
+
+/* 3. Contact & Group Items (CHIROYLIROQ QILINDI) */
+.contact-item, .ticket-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    background: white; /* Oq fon */
+    border: 1px solid #f1f5f9; /* Juda och chiziq */
+}
+
+.contact-item:hover, .ticket-item:hover {
+    background: #f8faff; /* Och ko'k hover */
+    transform: translateX(5px); /* Kichik siljish effekti */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 4. Messages (XABARLAR DIZAYNI) */
+.message {
+    margin-bottom: 12px;
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.message.mine {
+    justify-content: flex-end;
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Mening xabarim: Chiroyli Gradient */
+.message.mine .message-bubble {
+    background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+/* Birovning xabari: Toza Oq */
+.message:not(.mine) .message-bubble {
+    background: #f1f5f9; /* Och kulrang fon */
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+}
+
+.message-time {
+    font-size: 10px;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.message.mine .message-time { text-align: right; color: rgba(255,255,255,0.8); }
+.message:not(.mine) .message-time { text-align: left; color: #94a3b8; }
+
+/* 5. Support Tickets */
+.ticket-item {
+    border-left: 4px solid #fbbf24; /* Sariq indikator */
+}
+
+/* 6. Buttons (Hover effektlari) */
+#clear-chat-btn, #clear-group-chat-btn, #delete-ticket-btn {
+    transition: all 0.2s;
+}
+
+#clear-chat-btn:hover, 
+#clear-group-chat-btn:hover, 
+#delete-ticket-btn:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: rotate(90deg);
+}
+
+/* 7. Loading & Scrollbars */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+    font-style: italic;
+}
+
+/* Ingichka Scrollbar */
+.contact-list::-webkit-scrollbar,
+.group-list::-webkit-scrollbar,
+#messages-container::-webkit-scrollbar,
+#group-messages-container::-webkit-scrollbar,
+#support-list::-webkit-scrollbar,
+#ticket-details::-webkit-scrollbar {
+    width: 5px;
+}
+
+.contact-list::-webkit-scrollbar-track,
+#messages-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.contact-list::-webkit-scrollbar-thumb,
+#messages-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.contact-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* 8. Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsive Fix */
+@media (max-width: 480px) {
+    #chat-popup {
+        width: 100% !important;
+        height: 100% !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        border-radius: 0 !important;
+    }
+}

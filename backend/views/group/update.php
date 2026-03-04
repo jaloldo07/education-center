@@ -1,10 +1,10 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Update Group: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Groups', 'url' => ['index']];
+$this->title = Yii::t('app', 'Update Group') . ': ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Groups'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 ?>
 
 <div class="group-update">

@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-$this->title = 'Enrollments';
+$this->title = Yii::t('app', 'Enrollments');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <h1><?= Html::encode($this->title) ?></h1>
-                <?= Html::a('<i class="fas fa-plus"></i> New Enrollment', ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+                <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'New Enrollment'), ['create'], ['class' => 'btn btn-success btn-hover']) ?>
             </div>
         </div>
         <div class="card-body">
@@ -43,6 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'student_id',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Student'),
                         'value' => function ($model) {
                             return Html::a(
                                 '<i class="fas fa-user-graduate text-primary"></i> ' . Html::encode($model->student->full_name),
@@ -56,6 +57,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'group_id',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Group'),
                         'value' => function ($model) {
                             return Html::a(
                                 '<i class="fas fa-users text-success"></i> ' . Html::encode($model->group->name),
@@ -68,14 +70,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'enrolled_on',
                         'format' => ['date', 'php:Y-m-d'],
+                        'label' => Yii::t('app', 'Enrolled On'),
                     ],
 
                     [
                         'attribute' => 'status',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Status'),
                         'value' => function ($model) {
                             $class = $model->status == 'active' ? 'success' : 'secondary';
-                            return '<span class="badge bg-' . $class . '">' . ucfirst($model->status) . '</span>';
+                            return '<span class="badge bg-' . $class . '">' . Yii::t('app', ucfirst($model->status)) . '</span>';
                         },
                     ],
 
@@ -92,7 +96,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'delete' => function ($url) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'data-confirm' => 'Are you sure?',
+                                    'data-confirm' => Yii::t('app', 'Are you sure?'),
                                     'data-method' => 'post',
                                 ]);
                             },

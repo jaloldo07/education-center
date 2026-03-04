@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-$this->title = 'Students';
+$this->title = Yii::t('app', 'Students');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -24,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="student-index">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-user-graduate"></i> <?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="fas fa-plus"></i> Add Student', ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+        <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Add Student'), ['create'], ['class' => 'btn btn-success btn-hover']) ?>
     </div>
 
     <div class="card shadow">
@@ -38,6 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'full_name',
                         'format' => 'raw',
+                        'label' => Yii::t('app', 'Full Name'),
                         'value' => function ($model) {
                             return Html::a(
                                 '<i class="fas fa-user text-primary"></i> ' . Html::encode($model->full_name),
@@ -49,26 +50,28 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'birth_date',
                         'format' => ['date', 'php:Y-m-d'],
+                        'label' => Yii::t('app', 'Birth Date'),
                     ],
                     [
                         'attribute' => 'enrolled_date',
                         'format' => ['date', 'php:Y-m-d'],
+                        'label' => Yii::t('app', 'Enrolled Date'),
                     ],
                     [
                         'class' => 'yii\grid\ActionColumn',
                         'template' => '{view} {update} {delete}',
                         'buttons' => [
                             'view' => function ($url) {
-                                return Html::a('<i class="fas fa-eye"></i>', $url, ['class' => 'btn btn-sm btn-info', 'title' => 'View']);
+                                return Html::a('<i class="fas fa-eye"></i>', $url, ['class' => 'btn btn-sm btn-info', 'title' => Yii::t('app', 'View')]);
                             },
                             'update' => function ($url) {
-                                return Html::a('<i class="fas fa-edit"></i>', $url, ['class' => 'btn btn-sm btn-primary', 'title' => 'Update']);
+                                return Html::a('<i class="fas fa-edit"></i>', $url, ['class' => 'btn btn-sm btn-primary', 'title' => Yii::t('app', 'Update')]);
                             },
                             'delete' => function ($url) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'title' => 'Delete',
-                                    'data-confirm' => 'Are you sure?',
+                                    'title' => Yii::t('app', 'Delete'),
+                                    'data-confirm' => Yii::t('app', 'Are you sure you want to delete this student?'),
                                     'data-method' => 'post',
                                 ]);
                             },

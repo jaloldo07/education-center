@@ -1,10 +1,16 @@
 <?php
+
 use yii\helpers\Html;
 
-$this->title = 'Update Payment #' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Payments', 'url' => ['index']];
+/* @var $this yii\web\View */
+/* @var $model common\models\Payment */
+/* @var $students array */
+/* @var $courses array */
+
+$this->title = Yii::t('app', 'Update Payment') . ' #' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Payments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => '#' . $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 ?>
 
 <div class="payment-update">
@@ -13,7 +19,11 @@ $this->params['breadcrumbs'][] = 'Update';
             <h4 class="mb-0"><i class="fas fa-edit"></i> <?= Html::encode($this->title) ?></h4>
         </div>
         <div class="card-body">
-            <?= $this->render('_form', ['model' => $model, 'students' => $students, 'courses' => $courses]) ?>
+            <?= $this->render('_form', [
+                'model' => $model, 
+                'students' => $students, 
+                'courses' => $courses
+            ]) ?>
         </div>
     </div>
 </div>

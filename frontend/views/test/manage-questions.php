@@ -1,323 +1,386 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use common\models\TestQuestion;
 
-
-$this->title = 'Manage Questions: ' . $test->title;
+$this->title = Yii::t('app', 'Manage Questions') . ': ' . $test->title;
 ?>
 
 <style>
-    /* 🎨 Global Styles */
-    body {
-        background: #f8f9ff;
-    }
-
+    /* 1. Page Container */
     .manage-questions-page {
-        animation: fadeSlide 0.6s ease;
+        padding: 40px 0;
+        font-family: 'Nunito', sans-serif;
     }
 
-    /* 🔥 Page Card */
-    .page-card {
-        background: white;
+    /* 2. Header Gradient */
+    .glass-header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.1);
-        overflow: hidden;
+        padding: 30px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    .card-header-custom {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
+    .header-title h4 {
+        font-weight: 800;
         color: white;
-        padding: 2rem;
-    }
-
-    .card-header-custom h4 {
-        font-weight: 700;
         margin: 0;
+        font-size: 1.5rem;
+        text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
     }
 
-    .card-body-custom {
-        padding: 2rem;
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 5px;
+        font-size: 1rem;
     }
 
-    /* 📊 Stats */
-    .stats-section {
-        background: #f8f9ff;
-        padding: 1.5rem;
+    /* 3. Stats Section */
+    .stats-glass-box {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
-        margin-bottom: 2rem;
+        padding: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    /* 🏷️ Badges */
-    .badge {
+    .stat-badge {
         padding: 8px 16px;
         border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .badge.bg-info {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
+    .stat-badge.info {
+        background: rgba(56, 189, 248, 0.2);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.3);
     }
 
-    .badge.bg-success {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
+    .stat-badge.success {
+        background: rgba(74, 222, 128, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
     }
 
-    .badge.bg-primary {
-        background: linear-gradient(135deg, #414fde, #6b74ff) !important;
+    /* 4. Question Cards */
+    .question-glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: 0.3s;
     }
 
-    .badge.bg-warning {
-        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
-        color: white !important;
+    .question-glass-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    /* 📝 Question Cards */
-    .question-card {
-        background: white;
-        border: 2px solid #efefff;
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
+    .q-header {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
     }
 
-    .question-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 25px rgba(65, 79, 222, 0.15);
-        border-color: #414fde;
-    }
-
-    .question-number {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
+    .q-number {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
         color: white;
-        width: 40px;
-        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.4);
+    }
+
+    .q-body {
+        flex-grow: 1;
+    }
+
+    .q-text {
         font-weight: 700;
+        color: white;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        line-height: 1.5;
     }
 
-    .question-text {
+    .q-meta {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .meta-badge {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #333;
-        margin-bottom: 2rem;
-        font-size: 1.05rem;
+        text-transform: uppercase;
     }
 
-    /* 📋 Options */
-    .options-list {
-        background: #f8f9ff;
+    .meta-type {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .meta-points {
+        background: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+    }
+
+    /* Options */
+    .options-glass-list {
+        background: rgba(0, 0, 0, 0.2);
         border-radius: 12px;
-        padding: 1rem;
-        margin-top: 1rem;
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .option-item {
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
+        padding: 8px 12px;
         border-radius: 8px;
+        margin-bottom: 5px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+
+    .option-item:last-child {
+        margin-bottom: 0;
     }
 
     .option-item.correct {
-        background: rgba(76, 175, 80, 0.1);
-        border-left: 4px solid #4caf50;
+        background: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.2);
+        font-weight: 600;
     }
 
     .option-letter {
+        margin-right: 10px;
         font-weight: 700;
-        color: #414fde;
-        margin-right: 0.75rem;
+        opacity: 0.7;
     }
 
-    .option-item.correct .option-letter {
-        color: #4caf50;
+    /* Actions */
+    .q-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-left: 20px;
     }
 
-    /* 🔘 Buttons */
-    .btn {
-        border-radius: 12px;
-        padding: 10px 18px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
+    .btn-icon-glass {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, #4caf50, #45a049) !important;
-        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+    .btn-edit {
+        color: #fbbf24;
     }
 
-    .btn-success:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: black;
     }
 
-    .btn-warning {
-        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
-        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+    .btn-delete {
+        color: #f87171;
     }
 
-    .btn-warning:hover {
-        transform: translateY(-3px);
-    }
-
-    .btn-danger {
-        background: linear-gradient(135deg, #f44336, #d32f2f) !important;
-        box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
-    }
-
-    .btn-danger:hover {
-        transform: translateY(-3px);
-    }
-
-    .btn-light {
-        background: white !important;
-        color: #414fde;
-    }
-
-    .btn-light:hover {
-        transform: scale(1.05);
-    }
-
-    /* 📌 Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: #f8f9ff;
-        border-radius: 16px;
-    }
-
-    .empty-state i {
-        font-size: 5rem;
-        color: #ddd;
-        margin-bottom: 1.5rem;
-    }
-
-    .empty-state h5 {
-        color: #414fde;
-        font-weight: 700;
-    }
-
-    /* 🔔 Alert */
-    .alert-success {
-        background: linear-gradient(135deg, #4caf50, #45a049);
+    .btn-delete:hover {
+        background: #f87171;
         color: white;
-        border-radius: 16px;
-        border: none;
     }
 
-    /* ✨ Animations */
-    @keyframes fadeSlide {
-        from {
-            opacity: 0;
-            transform: translateY(-15px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Buttons */
+    .btn-create-neon {
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        color: #064e3b;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-create-neon:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px rgba(74, 222, 128, 0.6);
+        color: #064e3b;
+    }
+
+    .btn-glass-back {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 20px;
+        border-radius: 12px;
+        transition: 0.3s;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-glass-back:hover {
+        background: white;
+        color: black;
+    }
+
+    /* Empty State */
+    .empty-glass {
+        text-align: center;
+        padding: 60px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
     }
 </style>
 
-<div class="manage-questions-page container-fluid py-4">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <div class="page-card">
-                <div class="card-header-custom">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4><i class="bi bi-list-check"></i> Manage Questions</h4>
-                            <small><?= Html::encode($test->title) ?></small>
+
+<div class="manage-questions-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+
+                <div class="glass-header animate__animated animate__fadeInDown">
+                    <div>
+                        <div class="header-title">
+                            <h4><i class="bi bi-list-check me-2"></i> <?= Yii::t('app', 'Manage Questions') ?></h4>
                         </div>
-                        <?= Html::a('<i class="bi bi-arrow-left"></i> Back', ['index'], ['class' => 'btn btn-light btn-sm']) ?>
+                        <div class="header-subtitle"><?= Html::encode($test->title) ?></div>
                     </div>
+                    <?= Html::a('<i class="bi bi-arrow-left me-1"></i> ' . Yii::t('app', 'Back'), ['index'], ['class' => 'btn-glass-back']) ?>
                 </div>
 
-                <div class="card-body-custom">
-                    <?php if (Yii::$app->session->hasFlash('success')): ?>
-                        <div class="alert alert-success alert-dismissible fade show">
-                            <i class="bi bi-check-circle"></i> <?= Yii::$app->session->getFlash('success') ?>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                <div class="stats-glass-box animate__animated animate__fadeInUp">
+                    <div class="d-flex gap-3">
+                        <div class="stat-badge info">
+                            <i class="bi bi-question-circle"></i> <?= Yii::t('app', 'Questions') ?>: <?= count($questions) ?>
                         </div>
-                    <?php endif; ?>
-
-                    <div class="stats-section d-flex justify-content-between align-items-center">
-                        <div class="d-flex gap-3">
-                            <span class="badge bg-info">
-                                <i class="bi bi-question-circle"></i> Questions: <?= count($questions) ?>
-                            </span>
-                            <span class="badge bg-success">
-                                <i class="bi bi-trophy"></i> Points: <?= $test->getTotalPoints() ?>
-                            </span>
+                        <div class="stat-badge success">
+                            <i class="bi bi-trophy"></i> <?= Yii::t('app', 'Total Points') ?>: <?= $test->getTotalPoints() ?>
                         </div>
-                        <?= Html::a('<i class="bi bi-plus-circle"></i> Add Question', ['add-question', 'test_id' => $test->id], ['class' => 'btn btn-success']) ?>
                     </div>
+                    <?= Html::a('<i class="bi bi-plus-circle"></i> ' . Yii::t('app', 'Add Question'), ['add-question', 'test_id' => $test->id], ['class' => 'btn-create-neon']) ?>
+                </div>
 
-                    <?php if (empty($questions)): ?>
-                        <div class="empty-state">
-                            <i class="bi bi-inbox"></i>
-                            <h5>No questions yet</h5>
-                            <p class="text-muted">Add your first question to get started</p>
-                            <?= Html::a('<i class="bi bi-plus-circle"></i> Add Question', ['add-question', 'test_id' => $test->id], ['class' => 'btn btn-success mt-3']) ?>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach ($questions as $index => $question): ?>
-                            <div class="question-card">
-                                <div class="d-flex gap-3">
-                                    <div class="question-number"><?= $index + 1 ?></div>
-                                    <div class="flex-grow-1">
-                                        <div class="question-text">
-                                            <?= Html::encode($question->question_text) ?>
-                                        </div>
-                                        <div class="d-flex gap-2 mb-2">
-                                            <span class="badge bg-<?= $question->question_type === TestQuestion::TYPE_SINGLE_CHOICE ? 'primary' : ($question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE ? 'warning' : 'info') ?>">
-                                                <?= TestQuestion::getTypeOptions()[$question->question_type] ?>
-                                            </span>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-star"></i> <?= $question->points ?> pt
-                                            </span>
-                                        </div>
+                <?php if (empty($questions)): ?>
+                    <div class="empty-glass animate__animated animate__fadeInUp">
+                        <i class="bi bi-inbox fa-3x mb-3 text-white-50"></i>
+                        <h5 class="text-white"><?= Yii::t('app', 'No questions yet') ?></h5>
+                        <p class="text-white-50 mb-4"><?= Yii::t('app', 'Add your first question to get started') ?></p>
+                        <?= Html::a('<i class="bi bi-plus-circle me-2"></i> ' . Yii::t('app', 'Add Question'), ['add-question', 'test_id' => $test->id], ['class' => 'btn-create-neon']) ?>
+                    </div>
+                <?php else: ?>
 
-                                        <?php if ($question->question_type !== TestQuestion::TYPE_TEXT): ?>
-                                            <div class="options-list">
-                                                <?php foreach ($question->optionsArray as $optIndex => $option): ?>
-                                                    <div class="option-item <?= in_array($optIndex, $question->correctAnswerArray) ? 'correct' : '' ?>">
+                    <?php foreach ($questions as $index => $question): ?>
+                        <div class="question-glass-card animate__animated animate__fadeInUp">
+                            <div class="d-flex">
+                                <div class="q-number"><?= $index + 1 ?></div>
+
+                                <div class="q-body ps-3">
+                                    <div class="q-text">
+                                        <?= Html::encode($question->question_text) ?>
+                                    </div>
+
+                                    <div class="q-meta">
+                                        <span class="meta-badge meta-type">
+                                            <?php
+                                            $rawLabel = TestQuestion::getTypeOptions()[$question->question_type] ?? $question->question_type;
+                                            echo Yii::t('app', $rawLabel);
+                                            ?>
+                                        </span>
+                                        <span class="meta-badge meta-points">
+                                            <i class="bi bi-star-fill me-1"></i> <?= $question->points ?> <?= Yii::t('app', 'pts') ?>
+                                        </span>
+                                    </div>
+
+                                    <?php if ($question->question_type !== 'text_answer'): // Constant o'rniga string ishlatildi xatolik bo'lmasligi uchun 
+                                    ?>
+                                        <div class="options-glass-list">
+                                            <?php foreach ($question->optionsArray as $optIndex => $option): ?>
+                                                <div class="option-item <?= in_array($optIndex, $question->correctAnswerArray) ? 'correct' : '' ?>">
+                                                    <div>
                                                         <span class="option-letter"><?= chr(65 + $optIndex) ?>.</span>
-                                                        <span><?= Html::encode($option) ?></span>
-                                                        <?php if (in_array($optIndex, $question->correctAnswerArray)): ?>
-                                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
-                                                        <?php endif; ?>
+                                                        <?= Html::encode($option) ?>
                                                     </div>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="options-list">
-                                                <div class="option-item correct">
-                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                    <strong>Expected:</strong> <span class="ms-2"><?= Html::encode($question->correctAnswerArray[0]) ?></span>
+                                                    <?php if (in_array($optIndex, $question->correctAnswerArray)): ?>
+                                                        <i class="bi bi-check-circle-fill"></i>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="options-glass-list">
+                                            <div class="option-item correct">
+                                                <div>
+                                                    <i class="bi bi-keyboard me-2"></i>
+                                                    <strong><?= Yii::t('app', 'Expected Answer:') ?></strong>
+                                                    <span class="ms-2 text-white"><?= Html::encode($question->correctAnswerArray[0] ?? '') ?></span>
                                                 </div>
                                             </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="d-flex flex-column gap-2">
-                                        <?= Html::a('<i class="bi bi-pencil"></i>', ['edit-question', 'id' => $question->id], ['class' => 'btn btn-warning btn-sm']) ?>
-                                        <?= Html::a('<i class="bi bi-trash"></i>', ['delete-question', 'id' => $question->id], [
-                                            'class' => 'btn btn-danger btn-sm',
-                                            'data-method' => 'post',
-                                            'data-confirm' => 'Delete this question?'
-                                        ]) ?>
-                                    </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="q-actions">
+                                    <?= Html::a('<i class="bi bi-pencil"></i>', ['edit-question', 'id' => $question->id], [
+                                        'class' => 'btn-icon-glass btn-edit',
+                                        'title' => Yii::t('app', 'Edit')
+                                    ]) ?>
+                                    <?= Html::a('<i class="bi bi-trash"></i>', ['delete-question', 'id' => $question->id], [
+                                        'class' => 'btn-icon-glass btn-delete',
+                                        'data-method' => 'post',
+                                        'data-confirm' => Yii::t('app', 'Delete this question?'),
+                                        'title' => Yii::t('app', 'Delete')
+                                    ]) ?>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
+                        </div>
+                    <?php endforeach; ?>
+
+                <?php endif; ?>
+
             </div>
         </div>
     </div>

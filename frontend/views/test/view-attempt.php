@@ -2,439 +2,278 @@
 use yii\helpers\Html;
 use common\models\TestQuestion;
 
-$this->title = 'View Attempt Details';
+$this->title = Yii::t('app', 'View Attempt Details');
 ?>
 
 <style>
-    /* 🎨 Global Styles */
-    body {
-        background: #f8f9ff;
-    }
-
+    /* 1. Page Container */
     .attempt-view-page {
-        padding: 2rem 0;
-        animation: fadeIn 0.5s ease;
+        padding: 40px 0;
+        font-family: 'Nunito', sans-serif;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* 🔥 Page Header */
-    .page-header-card {
-        background: linear-gradient(135deg, #414fde, #6b74ff);
+    /* 2. Header Gradient */
+    .glass-header {
+        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        padding: 25px 30px;
         color: white;
         border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.3);
-    }
-
-    .page-header-card h4 {
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .page-header-card .btn-light {
-        background: white;
-        color: #414fde;
-        font-weight: 600;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .page-header-card .btn-light:hover {
-        transform: translateX(-5px);
-        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-    }
-
-    /* 📋 Main Card */
-    .main-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 8px 24px rgba(65, 79, 222, 0.1);
-        overflow: hidden;
-    }
-
-    .card-content {
-        padding: 2rem;
-    }
-
-    /* 👤 Student Info Section */
-    .student-section {
-        background: linear-gradient(135deg, #f8f9ff, #ffffff);
-        padding: 2rem;
-        border-radius: 16px;
-        border: 2px solid #e8e9ff;
-        margin-bottom: 2rem;
-    }
-
-    .student-section h5 {
-        color: #414fde;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    /* 📸 Face Photo */
-    .face-photo-container {
-        text-align: center;
-        margin-right: 2rem;
-    }
-
-    .face-photo-container img {
-        border-radius: 16px;
-        border: 3px solid #414fde;
-        box-shadow: 0 8px 20px rgba(65, 79, 222, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .face-photo-container img:hover {
-        transform: scale(1.05);
-        box-shadow: 0 12px 30px rgba(65, 79, 222, 0.3);
-    }
-
-    .face-photo-container small {
-        display: block;
-        margin-top: 0.5rem;
-        color: #666;
-        font-weight: 600;
-    }
-
-    /* 📊 Info Table */
-    .info-table {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-    }
-
-    .info-table tr {
-        border-bottom: 1px solid #f0f0ff;
-    }
-
-    .info-table tr:last-child {
-        border-bottom: none;
-    }
-
-    .info-table th {
-        color: #414fde;
-        font-weight: 600;
-        padding: 0.75rem;
-        width: 40%;
-    }
-
-    .info-table td {
-        color: #333;
-        padding: 0.75rem;
-    }
-
-    /* 🏆 Score Card */
-    .score-card {
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .score-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .score-card.passed {
-        background: linear-gradient(135deg, #4caf50, #45a049);
-    }
-
-    .score-card.failed {
-        background: linear-gradient(135deg, #f44336, #d32f2f);
-    }
-
-    .score-card .card-body {
-        padding: 2rem;
-        text-align: center;
-        color: white;
-    }
-
-    .score-display {
-        font-size: 4rem;
-        font-weight: 700;
-        margin: 1rem 0;
-        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .score-label {
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        margin: 1rem 0;
-    }
-
-    .points-info {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        margin-top: 1rem;
-    }
-
-    /* ✅ Question Cards */
-    .question-card {
-        border-radius: 16px;
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-        border: 3px solid;
-    }
-
-    .question-card.correct {
-        border-color: #4caf50;
-    }
-
-    .question-card.incorrect {
-        border-color: #f44336;
-    }
-
-    .question-card:hover {
-        transform: translateX(5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .question-header {
-        padding: 1.25rem 1.5rem;
-        color: white;
-        font-weight: 700;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .question-header.correct {
-        background: linear-gradient(135deg, #4caf50, #45a049);
+    .header-title h4 {
+        font-weight: 800;
+        margin: 0;
+        font-size: 1.5rem;
     }
 
-    .question-header.incorrect {
-        background: linear-gradient(135deg, #f44336, #d32f2f);
+    .header-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-top: 5px;
     }
 
-    .question-header .badge {
-        background: white;
-        color: #333;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
+    /* 3. Main Glass Card */
+    .main-glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    /* 4. Student & Test Info Section */
+    .info-section {
+        background: rgba(255,255,255,0.03);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .info-title {
+        color: #4cc9f0;
         font-weight: 700;
-    }
-
-    .question-body {
-        padding: 1.5rem;
-        background: white;
-    }
-
-    .question-text {
-        font-weight: 600;
+        margin-bottom: 20px;
         font-size: 1.1rem;
-        color: #333;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f0f0ff;
+        display: flex; align-items: center; gap: 10px;
     }
 
-    /* 📝 Answer Boxes */
-    .answer-box {
-        padding: 1rem;
-        border-radius: 12px;
-        margin-bottom: 1rem;
+    /* Face Photo */
+    .face-photo-wrapper {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 2px solid #4361ee;
+        box-shadow: 0 0 20px rgba(67, 97, 238, 0.3);
     }
-
-    .answer-box.correct {
-        background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(69, 160, 73, 0.1));
-        border: 2px solid #4caf50;
+    .face-photo-wrapper img {
+        width: 100%; height: 100%; object-fit: cover;
     }
-
-    .answer-box.incorrect {
-        background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(211, 47, 47, 0.1));
-        border: 2px solid #f44336;
-    }
-
-    .answer-box strong {
-        display: block;
-        margin-bottom: 0.75rem;
+    .face-label {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(67, 97, 238, 0.8);
+        color: white;
+        font-size: 0.7rem;
+        text-align: center;
+        padding: 3px;
+        text-transform: uppercase;
         font-weight: 700;
     }
 
-    .answer-box.correct strong {
-        color: #4caf50;
+    /* Info Table */
+    .info-table-glass {
+        width: 100%;
+        color: rgba(255,255,255,0.8);
     }
-
-    .answer-box.incorrect strong {
-        color: #f44336;
-    }
-
-    .answer-box ul {
-        margin: 0;
-        padding-left: 1.5rem;
-    }
-
-    .answer-box li {
-        margin: 0.5rem 0;
-        font-weight: 500;
-    }
-
-    /* 📋 All Options List */
-    .options-list {
-        background: #f8f9ff;
-        padding: 1rem;
-        border-radius: 12px;
-        margin-top: 1rem;
-    }
-
-    .options-list small {
-        color: #666;
+    .info-table-glass th {
+        text-align: left;
+        padding: 8px 0;
+        color: rgba(255,255,255,0.5);
         font-weight: 600;
-        display: block;
-        margin-bottom: 0.75rem;
+        width: 40%;
     }
-
-    .options-list ul {
-        margin: 0;
-        padding-left: 1.5rem;
-    }
-
-    .options-list li {
-        margin: 0.5rem 0;
-        padding: 0.5rem;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
-
-    .options-list li:hover {
-        background: white;
-    }
-
-    .options-list li.text-success {
-        background: rgba(76, 175, 80, 0.1);
+    .info-table-glass td {
+        padding: 8px 0;
         font-weight: 600;
     }
+    .info-table-glass tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .info-table-glass tr:last-child { border-bottom: none; }
 
-    /* 📊 Section Headers */
-    .section-header {
-        color: #414fde;
-        font-weight: 700;
-        margin: 2rem 0 1.5rem 0;
-        padding-bottom: 0.75rem;
-        border-bottom: 3px solid #e8e9ff;
+    /* 5. Score Card */
+    .score-glass-card {
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        height: 100%;
         display: flex;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
-        gap: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .score-glass-card.passed {
+        background: radial-gradient(circle at center, rgba(74, 222, 128, 0.2), rgba(74, 222, 128, 0.05));
+        border: 1px solid rgba(74, 222, 128, 0.3);
+        box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
+    }
+    .score-glass-card.failed {
+        background: radial-gradient(circle at center, rgba(248, 113, 113, 0.2), rgba(248, 113, 113, 0.05));
+        border: 1px solid rgba(248, 113, 113, 0.3);
+        box-shadow: 0 0 30px rgba(248, 113, 113, 0.1);
     }
 
-    /* 🔘 Buttons */
-    .btn {
+    .score-val { font-size: 3.5rem; font-weight: 800; line-height: 1; margin-bottom: 10px; }
+    .score-status { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
+    
+    .text-passed { color: #4ade80; text-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+    .text-failed { color: #f87171; text-shadow: 0 0 15px rgba(248, 113, 113, 0.5); }
+
+    .points-badge {
+        background: rgba(255,255,255,0.1);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: white;
+    }
+
+    /* 6. Question Review */
+    .section-header {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: white;
+        margin: 40px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    .q-review-card {
+        background: rgba(255,255,255,0.03);
+        border-radius: 16px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .q-review-header {
+        padding: 15px 20px;
+        display: flex; justify-content: space-between; align-items: center;
+        background: rgba(0,0,0,0.2);
+    }
+    .q-review-header.correct { border-left: 4px solid #4ade80; }
+    .q-review-header.incorrect { border-left: 4px solid #f87171; }
+
+    .q-status-icon { font-size: 1.2rem; margin-right: 10px; }
+    .text-success-neon { color: #4ade80; }
+    .text-danger-neon { color: #f87171; }
+
+    .q-review-body { padding: 20px; color: rgba(255,255,255,0.9); }
+    .q-text { font-size: 1.05rem; font-weight: 600; margin-bottom: 20px; }
+
+    /* Answer Boxes */
+    .ans-box {
+        padding: 15px;
         border-radius: 12px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        border: none;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+    .ans-box.student {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .ans-box.student.correct { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+    .ans-box.student.incorrect { border-color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
+    .ans-box.key {
+        background: rgba(74, 222, 128, 0.05);
+        border: 1px dashed #4ade80;
+        color: #4ade80;
     }
 
-    /* 📱 Responsive */
-    @media (max-width: 768px) {
-        .page-header-card {
-            padding: 1.5rem;
-        }
-
-        .card-content {
-            padding: 1.5rem;
-        }
-
-        .student-section {
-            padding: 1.5rem;
-        }
-
-        .face-photo-container {
-            margin-right: 0;
-            margin-bottom: 1rem;
-        }
-
-        .score-display {
-            font-size: 3rem;
-        }
-
-        .question-card {
-            margin-bottom: 1rem;
-        }
+    .ans-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        opacity: 0.7;
+        display: block;
+        margin-bottom: 5px;
     }
 
-    /* ✨ Animations */
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Button */
+    .btn-glass-back {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 8px 20px;
+        border-radius: 12px;
+        transition: 0.3s;
+        text-decoration: none;
     }
+    .btn-glass-back:hover { background: white; color: black; }
 
-    .question-card {
-        animation: slideIn 0.3s ease forwards;
-    }
-
-    .question-card:nth-child(1) { animation-delay: 0.1s; }
-    .question-card:nth-child(2) { animation-delay: 0.2s; }
-    .question-card:nth-child(3) { animation-delay: 0.3s; }
-    .question-card:nth-child(4) { animation-delay: 0.4s; }
-    .question-card:nth-child(5) { animation-delay: 0.5s; }
 </style>
 
-<div class="attempt-view-page container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Page Header -->
-            <div class="page-header-card">
-                <div class="d-flex justify-content-between align-items-center">
+<div class="attempt-view-page">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="glass-header animate__animated animate__fadeInDown">
                     <div>
-                        <h4><i class="bi bi-file-earmark-text"></i> Attempt Details</h4>
-                        <small class="opacity-75">Student: <?= Html::encode($attempt->student->full_name) ?></small>
+                        <div class="header-title">
+                            <h4><i class="bi bi-file-earmark-person me-2"></i> <?= Yii::t('app', 'Attempt Details') ?></h4>
+                        </div>
+                        <div class="header-subtitle">
+                            <?= Yii::t('app', 'Student') ?>: <strong><?= Html::encode($attempt->student->full_name) ?></strong>
+                        </div>
                     </div>
-                    <?= Html::a('<i class="bi bi-arrow-left"></i> Back to Results', ['results', 'id' => $attempt->test_id], ['class' => 'btn btn-light btn-sm']) ?>
+                    <?= Html::a('<i class="bi bi-arrow-left me-1"></i> ' . Yii::t('app', 'Back to Results'), ['results', 'id' => $attempt->test_id], ['class' => 'btn-glass-back']) ?>
                 </div>
-            </div>
 
-            <!-- Main Card -->
-            <div class="main-card">
-                <div class="card-content">
-                    <!-- Summary Section -->
-                    <div class="row mb-4">
+                <div class="main-glass-card animate__animated animate__fadeInUp">
+                    
+                    <div class="row">
                         <div class="col-md-8">
-                            <div class="student-section">
-                                <h5><i class="bi bi-clipboard-check"></i> <?= Html::encode($attempt->test->title) ?></h5>
-                                <div class="d-flex align-items-start">
+                            <div class="info-section">
+                                <div class="info-title">
+                                    <i class="bi bi-clipboard-check"></i> <?= Html::encode($attempt->test->title) ?>
+                                </div>
+                                
+                                <div class="d-flex gap-4 align-items-start">
                                     <?php if ($attempt->face_photo): ?>
-                                        <div class="face-photo-container">
-                                            <img src="<?= Yii::getAlias('@web/uploads/faces/' . $attempt->face_photo) ?>" 
-                                                 width="120" height="120"
-                                                 alt="Face Control Photo">
-                                            <small><i class="bi bi-camera"></i> Face Control</small>
+                                        <div class="face-photo-wrapper">
+                                            <img src="<?= Yii::getAlias('@web/uploads/faces/' . $attempt->face_photo) ?>" alt="Face Control">
+                                            <div class="face-label"><i class="bi bi-camera me-1"></i> Verified</div>
                                         </div>
                                     <?php endif; ?>
+
                                     <div class="flex-grow-1">
-                                        <table class="info-table table table-sm table-borderless mb-0">
+                                        <table class="info-table-glass">
                                             <tr>
-                                                <th><i class="bi bi-play-circle"></i> Started:</th>
+                                                <th><i class="bi bi-play-circle me-2"></i> <?= Yii::t('app', 'Started') ?></th>
                                                 <td><?= Yii::$app->formatter->asDatetime($attempt->started_at) ?></td>
                                             </tr>
                                             <tr>
-                                                <th><i class="bi bi-stop-circle"></i> Finished:</th>
+                                                <th><i class="bi bi-stop-circle me-2"></i> <?= Yii::t('app', 'Finished') ?></th>
                                                 <td><?= Yii::$app->formatter->asDatetime($attempt->finished_at) ?></td>
                                             </tr>
                                             <tr>
-                                                <th><i class="bi bi-clock"></i> Duration:</th>
-                                                <td><?= $attempt->getDuration() ?> minutes</td>
+                                                <th><i class="bi bi-clock-history me-2"></i> <?= Yii::t('app', 'Duration') ?></th>
+                                                <td><?= $attempt->getDuration() ?> mins</td>
                                             </tr>
                                             <tr>
-                                                <th><i class="bi bi-router"></i> IP Address:</th>
+                                                <th><i class="bi bi-geo-alt me-2"></i> <?= Yii::t('app', 'IP Address') ?></th>
                                                 <td><code><?= Html::encode($attempt->ip_address) ?></code></td>
                                             </tr>
                                         </table>
@@ -442,109 +281,91 @@ $this->title = 'View Attempt Details';
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-md-4">
-                            <div class="score-card <?= $attempt->isPassed() ? 'passed' : 'failed' ?>">
-                                <div class="card-body">
-                                    <div class="score-display"><?= $attempt->score ?>%</div>
-                                    <div class="score-label">
-                                        <i class="bi bi-<?= $attempt->isPassed() ? 'trophy-fill' : 'x-octagon-fill' ?>"></i>
-                                        <?= $attempt->isPassed() ? 'PASSED' : 'FAILED' ?>
-                                    </div>
-                                    <div class="points-info">
-                                        <i class="bi bi-star-fill"></i>
-                                        <?= $attempt->points_earned ?> / <?= $attempt->total_points ?> points
-                                    </div>
+                            <div class="score-glass-card <?= $attempt->isPassed() ? 'passed' : 'failed' ?>">
+                                <div class="score-val <?= $attempt->isPassed() ? 'text-passed' : 'text-failed' ?>">
+                                    <?= $attempt->score ?>%
+                                </div>
+                                <div class="score-status <?= $attempt->isPassed() ? 'text-passed' : 'text-failed' ?>">
+                                    <?= $attempt->isPassed() ? Yii::t('app', 'PASSED') : Yii::t('app', 'FAILED') ?>
+                                </div>
+                                <div class="points-badge">
+                                    <i class="bi bi-star-fill text-warning me-1"></i>
+                                    <?= $attempt->points_earned ?> / <?= $attempt->total_points ?> pts
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Answers Section -->
-                    <h5 class="section-header">
-                        <i class="bi bi-list-check"></i> Answer Details
-                    </h5>
+                    <div class="section-header">
+                        <i class="bi bi-list-check text-info"></i> <?= Yii::t('app', 'Answer Breakdown') ?>
+                    </div>
 
                     <?php foreach ($answers as $index => $answer): ?>
                         <?php $question = $answer->question; ?>
-                        <div class="question-card <?= $answer->is_correct ? 'correct' : 'incorrect' ?>">
-                            <div class="question-header <?= $answer->is_correct ? 'correct' : 'incorrect' ?>">
-                                <span>
-                                    <i class="bi bi-<?= $answer->is_correct ? 'check-circle-fill' : 'x-circle-fill' ?>"></i>
-                                    Question <?= $index + 1 ?>
-                                </span>
-                                <span class="badge">
-                                    <?= $answer->points_awarded ?> / <?= $question->points ?> points
+                        
+                        <div class="q-review-card animate__animated animate__fadeInUp">
+                            <div class="q-review-header <?= $answer->is_correct ? 'correct' : 'incorrect' ?>">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-<?= $answer->is_correct ? 'check-circle-fill text-success-neon' : 'x-circle-fill text-danger-neon' ?> q-status-icon"></i>
+                                    <span class="text-white fw-bold"><?= Yii::t('app', 'Question') ?> <?= $index + 1 ?></span>
+                                </div>
+                                <span class="badge bg-white bg-opacity-10 text-white">
+                                    <?= $answer->points_awarded ?> / <?= $question->points ?> pts
                                 </span>
                             </div>
-                            <div class="question-body">
-                                <div class="question-text">
-                                    <?= Html::encode($question->question_text) ?>
-                                </div>
 
-                                <?php if ($question->question_type === TestQuestion::TYPE_SINGLE_CHOICE || $question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE): ?>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="answer-box <?= $answer->is_correct ? 'correct' : 'incorrect' ?>">
-                                                <strong><i class="bi bi-person"></i> Student's Answer:</strong>
-                                                <ul class="mb-0">
+                            <div class="q-review-body">
+                                <div class="q-text"><?= Html::encode($question->question_text) ?></div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="ans-box student <?= $answer->is_correct ? 'correct' : 'incorrect' ?>">
+                                            <span class="ans-label <?= $answer->is_correct ? 'text-success-neon' : 'text-danger-neon' ?>">
+                                                <i class="bi bi-person me-1"></i> <?= Yii::t('app', 'Student Answer') ?>
+                                            </span>
+                                            
+                                            <?php if ($question->question_type === TestQuestion::TYPE_SINGLE_CHOICE || $question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE): ?>
+                                                <ul class="list-unstyled mb-0">
                                                     <?php if (!empty($answer->answerArray)): ?>
                                                         <?php foreach ($answer->answerArray as $ans): ?>
-                                                            <li><?= Html::encode($question->optionsArray[$ans] ?? 'Unknown') ?></li>
+                                                            <li><i class="bi bi-dot me-1"></i> <?= Html::encode($question->optionsArray[$ans] ?? 'Unknown') ?></li>
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
-                                                        <li class="text-muted">No answer provided</li>
+                                                        <li class="text-white-50">No answer</li>
                                                     <?php endif; ?>
                                                 </ul>
-                                            </div>
+                                            <?php else: ?>
+                                                <div><?= Html::encode($answer->answerArray[0] ?? 'No answer') ?></div>
+                                            <?php endif; ?>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="answer-box correct">
-                                                <strong><i class="bi bi-check-circle"></i> Correct Answer:</strong>
-                                                <ul class="mb-0">
+                                    </div>
+
+                                    <?php if (!$answer->is_correct): ?>
+                                    <div class="col-md-6">
+                                        <div class="ans-box key">
+                                            <span class="ans-label"><i class="bi bi-key me-1"></i> <?= Yii::t('app', 'Correct Answer') ?></span>
+                                            
+                                            <?php if ($question->question_type === TestQuestion::TYPE_SINGLE_CHOICE || $question->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE): ?>
+                                                <ul class="list-unstyled mb-0">
                                                     <?php foreach ($question->correctAnswerArray as $correct): ?>
-                                                        <li><?= Html::encode($question->optionsArray[$correct] ?? 'Unknown') ?></li>
+                                                        <li><i class="bi bi-check me-1"></i> <?= Html::encode($question->optionsArray[$correct] ?? 'Unknown') ?></li>
                                                     <?php endforeach; ?>
                                                 </ul>
-                                            </div>
+                                            <?php else: ?>
+                                                <div><?= Html::encode($question->correctAnswerArray[0] ?? 'N/A') ?></div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-
-                                    <div class="options-list">
-                                        <small><i class="bi bi-list-ul"></i> All Options:</small>
-                                        <ul>
-                                            <?php foreach ($question->optionsArray as $idx => $opt): ?>
-                                                <li class="<?= in_array($idx, $question->correctAnswerArray) ? 'text-success fw-bold' : '' ?>">
-                                                    <?= Html::encode($opt) ?>
-                                                    <?php if (in_array($idx, $question->correctAnswerArray)): ?>
-                                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                                    <?php endif; ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-
-                                <?php else: ?>
-                                    <!-- Text Answer -->
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="answer-box <?= $answer->is_correct ? 'correct' : 'incorrect' ?>">
-                                                <strong><i class="bi bi-person"></i> Student's Answer:</strong>
-                                                <div class="mt-2"><?= Html::encode($answer->answerArray[0] ?? 'No answer') ?></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="answer-box correct">
-                                                <strong><i class="bi bi-check-circle"></i> Expected Answer:</strong>
-                                                <div class="mt-2"><?= Html::encode($question->correctAnswerArray[0] ?? 'N/A') ?></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
 
                 </div>
+
             </div>
         </div>
     </div>

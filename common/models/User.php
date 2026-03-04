@@ -8,18 +8,34 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
-
-
+/**
+ * User model
+ *
+ * @property integer $id
+ * @property string $username
+ * @property string $password_hash
+ * @property string $password_reset_token
+ * @property string $email
+ * @property string $auth_key
+ * @property integer $status
+ * @property integer $created_at
+ * @property integer $updated_at
+ * @property string $password write-only password
+ */
 class User extends ActiveRecord implements IdentityInterface
 {
-    const ROLE_DIRECTOR = 'director';
     const STATUS_DELETED = 0;
     const STATUS_INACTIVE = 9;
     const STATUS_ACTIVE = 10;
 
+    // Rollar
     const ROLE_ADMIN = 'admin';
+    const ROLE_DIRECTOR = 'director';
     const ROLE_TEACHER = 'teacher';
     const ROLE_STUDENT = 'student';
+
+    // 🔥 MUHIM: Formada parol kiritish uchun virtual o'zgaruvchi
+    public $password;
 
     public static function tableName()
     {
@@ -38,8 +54,18 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            
             ['role', 'default', 'value' => self::ROLE_STUDENT],
             ['role', 'in', 'range' => [self::ROLE_ADMIN, self::ROLE_DIRECTOR, self::ROLE_TEACHER, self::ROLE_STUDENT]],
+
+            // 🔥 Username va Email majburiy va unikal bo'lishi kerak
+            [['username', 'email'], 'required'],
+            [['username', 'email'], 'unique', 'targetClass' => '\common\models\User', 'message' => 'Bu ma\'lumot allaqachon band.'],
+            ['email', 'email'],
+
+            // 🔥 Parol qoidasi: Faqat yangi yaratayotganda majburiy
+            [['password'], 'string', 'min' => 6],
+            [['password'], 'required', 'on' => 'create'], 
         ];
     }
 
@@ -75,7 +101,6 @@ class User extends ActiveRecord implements IdentityInterface
         if (empty($token)) {
             return false;
         }
-
         $timestamp = (int) substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
@@ -121,19 +146,11 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = null;
     }
 
-
-
-    /**
-     * Gets query for [[Teacher]]
-     */
     public function getTeacher()
     {
         return $this->hasOne(Teacher::class, ['user_id' => 'id']);
     }
 
-    /**
-     * Gets query for [[Student]]
-     */
     public function getStudent()
     {
         return $this->hasOne(Student::class, ['user_id' => 'id']);

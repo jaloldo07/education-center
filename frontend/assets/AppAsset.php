@@ -17,7 +17,8 @@ class AppAsset extends AssetBundle
     public $js = [
     ];
     public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap5\BootstrapAsset',
+        'yii\web\YiiAsset',               // jQuery ni yuklaydi
+        'yii\bootstrap5\BootstrapAsset',  // Bootstrap CSS ni yuklaydi
+        'yii\bootstrap5\BootstrapPluginAsset', // <--- MANA SHU KERAK (Dropdown ishlashi uchun JS)
     ];
 }
