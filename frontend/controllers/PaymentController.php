@@ -73,24 +73,26 @@ class PaymentController extends Controller
             if ($model->load($this->request->post())) {
                 
                 $model->student_id = $student->id;
-                $model->payment_method = 'manual_transfer'; // Endi manual
-                $model->transaction_id = 'MANUAL_' . time(); 
+                // formadan 'card' yoki 'cash' keladi
+                $model->transaction_id = strtoupper($model->payment_method) . '_' . time(); 
                 
-                // 🔥 Rasmni ushlab olish
-                $receiptFile = UploadedFile::getInstance($model, 'receipt_image');
-                
-                if ($receiptFile) {
-                    $uploadPath = Yii::getAlias('@frontend/web/uploads/receipts/');
-                    if (!is_dir($uploadPath)) {
-                        mkdir($uploadPath, 0777, true);
-                    }
-                    $fileName = 'receipt_' . time() . '_' . Yii::$app->security->generateRandomString(6) . '.' . $receiptFile->extension;
-                    if ($receiptFile->saveAs($uploadPath . $fileName)) {
-                        $model->receipt_image = $fileName;
+                // 🔥 Rasmni ushlab olish (Faqat karta orqali to'lov bo'lsa)
+                if ($model->payment_method === 'card') {
+                    // receipt_image emas, receipt_file qildik (bazaga moslab)
+                    $receiptFile = UploadedFile::getInstance($model, 'receipt_file'); 
+                    
+                    if ($receiptFile) {
+                        $uploadPath = Yii::getAlias('@frontend/web/uploads/receipts/');
+                        if (!is_dir($uploadPath)) {
+                            mkdir($uploadPath, 0777, true);
+                        }
+                        $fileName = 'receipt_' . time() . '_' . Yii::$app->security->generateRandomString(6) . '.' . $receiptFile->extension;
+                        if ($receiptFile->saveAs($uploadPath . $fileName)) {
+                            $model->receipt_file = $fileName;
+                        }
                     }
                 }
 
-                // Kurs narxini bazadan qayta tekshiramiz
                 $realCourse = Course::findOne($model->course_id);
                 if ($realCourse) {
                     if ($model->payment_type === Payment::TYPE_MONTHLY && $model->amount < $realCourse->price) {
@@ -98,10 +100,12 @@ class PaymentController extends Controller
                     }
                 }
 
-                // To'lovni saqlaymiz (Lekin Enrollmentni darhol Aktiv qilmaymiz!)
-                // Admin Paymentni ko'rib tasdiqlaganidan keyingina Enrollment aktiv bo'lishi kerak.
                 if ($model->save()) {
-                    Yii::$app->session->setFlash('success', Yii::t('app', 'To\'lov cheki muvaffaqiyatli yuklandi! Admin tasdiqlagach kursingiz ochiladi.'));
+                    if ($model->payment_method === 'cash') {
+                        Yii::$app->session->setFlash('success', Yii::t('app', 'Arizangiz qabul qilindi. Iltimos, o\'quv markazimizga kelib to\'lovni amalga oshiring.'));
+                    } else {
+                        Yii::$app->session->setFlash('success', Yii::t('app', 'To\'lov cheki muvaffaqiyatli yuklandi! Admin tasdiqlagach kursingiz ochiladi.'));
+                    }
                     return $this->redirect(['/student/dashboard']);
                 } else {
                     Yii::$app->session->setFlash('error', Yii::t('app', 'Error saving payment. Please try again.'));
