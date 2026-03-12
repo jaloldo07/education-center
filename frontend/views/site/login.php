@@ -104,7 +104,7 @@ $this->title = Yii::t('app', 'Login');
                         <i class="fas fa-sign-in-alt text-primary"></i> <?= Html::encode($this->title) ?>
                     </h1>
 
-                    <p class="text-center text-muted"><?= Yii::t('app', 'Please fill out the following fields to login:') ?></p>
+                    <p class="text-center text-muted"><?= Yii::t('app', 'Fill out the following fields to login:') ?></p>
 
                     <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
 
