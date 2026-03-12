@@ -110,7 +110,7 @@ $this->title = Yii::t('app', 'Login');
 
                     <?= $form->field($model, 'username')->textInput([
                         'autofocus' => true,
-                        'placeholder' => Yii::t('app', 'Enter your username'),
+                        'placeholder' => Yii::t('app', 'Enter username'),
                         'class' => 'form-control form-control-lg'
                     ])->label('<i class="fas fa-user"></i> ' . Yii::t('app', 'Username')) ?>
 
