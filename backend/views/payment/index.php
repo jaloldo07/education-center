@@ -42,7 +42,14 @@ foreach ($dataProvider->models as $payment) {
 <div class="payment-index">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-money-bill-wave"></i> <?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Record Payment'), ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+        <div>
+            <?= Html::button('<i class="fas fa-credit-card"></i> Karta sozlamalari', [
+                'class' => 'btn btn-warning text-dark fw-bold me-2',
+                'data-bs-toggle' => 'modal',
+                'data-bs-target' => '#cardSettingsModal'
+            ]) ?>
+            <?= Html::a('<i class="fas fa-plus"></i> ' . Yii::t('app', 'Record Payment'), ['create'], ['class' => 'btn btn-success btn-hover']) ?>
+        </div>
     </div>
 
     <div class="card shadow mb-4">
@@ -222,4 +229,61 @@ foreach ($dataProvider->models as $payment) {
             ]); ?>
         </div>
     </div>
+</div>
+
+
+<?php
+// Bazadan joriy karta ma'lumotlarini olib kelamiz
+$uzcardNum = \common\models\Setting::getValue('uzcard_number', '');
+$uzcardName = \common\models\Setting::getValue('uzcard_name', '');
+$humoNum = \common\models\Setting::getValue('humo_number', '');
+$humoName = \common\models\Setting::getValue('humo_name', '');
+?>
+
+<div class="modal fade" id="cardSettingsModal" tabindex="-1" aria-labelledby="cardSettingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="<?= yii\helpers\Url::to(['payment/update-cards']) ?>" method="post">
+          <input type="hidden" name="<?= Yii::$app->request->csrfParam; ?>" value="<?= Yii::$app->request->csrfToken; ?>" />
+          
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title fw-bold" id="cardSettingsModalLabel"><i class="fas fa-credit-card"></i> To'lov kartalarini sozlash</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body">
+              <div class="alert alert-info py-2 small">
+                  Bu yerda kiritilgan karta raqamlari o'quvchilarga to'lov sahifasida ko'rsatiladi.
+              </div>
+
+              <h6 class="text-primary mt-3 fw-bold"><i class="fas fa-credit-card"></i> UZCARD</h6>
+              <div class="mb-3">
+                  <label class="form-label text-muted small mb-1">Karta raqami</label>
+                  <input type="text" name="uzcard_number" class="form-control" value="<?= Html::encode($uzcardNum) ?>" placeholder="8600 ...." required>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label text-muted small mb-1">Karta egasining FISH</label>
+                  <input type="text" name="uzcard_name" class="form-control" value="<?= Html::encode($uzcardName) ?>" placeholder="Ism familiya" required>
+              </div>
+
+              <hr>
+
+              <h6 class="text-success mt-3 fw-bold"><i class="fas fa-credit-card"></i> HUMO</h6>
+              <div class="mb-3">
+                  <label class="form-label text-muted small mb-1">Karta raqami</label>
+                  <input type="text" name="humo_number" class="form-control" value="<?= Html::encode($humoNum) ?>" placeholder="9860 ...." required>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label text-muted small mb-1">Karta egasining FISH</label>
+                  <input type="text" name="humo_name" class="form-control" value="<?= Html::encode($humoName) ?>" placeholder="Ism familiya" required>
+              </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Saqlash</button>
+          </div>
+      </form>
+    </div>
+  </div>
 </div>

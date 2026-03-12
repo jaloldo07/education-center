@@ -189,6 +189,32 @@ class PaymentController extends Controller
     }
 
     /**
+     * Karta sozlamalarini yangilash
+     */
+    public function actionUpdateCards()
+    {
+        if (Yii::$app->request->isPost) {
+            $post = Yii::$app->request->post();
+            
+            $keys = ['uzcard_number', 'uzcard_name', 'humo_number', 'humo_name'];
+            
+            foreach ($keys as $key) {
+                if (isset($post[$key])) {
+                    $setting = \common\models\Setting::findOne(['key' => $key]);
+                    if ($setting) {
+                        $setting->value = $post[$key];
+                        $setting->save(false);
+                    }
+                }
+            }
+            
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Karta ma\'lumotlari muvaffaqiyatli yangilandi!'));
+        }
+        
+        return $this->redirect(['index']);
+    }
+
+    /**
      * Finds the Payment model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
