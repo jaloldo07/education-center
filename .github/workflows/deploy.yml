@@ -1,0 +1,22 @@
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches:
+      - main  # Agar sizda asosiy branch nomi 'master' bo'lsa, buni 'master'ga o'zgartiring
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploying to Server
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /htdocs/  # InfinityFree uchun bu doimiy htdocs papkasi
