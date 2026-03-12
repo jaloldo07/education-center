@@ -68,6 +68,28 @@ $this->params['breadcrumbs'][] = $this->title;
                         }
                     ],
                     [
+                        'attribute' => 'status',
+                        'label' => Yii::t('app', 'Status'),
+                        'format' => 'raw',
+                        'value' => function($model) {
+                            if ($model->status == 1) return '<span class="badge bg-success">Tasdiqlangan</span>';
+                            if ($model->status == 2) return '<span class="badge bg-danger">Bekor qilingan</span>';
+                            return '<span class="badge bg-warning text-dark">Kutilmoqda</span>';
+                        }
+                    ],
+                    [
+                        'attribute' => 'receipt_file',
+                        'label' => Yii::t('app', 'To\'lov Cheki'),
+                        'format' => 'raw',
+                        'value' => function($model) {
+                            if ($model->receipt_file) {
+                                $url = Yii::$app->request->hostInfo . '/frontend/web/uploads/receipts/' . $model->receipt_file;
+                                return Html::img($url, ['style' => 'max-width: 300px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);']);
+                            }
+                            return 'Yuklanmagan';
+                        }
+                    ],
+                    [
                         'attribute' => 'note',
                         'label' => Yii::t('app', 'Note'),
                         'format' => 'ntext',

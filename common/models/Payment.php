@@ -58,7 +58,7 @@ class Payment extends ActiveRecord
             [['payment_date'], 'safe'], 
             
             [['note'], 'string'],
-            [['transaction_id'], 'string', 'max' => 255],
+            [['transaction_id', 'receipt_file'], 'string', 'max' => 255],
             
             [['payment_type'], 'string', 'max' => 20],
             [['payment_type'], 'in', 'range' => [self::TYPE_MONTHLY, self::TYPE_YEARLY, self::TYPE_FULL]],
@@ -155,6 +155,7 @@ class Payment extends ActiveRecord
             'transaction_id' => Yii::t('app', 'Transaction ID'),
             'payment_date' => Yii::t('app', 'Payment Date'),
             'payment_type' => Yii::t('app', 'Payment Period'),
+            'receipt_file' => Yii::t('app', 'Receipt / Chek'),
             'note' => Yii::t('app', 'Note'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),

@@ -157,6 +157,37 @@ class PaymentController extends Controller
         return $this->redirect(['index']);
     }
 
+
+    /**
+     * To'lovni tasdiqlash (Student chek yuborganda)
+     */
+    public function actionApprove($id)
+    {
+        $model = $this->findModel($id);
+        $model->status = Payment::STATUS_PAID;
+        
+        if ($model->save(false)) { // false qilib validationni o'tkazib yuboramiz
+            Yii::$app->session->setFlash('success', Yii::t('app', 'To\'lov muvaffaqiyatli tasdiqlandi va talabaga kurs ochildi.'));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Tasdiqlashda xatolik yuz berdi.'));
+        }
+        return $this->redirect(Yii::$app->request->referrer ?: ['index']);
+    }
+
+    /**
+     * To'lovni bekor qilish (Chek xato bo'lsa)
+     */
+    public function actionReject($id)
+    {
+        $model = $this->findModel($id);
+        $model->status = Payment::STATUS_FAILED;
+        
+        if ($model->save(false)) {
+            Yii::$app->session->setFlash('warning', Yii::t('app', 'To\'lov bekor qilindi.'));
+        }
+        return $this->redirect(Yii::$app->request->referrer ?: ['index']);
+    }
+
     /**
      * Finds the Payment model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

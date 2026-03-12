@@ -140,37 +140,78 @@ foreach ($dataProvider->models as $payment) {
                         }
                     ],
                     [
-                        'attribute' => 'payment_type',
+                        'attribute' => 'status',
                         'format' => 'raw',
-                        'label' => Yii::t('app', 'Payment Type'),
+                        'label' => Yii::t('app', 'Status'),
                         'value' => function($model) {
-                            $class = $model->payment_type == 'monthly' ? 'primary' : 'success';
-                            $label = $model->payment_type == 'monthly' ? Yii::t('app', 'Monthly') : 
-                                     ($model->payment_type == 'full' ? Yii::t('app', 'Full Payment') : Yii::t('app', ucfirst($model->payment_type)));
-                            return '<span class="badge bg-' . $class . '">' . $label . '</span>';
+                            if ($model->status == common\models\Payment::STATUS_PAID) {
+                                return '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Tasdiqlangan</span>';
+                            } elseif ($model->status == common\models\Payment::STATUS_FAILED) {
+                                return '<span class="badge bg-danger"><i class="fas fa-times-circle"></i> Bekor qilingan</span>';
+                            } else {
+                                return '<span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Kutilmoqda</span>';
+                            }
+                        }
+                    ],
+                    [
+                        'attribute' => 'receipt_file',
+                        'format' => 'raw',
+                        'label' => Yii::t('app', 'Chek'),
+                        'value' => function($model) {
+                            if ($model->receipt_file) {
+                                // Rasm manzilini to'g'rilab olasiz (frontend/web/uploads/receipts kabi bo'lishi mumkin)
+                                $url = Yii::$app->request->hostInfo . '/frontend/web/uploads/receipts/' . $model->receipt_file;
+                                return Html::a('<i class="fas fa-image"></i> Ko\'rish', $url, [
+                                    'class' => 'btn btn-sm btn-outline-info',
+                                    'target' => '_blank', // Yangi oynada ochiladi
+                                    'data-pjax' => '0'
+                                ]);
+                            }
+                            return '<span class="text-muted small">Chek yo\'q</span>';
                         }
                     ],
                     [
                         'attribute' => 'payment_date',
                         'format' => ['date', 'php:d.m.Y'],
-                        'label' => Yii::t('app', 'Payment Date'),
+                        'label' => Yii::t('app', 'Date'),
                     ],
 
                     [
                         'class' => 'yii\grid\ActionColumn',
                         'header' => Yii::t('app', 'Actions'),
-                        'template' => '{view} {update} {delete}',
+                        'template' => '{approve} {reject} {view} {update} {delete}',
                         'buttons' => [
+                            'approve' => function ($url, $model) {
+                                if ($model->status == common\models\Payment::STATUS_PENDING) {
+                                    return Html::a('<i class="fas fa-check"></i>', ['approve', 'id' => $model->id], [
+                                        'class' => 'btn btn-sm btn-success', 
+                                        'title' => 'Tasdiqlash',
+                                        'data-confirm' => 'Haqiqatan ham bu to\'lovni tasdiqlaysizmi?',
+                                        'data-method' => 'post'
+                                    ]);
+                                }
+                                return '';
+                            },
+                            'reject' => function ($url, $model) {
+                                if ($model->status == common\models\Payment::STATUS_PENDING) {
+                                    return Html::a('<i class="fas fa-times"></i>', ['reject', 'id' => $model->id], [
+                                        'class' => 'btn btn-sm btn-warning', 
+                                        'title' => 'Bekor qilish',
+                                        'data-confirm' => 'To\'lovni bekor qilmoqchimisiz?',
+                                        'data-method' => 'post'
+                                    ]);
+                                }
+                                return '';
+                            },
                             'view' => function ($url) {
-                                return Html::a('<i class="fas fa-eye"></i>', $url, ['class' => 'btn btn-sm btn-info', 'title' => Yii::t('app', 'View')]);
+                                return Html::a('<i class="fas fa-eye"></i>', $url, ['class' => 'btn btn-sm btn-info']);
                             },
                             'update' => function ($url) {
-                                return Html::a('<i class="fas fa-edit"></i>', $url, ['class' => 'btn btn-sm btn-primary', 'title' => Yii::t('app', 'Update')]);
+                                return Html::a('<i class="fas fa-edit"></i>', $url, ['class' => 'btn btn-sm btn-primary']);
                             },
                             'delete' => function ($url) {
                                 return Html::a('<i class="fas fa-trash"></i>', $url, [
                                     'class' => 'btn btn-sm btn-danger',
-                                    'title' => Yii::t('app', 'Delete'),
                                     'data-confirm' => Yii::t('app', 'Are you sure you want to delete this payment?'),
                                     'data-method' => 'post',
                                 ]);
