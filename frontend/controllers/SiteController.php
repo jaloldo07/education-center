@@ -13,10 +13,8 @@ use common\models\Teacher;
 use common\models\Student;
 use common\models\Payment;
 use common\models\User;
-use common\models\Group;
-use common\models\TeacherApplication;
 use yii\web\UploadedFile;
-use common\models\EnrollmentApplication;
+use common\models\TeacherApplication;
 use common\models\Enrollment;
 
 class SiteController extends Controller
@@ -26,7 +24,6 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                // 'payment' ni bu yerdan olib tashladik, chunki u endi PaymentControllerda
                 'only' => ['logout', 'signup'], 
                 'rules' => [
                     [
@@ -89,16 +86,13 @@ class SiteController extends Controller
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post())) {
 
-            // Check user before login
             $user = User::findByUsername($model->username);
 
-            // Block admin/director from frontend
             if ($user && in_array($user->role, ['admin', 'director'])) {
                 Yii::$app->session->setFlash('error', 'Access denied. Please use the Admin Panel to login.');
                 return $this->refresh();
             }
 
-            // Normal login for students/teachers
             if ($model->login()) {
                 $role = Yii::$app->user->identity->role;
 
@@ -244,7 +238,6 @@ class SiteController extends Controller
 
         $results = [];
 
-        // Courses
         $courses = Course::find()
             ->where(['like', 'name', $query])
             ->orWhere(['like', 'description', $query])
@@ -258,12 +251,11 @@ class SiteController extends Controller
                 'icon' => 'fa-book',
                 'title' => $course->name,
                 'subtitle' => 'By ' . $course->teacher->full_name . ' - ' . number_format($course->price, 0) . ' UZS',
-                'url' => \yii\helpers\Url::to(['/site/courses']), // Yoki course-detail
+                'url' => \yii\helpers\Url::to(['/site/courses']),
                 'color' => 'primary'
             ];
         }
 
-        // Teachers
         $teachers = Teacher::find()
             ->where(['like', 'full_name', $query])
             ->orWhere(['like', 'subject', $query])
@@ -300,104 +292,24 @@ class SiteController extends Controller
         ]);
     }
 
+    /**
+     * 🔥 YANGI ENROLL MANTIG'I
+     * Endi hech qanday forma yo'q. Talaba "Enroll" bossa to'g'ridan to'g'ri darsga o'tadi.
+     * U yerdagi Controller (StudentLessonController) o'zi Free yoki Premium ni tekshirib oladi!
+     */
     public function actionEnroll($id)
     {
         if (Yii::$app->user->isGuest) {
-            Yii::$app->session->setFlash('error', 'Please login to enroll.');
+            Yii::$app->session->setFlash('error', 'Iltimos, avval tizimga kiring (Login).');
             return $this->redirect(['login']);
         }
 
         if (Yii::$app->user->identity->role !== 'student') {
-            Yii::$app->session->setFlash('error', 'Only students can enroll in courses.');
+            Yii::$app->session->setFlash('error', 'Faqatgina talabalar kursga yozilishi mumkin.');
             return $this->redirect(['courses']);
         }
 
-        $course = Course::findOne($id);
-        if (!$course) {
-            throw new \yii\web\NotFoundHttpException('Course not found.');
-        }
-
-        $student = Student::findOne(['user_id' => Yii::$app->user->id]);
-        if (!$student) {
-            Yii::$app->session->setFlash('error', 'Student profile not found.');
-            return $this->redirect(['courses']);
-        }
-
-        $groups = Group::find()
-            ->where(['course_id' => $course->id])
-            ->all();
-
-        if (empty($groups)) {
-            Yii::$app->session->setFlash('error', 'No groups available for this course yet.');
-            return $this->redirect(['course-detail', 'id' => $id]);
-        }
-
-        $model = new EnrollmentApplication();
-        $model->student_id = $student->id;
-        $model->course_id = $course->id;
-
-        if ($model->load(Yii::$app->request->post())) {
-
-            // Check if already enrolled or applied
-            $existingEnrollment = Enrollment::find()
-                ->where(['student_id' => $student->id, 'group_id' => $model->group_id])
-                ->one();
-
-            if ($existingEnrollment) {
-                // Agar avvalroq yaratilgan lekin to'lanmagan bo'lsa
-                if ($existingEnrollment->status === Enrollment::STATUS_WAITING_PAYMENT) {
-                    // 🔥 TUZATILDI: Endi yangi PaymentControllerga yo'naltiramiz
-                    return $this->redirect(['/payment/create', 'course_id' => $course->id]);
-                }
-                
-                Yii::$app->session->setFlash('error', 'You are already enrolled in this group!');
-                return $this->refresh();
-            }
-
-            $existingApplication = EnrollmentApplication::find()
-                ->where([
-                    'student_id' => $student->id,
-                    'course_id' => $course->id,
-                    'status' => EnrollmentApplication::STATUS_PENDING
-                ])
-                ->one();
-
-            if ($existingApplication) {
-                Yii::$app->session->setFlash('error', 'You already have a pending application for this course!');
-                return $this->refresh();
-            }
-
-            // FREE COURSE yoki AUTOMATIC ENROLL logikasi
-            // Hozircha baribir to'lov kerak degan mantiq bo'yicha:
-            if ($course->isFree()) {
-                $enrollment = new Enrollment();
-                $enrollment->student_id = $student->id;
-                $enrollment->group_id = $model->group_id;
-                $enrollment->enrolled_on = date('Y-m-d');
-                $enrollment->status = Enrollment::STATUS_WAITING_PAYMENT;
-
-                if ($enrollment->save()) {
-                    // 🔥 TUZATILDI: To'g'ridan-to'g'ri yangi to'lov sahifasiga
-                    return $this->redirect(['/payment/create', 'course_id' => $course->id]);
-                }
-            }
-            // PREMIUM COURSE
-            else {
-                $model->status = EnrollmentApplication::STATUS_PENDING;
-                if ($model->save()) {
-                    Yii::$app->session->setFlash('success', '✅ Application submitted! Wait for admin approval to pay.');
-                    return $this->redirect(['/student/dashboard']);
-                }
-            }
-        }
-
-        return $this->render('enroll', [
-            'model' => $model,
-            'course' => $course,
-            'groups' => $groups,
-            'student' => $student,
-        ]);
+        // Barcha mashaqqatli tekshiruvlar tayyor qilib qo'yilgan joyga jo'natamiz
+        return $this->redirect(['/student-lesson/course', 'course_id' => $id]);
     }
-
-    // 🔥 actionPayment O'CHIRILDI! Chunki endi PaymentController ishlaydi.
 }
