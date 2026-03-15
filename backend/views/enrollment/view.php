@@ -30,12 +30,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'student_id',
                         'label' => Yii::t('app', 'Student'),
-                        'value' => $model->student->full_name,
+                        'value' => $model->student->full_name ?? 'N/A',
                     ],
+                    // 🔥 Group o'rniga Course
                     [
-                        'attribute' => 'group_id',
-                        'label' => Yii::t('app', 'Group'),
-                        'value' => $model->group->name . ' (' . $model->group->course->name . ')',
+                        'attribute' => 'course_id',
+                        'label' => Yii::t('app', 'Course'),
+                        'value' => $model->course->name ?? 'N/A',
                     ],
                     [
                         'attribute' => 'enrolled_on',

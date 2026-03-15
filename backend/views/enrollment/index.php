@@ -7,7 +7,6 @@ $this->title = Yii::t('app', 'Enrollments');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-
 <style>
     .enrollment-index table thead a {
         color: #fff !important;
@@ -20,7 +19,6 @@ $this->params['breadcrumbs'][] = $this->title;
         text-decoration: none !important;
     }
 </style>
-
 
 <div class="enrollment-index">
     <div class="card">
@@ -39,28 +37,27 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     'id',
 
-                    // ✅ Student - Clickable
                     [
                         'attribute' => 'student_id',
                         'format' => 'raw',
                         'label' => Yii::t('app', 'Student'),
                         'value' => function ($model) {
                             return Html::a(
-                                '<i class="fas fa-user-graduate text-primary"></i> ' . Html::encode($model->student->full_name),
+                                '<i class="fas fa-user-graduate text-primary"></i> ' . Html::encode($model->student->full_name ?? 'N/A'),
                                 ['view', 'id' => $model->id],
                                 ['style' => 'text-decoration: none; font-weight: bold;']
                             );
                         },
                     ],
 
-                    // ✅ Group - Clickable
+                    // 🔥 GROUP O'RNIGA COURSE QO'YILDI
                     [
-                        'attribute' => 'group_id',
+                        'attribute' => 'course_id',
                         'format' => 'raw',
-                        'label' => Yii::t('app', 'Group'),
+                        'label' => Yii::t('app', 'Course'),
                         'value' => function ($model) {
                             return Html::a(
-                                '<i class="fas fa-users text-success"></i> ' . Html::encode($model->group->name),
+                                '<i class="fas fa-book text-success"></i> ' . Html::encode($model->course->name ?? 'N/A'),
                                 ['view', 'id' => $model->id],
                                 ['style' => 'text-decoration: none;']
                             );

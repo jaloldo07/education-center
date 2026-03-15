@@ -2,13 +2,13 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use backend\models\Enrollment;
+use common\models\Enrollment; // 🔥 backend o'rniga common
 
 ?>
 
 <style>
     .help-block, .help-block-error, .invalid-feedback {
-        color: #dc3545 !important; /* Qip-qizil rang */
+        color: #dc3545 !important;
         font-weight: bold;
         font-size: 0.9rem;
         margin-top: 5px;
@@ -26,7 +26,6 @@ use backend\models\Enrollment;
         'fieldConfig' => [
             'template' => "{label}\n<div class=\"col-md-9\">{input}</div>\n<div class=\"col-md-9 offset-md-3\">{error}</div>",
             'labelOptions' => ['class' => 'col-md-3 control-label'],
-            // 🔥 Xatolik klassini qo'shdik
             'errorOptions' => ['class' => 'help-block-error text-danger'],
             'inputOptions' => ['class' => 'form-control'],
         ],
@@ -47,12 +46,12 @@ use backend\models\Enrollment;
                     )->label(Yii::t('app', 'Student')) ?>
                 </div>
                 <div class="col-md-6">
-                    <?= $form->field($model, 'group_id')->dropDownList(
-                        $groups, 
+                    <?= $form->field($model, 'course_id')->dropDownList(
+                        $courses, 
                         [
-                            'prompt' => Yii::t('app', 'Select Group'),
+                            'prompt' => Yii::t('app', 'Select Course'),
                         ]
-                    )->label(Yii::t('app', 'Group')) ?>
+                    )->label(Yii::t('app', 'Course')) ?>
                 </div>
             </div>
         </div>
@@ -71,6 +70,7 @@ use backend\models\Enrollment;
                     <?= $form->field($model, 'status')->dropDownList([
                         'active' => Yii::t('app', 'Active'),
                         'completed' => Yii::t('app', 'Completed'),
+                        'waiting_payment' => Yii::t('app', 'Waiting Payment'), // 🔥 Yangi statusingizni ham qo'shib qo'ydim
                         'cancelled' => Yii::t('app', 'Cancelled'),
                     ], [
                         'prompt' => Yii::t('app', 'Select Status'),

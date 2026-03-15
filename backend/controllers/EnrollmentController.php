@@ -5,7 +5,7 @@ namespace backend\controllers;
 use Yii;
 use common\models\Enrollment;
 use common\models\Student;
-use common\models\Group;
+use common\models\Course; // 🔥 Group o'rniga Course chaqirildi
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -46,7 +46,8 @@ class EnrollmentController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Enrollment::find()->with(['student', 'group'])->orderBy(['enrolled_on' => SORT_DESC]),
+            // 🔥 'group' o'rniga 'course' ga o'zgardi
+            'query' => Enrollment::find()->with(['student', 'course'])->orderBy(['enrolled_on' => SORT_DESC]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -78,9 +79,8 @@ class EnrollmentController extends Controller
         return $this->render('create', [
             'model' => $model,
             'students' => ArrayHelper::map(Student::find()->all(), 'id', 'full_name'),
-            'groups' => ArrayHelper::map(Group::find()->with('course')->all(), 'id', function ($model) {
-                return $model->name . ' (' . $model->course->name . ')';
-            }),
+            // 🔥 courses o'zgaruvchisi orqali yuboramiz
+            'courses' => ArrayHelper::map(Course::find()->all(), 'id', 'name'),
         ]);
     }
 
@@ -96,9 +96,8 @@ class EnrollmentController extends Controller
         return $this->render('update', [
             'model' => $model,
             'students' => ArrayHelper::map(Student::find()->all(), 'id', 'full_name'),
-            'groups' => ArrayHelper::map(Group::find()->with('course')->all(), 'id', function ($model) {
-                return $model->name . ' (' . $model->course->name . ')';
-            }),
+            // 🔥 courses o'zgaruvchisi orqali yuboramiz
+            'courses' => ArrayHelper::map(Course::find()->all(), 'id', 'name'),
         ]);
     }
 
