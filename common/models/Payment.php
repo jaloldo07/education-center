@@ -99,21 +99,16 @@ class Payment extends ActiveRecord
     /**
      * Talaba rostan ham tanlangan kursda o'qiydimi?
      */
+    /**
+     * Talaba rostan ham tanlangan kursda o'qiydimi?
+     */
     public function validateEnrollment($attribute, $params)
     {
-        // Oddiyroq va ishonchliroq query: Enrollment orqali tekshirish
-        // Enrollment jadvali talaba va kurs o'rtasidagi bog'liqlikni saqlaydi deb hisoblaymiz.
-        // Agar sizda enrollment jadvalida course_id bo'lsa, to'g'ridan-to'g'ri tekshirish osonroq.
-        // Agar faqat Group orqali bo'lsa, Groupga bog'laymiz.
-
+        // Guruhsiz, to'g'ridan-to'g'ri course_id orqali tekshiramiz
         $hasEnrollment = Enrollment::find()
-            ->alias('e')
-            ->leftJoin('group g', 'g.id = e.group_id') // Left join qildim (guruhsiz bo'lsa ham ishlashi uchun)
-            ->where(['e.student_id' => $this->student_id])
-            ->andWhere([
-                'or',
-                ['g.course_id' => $this->course_id], // Guruh orqali tekshirish
-                // ['e.course_id' => $this->course_id] // Agar Enrollment jadvalida course_id bo'lsa buni ham ochib qo'ying
+            ->where([
+                'student_id' => $this->student_id,
+                'course_id' => $this->course_id
             ])
             ->exists();
 
