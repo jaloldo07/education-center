@@ -20,13 +20,7 @@ class StudentController extends Controller
             'access' => [
                 'class' => AccessControl::class,
                 'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['@'],
-                        'matchCallback' => function ($rule, $action) {
-                            return Yii::$app->user->identity->role === 'student';
-                        }
-                    ],
+                    ['allow' => true, 'roles' => ['@'], 'matchCallback' => function ($rule, $action) { return Yii::$app->user->identity->role === 'student'; }],
                 ],
             ],
         ];
@@ -41,56 +35,51 @@ class StudentController extends Controller
             return $this->goHome();
         }
 
-        // 1. Studentning barcha enrollmentlarini olamiz
+        // 1. Studentning barcha enrollmentlarini endi to'g'ridan-to'g'ri Course bilan olamiz
         $enrollments = Enrollment::find()
             ->where(['student_id' => $student->id])
-            ->with(['group', 'group.course', 'group.teacher'])
+            ->with(['course', 'course.teacher'])
             ->all();
 
-        // 2. To'lovlar tarixi (o'zgartirishsiz)
+        // 2. To'lovlar tarixi
         $payments = Payment::find()
             ->where(['student_id' => $student->id])
             ->with('course')
             ->orderBy(['payment_date' => SORT_DESC])
             ->all();
 
-        // 3. STATISTIKA (o'zgartirishsiz)
+        // 3. STATISTIKA
         $stats = [
             'totalEnrollments' => count($enrollments),
             'activeEnrollments' => Enrollment::find()->where(['student_id' => $student->id, 'status' => 'active'])->count(),
             'totalPayments' => Payment::find()->where(['student_id' => $student->id])->sum('amount') ?? 0,
         ];
 
-        // --- YANGI QO'SHILGAN QISM: Dars Jadvalini olish ---
-        
-        // Student a'zo bo'lgan va statusi 'active' bo'lgan guruh IDlarini yig'amiz
-        $activeGroupIds = [];
+        // 4. Dars jadvali (Endi course_id orqali qidiramiz)
+        $activeCourseIds = [];
         foreach ($enrollments as $enrollment) {
             if ($enrollment->status === 'active') {
-                $activeGroupIds[] = $enrollment->group_id;
+                $activeCourseIds[] = $enrollment->course_id;
             }
         }
 
-        // Shu guruhlarga tegishli barcha dars jadvallarini topamiz
         $schedules = [];
-        if (!empty($activeGroupIds)) {
+        if (!empty($activeCourseIds)) {
             $schedules = Schedule::find()
-                ->where(['group_id' => $activeGroupIds])
-                ->with(['group', 'group.course', 'group.teacher']) // Qo'shimcha ma'lumotlarni ham olamiz
+                ->where(['course_id' => $activeCourseIds])
+                ->with(['course', 'course.teacher'])
                 ->orderBy(['day_of_week' => SORT_ASC, 'start_time' => SORT_ASC])
                 ->all();
         }
-        // ----------------------------------------------------
 
         return $this->render('dashboard', [
             'student' => $student,
             'enrollments' => $enrollments,
             'payments' => $payments,
             'stats' => $stats,
-            'schedules' => $schedules, // <-- Viewga yuboryapmiz
+            'schedules' => $schedules,
         ]);
     }
-
 
     public function actionMarkNotificationRead($id)
     {

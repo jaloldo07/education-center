@@ -22,8 +22,9 @@ class Schedule extends ActiveRecord
     public function rules()
     {
         return [
-            [['group_id', 'teacher_id', 'day_of_week', 'start_time', 'end_time'], 'required'],
-            [['group_id', 'teacher_id', 'day_of_week'], 'integer'],
+            // group_id o'rniga course_id
+            [['course_id', 'teacher_id', 'day_of_week', 'start_time', 'end_time'], 'required'],
+            [['course_id', 'teacher_id', 'day_of_week'], 'integer'],
             [['start_time', 'end_time'], 'safe'],
             [['room'], 'string', 'max' => 100],
             ['day_of_week', 'in', 'range' => [1, 2, 3, 4, 5, 6, 7]],
@@ -35,7 +36,7 @@ class Schedule extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'group_id' => 'Group',
+            'course_id' => 'Course', // Group o'rniga Course
             'teacher_id' => 'Teacher',
             'day_of_week' => 'Day',
             'start_time' => 'Start Time',
@@ -44,9 +45,10 @@ class Schedule extends ActiveRecord
         ];
     }
 
-    public function getGroup()
+    // getGroup() o'rniga getCourse()
+    public function getCourse()
     {
-        return $this->hasOne(Group::class, ['id' => 'group_id']);
+        return $this->hasOne(Course::class, ['id' => 'course_id']);
     }
 
     public function getTeacher()
@@ -56,15 +58,7 @@ class Schedule extends ActiveRecord
 
     public static function getDayNames()
     {
-        return [
-            1 => 'Monday',
-            2 => 'Tuesday',
-            3 => 'Wednesday',
-            4 => 'Thursday',
-            5 => 'Friday',
-            6 => 'Saturday',
-            7 => 'Sunday',
-        ];
+        return [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
     }
 
     public function getDayName()
@@ -77,7 +71,6 @@ class Schedule extends ActiveRecord
     {
         $start = strtotime($this->start_time);
         $end = strtotime($this->end_time);
-        $diff = ($end - $start) / 3600; // hours
-        return round($diff, 1);
+        return round((($end - $start) / 3600), 1);
     }
 }

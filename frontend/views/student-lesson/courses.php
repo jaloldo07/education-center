@@ -176,7 +176,8 @@ $this->title = Yii::t('app', 'My Lessons');
         <?php else: ?>
             <div class="row">
                 <?php foreach ($enrollments as $enrollment):
-                    $course = $enrollment->group->course;
+                    $course = $enrollment->course;
+                    if (!$course) continue; // Agar kurs topilmasa xato bermasligi uchun
                     
                     $totalLessons = \common\models\Lesson::find()->where(['course_id' => $course->id, 'is_published' => 1])->count();
                     $completedLessons = \common\models\LessonProgress::find()->joinWith('lesson')->where(['lesson_progress.student_id' => $enrollment->student_id, 'lesson_progress.status' => 'completed', 'lesson.course_id' => $course->id])->count();

@@ -300,7 +300,6 @@ $this->title = Yii::t('app', 'My Dashboard');
                         <thead>
                             <tr>
                                 <th><?= Yii::t('app', 'Course') ?></th>
-                                <th><?= Yii::t('app', 'Group') ?></th>
                                 <th><?= Yii::t('app', 'Teacher') ?></th>
                                 <th><?= Yii::t('app', 'Status') ?></th>
                                 <th class="text-end"><?= Yii::t('app', 'Action') ?></th>
@@ -308,53 +307,25 @@ $this->title = Yii::t('app', 'My Dashboard');
                         </thead>
                         <tbody>
                             <?php foreach ($enrollments as $enrollment): ?>
-                                <?php 
-                                // Kursni enrollment ichidan ajratib olamiz
-                                $course = $enrollment->group->course ?? null; 
-                                ?>
+                                <?php $course = $enrollment->course; if(!$course) continue; ?>
                                 <tr>
                                     <td>
-                                        <div class="fw-bold text-white"><?= Html::encode($course->name ?? 'N/A') ?></div>
+                                        <div class="fw-bold text-white"><?= Html::encode($course->name) ?></div>
                                         <small class="text-white-50"><?= Yii::$app->formatter->asDate($enrollment->enrolled_on) ?></small>
                                     </td>
-                                    <td><?= Html::encode($enrollment->group->name ?? 'N/A') ?></td>
-                                    <td><?= Html::encode($enrollment->group->teacher->full_name ?? 'N/A') ?></td>
+                                    <td><?= Html::encode($course->teacher->full_name ?? 'N/A') ?></td>
                                     <td>
                                         <?php 
-                                            $badgeClass = 'secondary';
-                                            $statusLabel = $enrollment->status;
-                                            
-                                            if ($enrollment->status === Enrollment::STATUS_ACTIVE) {
-                                                $badgeClass = 'success';
-                                                $statusLabel = 'Active';
-                                            } elseif ($enrollment->status === Enrollment::STATUS_WAITING_PAYMENT) {
-                                                $badgeClass = 'warning text-dark';
-                                                $statusLabel = 'Payment Required';
-                                            }
+                                            $badgeClass = $enrollment->status === Enrollment::STATUS_ACTIVE ? 'success' : 'warning text-dark';
+                                            $statusLabel = $enrollment->status === Enrollment::STATUS_ACTIVE ? 'Active' : 'Payment Required';
                                         ?>
-                                        <span class="badge bg-<?= $badgeClass ?>">
-                                            <?= Yii::t('app', $statusLabel) ?>
-                                        </span>
+                                        <span class="badge bg-<?= $badgeClass ?>"><?= Yii::t('app', $statusLabel) ?></span>
                                     </td>
                                     <td class="text-end">
                                         <?php if ($enrollment->status === Enrollment::STATUS_ACTIVE): ?>
-                                            
-                                            <?= Html::a(
-                                                '<i class="fas fa-play me-1"></i> ' . Yii::t('app', 'Lessons'),
-                                                ['/student-lesson/course', 'course_id' => $course->id],
-                                                ['class' => 'btn-action']
-                                            ) ?>
-
-                                        <?php elseif ($enrollment->status === Enrollment::STATUS_WAITING_PAYMENT): ?>
-                                            
-                                            <?= Html::a(
-                                                '<i class="fas fa-credit-card me-1"></i> ' . Yii::t('app', 'Pay Now'),
-                                                ['/payment/create', 'course_id' => $course->id],
-                                                ['class' => 'btn-action btn-pay']
-                                            ) ?>
-
+                                            <?= Html::a('<i class="fas fa-play me-1"></i> ' . Yii::t('app', 'Lessons'), ['/student-lesson/course', 'course_id' => $course->id], ['class' => 'btn-action']) ?>
                                         <?php else: ?>
-                                            <span class="text-muted small"><?= Yii::t('app', 'Pending') ?></span>
+                                            <?= Html::a('<i class="fas fa-credit-card me-1"></i> ' . Yii::t('app', 'Pay Now'), ['/payment/create', 'course_id' => $course->id], ['class' => 'btn-action btn-pay']) ?>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -392,22 +363,12 @@ $this->title = Yii::t('app', 'My Dashboard');
                             <?php foreach ($schedules as $schedule): ?>
                                 <tr>
                                     <td>
-                                        <span class="fw-bold text-info"><?= Yii::t('app', $schedule->getDayName()) ?></span>
-                                        <br>
-                                        <small class="text-white-50">
-                                            <?= date('H:i', strtotime($schedule->start_time)) ?> - <?= date('H:i', strtotime($schedule->end_time)) ?>
-                                        </small>
+                                        <span class="fw-bold text-info"><?= Yii::t('app', $schedule->getDayName()) ?></span><br>
+                                        <small class="text-white-50"><?= date('H:i', strtotime($schedule->start_time)) ?> - <?= date('H:i', strtotime($schedule->end_time)) ?></small>
                                     </td>
-                                    <td>
-                                        <?= Html::encode($schedule->group->course->name ?? 'N/A') ?>
-                                        <span class="badge bg-dark text-white-50 ms-1 border border-secondary"><?= Html::encode($schedule->group->name ?? '-') ?></span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-primary">
-                                            <?= Html::encode($schedule->room ?: 'Online') ?>
-                                        </span>
-                                    </td>
-                                    <td><?= Html::encode($schedule->group->teacher->full_name ?? '-') ?></td>
+                                    <td><?= Html::encode($schedule->course->name ?? 'N/A') ?></td>
+                                    <td><span class="badge bg-primary"><?= Html::encode($schedule->room ?: 'Online') ?></span></td>
+                                    <td><?= Html::encode($schedule->course->teacher->full_name ?? '-') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

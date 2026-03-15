@@ -7,11 +7,11 @@ use common\models\Lesson;
 use common\models\LessonProgress;
 use common\models\Student;
 use common\models\Enrollment;
+use common\models\Course;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use common\models\CourseTest;
-use common\models\TestAttempt;
 
 class StudentLessonController extends Controller
 {
@@ -20,9 +20,7 @@ class StudentLessonController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'rules' => [
-                    ['allow' => true, 'roles' => ['@']],
-                ],
+                'rules' => [['allow' => true, 'roles' => ['@']]],
             ],
         ];
     }
@@ -30,74 +28,67 @@ class StudentLessonController extends Controller
     public function actionIndex()
     {
         $student = Student::findOne(['user_id' => Yii::$app->user->id]);
+        if (!$student) return $this->redirect(['/site/index']);
 
-        if (!$student) {
-            Yii::$app->session->setFlash('error', 'Student not found.');
-            return $this->redirect(['/site/index']);
-        }
-
-        // Get enrolled courses
+        // Endi to'g'ridan-to'g'ri course ni chaqiramiz
         $enrollments = Enrollment::find()
-            ->joinWith('group.course')
+            ->joinWith('course')
             ->where(['enrollment.student_id' => $student->id, 'enrollment.status' => 'active'])
             ->all();
 
-        return $this->render('courses', [
-            'enrollments' => $enrollments,
-        ]);
+        return $this->render('courses', ['enrollments' => $enrollments]);
     }
+
     public function actionCourse($course_id)
     {
         $student = Student::findOne(['user_id' => Yii::$app->user->id]);
+        if (!$student) return $this->redirect(['/site/index']);
 
-        if (!$student) {
-            return $this->redirect(['/site/index']);
-        }
+        $course = Course::findOne($course_id);
+        if (!$course) throw new NotFoundHttpException('Course not found.');
 
-        // Check enrollment
-        $enrollment = Enrollment::find()
-            ->joinWith('group')
-            ->where([
-                'enrollment.student_id' => $student->id,
-                'enrollment.status' => 'active',
-                'group.course_id' => $course_id
-            ])
-            ->one();
+        // 1. Talabaning shu kursga yozilganligini tekshiramiz
+        $enrollment = Enrollment::findOne([
+            'student_id' => $student->id,
+            'course_id' => $course_id
+        ]);
 
+        // 🔥 TEKIN VA PULLIK MANTIG'I 🔥
         if (!$enrollment) {
-            Yii::$app->session->setFlash('error', 'Not enrolled.');
-            return $this->redirect(['index']);
+            if ($course->isFree()) {
+                // Tekin kurs: Avtomatik yozamiz va darslarni ochamiz
+                $enrollment = new Enrollment([
+                    'student_id' => $student->id,
+                    'course_id' => $course_id,
+                    'enrolled_on' => date('Y-m-d H:i:s'),
+                    'status' => Enrollment::STATUS_ACTIVE
+                ]);
+                $enrollment->save(false);
+            } else {
+                // Pullik kurs: To'lov sahifasiga yo'naltiramiz
+                Yii::$app->session->setFlash('info', Yii::t('app', 'Bu premium kurs. Davom etish uchun to\'lovni amalga oshiring.'));
+                return $this->redirect(['/payment/create', 'course_id' => $course_id]);
+            }
+        } elseif ($enrollment->status !== Enrollment::STATUS_ACTIVE) {
+            // Agar yozilgan lekin to'lov qilinmagan (Kutilmoqda) bo'lsa
+            Yii::$app->session->setFlash('warning', Yii::t('app', 'Kursingiz tasdiqlanmagan yoki to\'lov kutilmoqda.'));
+            return $this->redirect(['/payment/create', 'course_id' => $course_id]);
         }
 
-        // Get lessons
-        $lessons = Lesson::find()
-            ->where(['course_id' => $course_id, 'is_published' => 1])
-            ->orderBy(['order_number' => SORT_ASC])
-            ->all();
+        // Darslarni olish
+        $lessons = Lesson::find()->where(['course_id' => $course_id, 'is_published' => 1])->orderBy(['order_number' => SORT_ASC])->all();
+        $courseTests = CourseTest::find()->where(['course_id' => $course_id])->with('test')->orderBy(['order_number' => SORT_ASC])->all();
 
-        // Get tests for this course
-        $courseTests = CourseTest::find()
-            ->where(['course_id' => $course_id])
-            ->with('test')
-            ->orderBy(['order_number' => SORT_ASC])
-            ->all();
-
-        // Progress data
         $progressData = [];
         $lockedStatus = [];
-
         foreach ($lessons as $lesson) {
-            $progress = LessonProgress::findOne([
-                'student_id' => $student->id,
-                'lesson_id' => $lesson->id
-            ]);
-            $progressData[$lesson->id] = $progress;
+            $progressData[$lesson->id] = LessonProgress::findOne(['student_id' => $student->id, 'lesson_id' => $lesson->id]);
             $lockedStatus[$lesson->id] = !$this->canAccessLesson($student->id, $lesson);
         }
 
         return $this->render('lessons', [
             'lessons' => $lessons,
-            'course' => $enrollment->group->course,
+            'course' => $course, // endi enrollment->course deb o'tirmaymiz
             'progressData' => $progressData,
             'lockedStatus' => $lockedStatus,
             'courseTests' => $courseTests,
@@ -109,46 +100,36 @@ class StudentLessonController extends Controller
     {
         $student = Student::findOne(['user_id' => Yii::$app->user->id]);
         $lesson = $this->findModel($id);
+        $course = $lesson->course;
 
-        // Check enrollment via group
-        $enrollment = Enrollment::find()
-            ->joinWith('group')
-            ->where([
-                'enrollment.student_id' => $student->id,
-                'enrollment.status' => 'active',
-                'group.course_id' => $lesson->course_id // ✅
-            ])
-            ->one();
+        $enrollment = Enrollment::findOne(['student_id' => $student->id, 'course_id' => $course->id]);
 
+        // Xavfsizlik: Boshqa birov link orqali to'g'ridan-to'g'ri darsga kirmasligi uchun
         if (!$enrollment) {
-            throw new NotFoundHttpException('Access denied.');
+            if ($course->isFree()) {
+                $enrollment = new Enrollment(['student_id' => $student->id, 'course_id' => $course->id, 'enrolled_on' => date('Y-m-d H:i:s'), 'status' => Enrollment::STATUS_ACTIVE]);
+                $enrollment->save(false);
+            } else {
+                throw new NotFoundHttpException('Access denied. Please enroll first.');
+            }
+        } elseif ($enrollment->status !== Enrollment::STATUS_ACTIVE) {
+            throw new NotFoundHttpException('Access denied. Payment is pending.');
         }
 
-        // Check previous lesson
         if (!$this->canAccessLesson($student->id, $lesson)) {
             Yii::$app->session->setFlash('error', 'Complete previous lessons first!');
-            return $this->redirect(['index', 'course_id' => $lesson->course_id]);
+            return $this->redirect(['course', 'course_id' => $lesson->course_id]);
         }
 
-        $progress = LessonProgress::findOne([
-            'student_id' => $student->id,
-            'lesson_id' => $lesson->id
-        ]);
-
+        $progress = LessonProgress::findOne(['student_id' => $student->id, 'lesson_id' => $lesson->id]);
         if (!$progress) {
-            $progress = new LessonProgress([
-                'student_id' => $student->id,
-                'lesson_id' => $lesson->id,
-                'status' => 'in_progress'
-            ]);
+            $progress = new LessonProgress(['student_id' => $student->id, 'lesson_id' => $lesson->id, 'status' => 'in_progress']);
             $progress->save();
         }
 
-        return $this->render('view', [
-            'lesson' => $lesson,
-            'progress' => $progress,
-        ]);
+        return $this->render('view', ['lesson' => $lesson, 'progress' => $progress]);
     }
+
 
     public function actionUpdateProgress($id)
     {
