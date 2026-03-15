@@ -52,13 +52,14 @@ class PaymentController extends Controller
         $courses = Course::find()->all();
         $selectedCourse = $course_id ? Course::findOne($course_id) : null;
         
+        // 🔥 GURUH (GROUP) ORQALI QIDIRISH O'CHIRILDI, TO'G'RIDAN-TO'G'RI COURSE_ID GA QARAYMIZ
         $enrollment = null;
         if ($selectedCourse) {
             $enrollment = Enrollment::find()
-                ->alias('e')
-                ->joinWith('group g')
-                ->where(['e.student_id' => $student->id])
-                ->andWhere(['g.course_id' => $selectedCourse->id])
+                ->where([
+                    'student_id' => $student->id,
+                    'course_id' => $selectedCourse->id
+                ])
                 ->one();
         }
 
@@ -73,13 +74,11 @@ class PaymentController extends Controller
             if ($model->load($this->request->post())) {
                 
                 $model->student_id = $student->id;
-                // formadan 'card' yoki 'cash' keladi
                 $model->transaction_id = strtoupper($model->payment_method) . '_' . time(); 
                 
-                // 🔥 Rasmni ushlab olish (Faqat karta orqali to'lov bo'lsa)
+                // Rasmni ushlab olish (Faqat karta orqali to'lov bo'lsa)
                 if ($model->payment_method === 'card') {
-                    // receipt_image emas, receipt_file qildik (bazaga moslab)
-                    $receiptFile = UploadedFile::getInstance($model, 'receipt_file'); 
+                    $receiptFile = \yii\web\UploadedFile::getInstance($model, 'receipt_file'); 
                     
                     if ($receiptFile) {
                         $uploadPath = Yii::getAlias('@frontend/web/uploads/receipts/');
@@ -108,7 +107,8 @@ class PaymentController extends Controller
                     }
                     return $this->redirect(['/student/dashboard']);
                 } else {
-                    Yii::$app->session->setFlash('error', Yii::t('app', 'Error saving payment. Please try again.'));
+                    $errors = implode('<br>', $model->getErrorSummary(true));
+                    Yii::$app->session->setFlash('error', 'Saqlashda xatolik: <br>' . $errors);
                 }
             }
         }

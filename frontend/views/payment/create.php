@@ -119,9 +119,6 @@ $adminNameHumo = Setting::getValue('humo_name', 'O\'quv Markazi');
                         <?php if ($selectedCourse): ?>
                             <div class="course-summary text-center">
                                 <h5 class="fw-bold mb-1 text-white"><?= Html::encode($selectedCourse->name) ?></h5>
-                                <?php if ($enrollment && $enrollment->group): ?>
-                                    <small class="text-white-50"><i class="fas fa-users"></i> <?= Html::encode($enrollment->group->name) ?></small>
-                                <?php endif; ?>
                                 <div class="mt-2 h4 text-success fw-bold">
                                     <?= number_format($selectedCourse->price, 0, '.', ' ') ?> <small>UZS</small>
                                 </div>
