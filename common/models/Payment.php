@@ -71,7 +71,7 @@ class Payment extends ActiveRecord
             [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],
             
             // Maxsus Validatsiyalar
-            ['student_id', 'validateEnrollment'],
+            //['student_id', 'validateEnrollment'],
             ['amount', 'validateAmount'],
         ];
     }

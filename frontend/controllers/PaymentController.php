@@ -94,9 +94,7 @@ class PaymentController extends Controller
 
                 $realCourse = Course::findOne($model->course_id);
                 if ($realCourse) {
-                    if ($model->payment_type === Payment::TYPE_MONTHLY && $model->amount < $realCourse->price) {
-                         $model->amount = $realCourse->price;
-                    }
+                    $model->amount = $realCourse->price;
                 }
 
                 if ($model->save()) {

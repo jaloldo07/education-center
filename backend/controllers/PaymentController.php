@@ -158,30 +158,31 @@ class PaymentController extends Controller
     }
 
 
-    /**
-     * To'lovni tasdiqlash (Student chek yuborganda)
-     */
-    /**
-     * To'lovni tasdiqlash (Student chek yuborganda)
+     /* To'lovni tasdiqlash (Student chek yuborganda)
      */
     public function actionApprove($id)
     {
         $model = $this->findModel($id);
-        $model->status = Payment::STATUS_PAID;
+        $model->status = \common\models\Payment::STATUS_PAID;
         
         if ($model->save(false)) { 
             
-            // 🔥 YANGLIK: Endi guruhni qidirmasdan, to'g'ridan-to'g'ri Enrollment ni topamiz
             $enrollment = \common\models\Enrollment::findOne([
                 'student_id' => $model->student_id,
                 'course_id' => $model->course_id
             ]);
 
-            if ($enrollment) {
-                // Enrollment statusini faol qilamiz
-                $enrollment->status = \common\models\Enrollment::STATUS_ACTIVE; 
-                $enrollment->save(false);
+            // 🔥 Agar talabaning arizasi hali bazada umuman yo'q bo'lsa, yangi yaratamiz
+            if (!$enrollment) {
+                $enrollment = new \common\models\Enrollment();
+                $enrollment->student_id = $model->student_id;
+                $enrollment->course_id = $model->course_id;
+                $enrollment->enrolled_on = date('Y-m-d H:i:s');
             }
+            
+            // Va uni faol (Active) qilib qo'yamiz
+            $enrollment->status = \common\models\Enrollment::STATUS_ACTIVE; 
+            $enrollment->save(false);
 
             Yii::$app->session->setFlash('success', Yii::t('app', 'To\'lov muvaffaqiyatli tasdiqlandi va talabaga kurs ochildi.'));
         } else {
