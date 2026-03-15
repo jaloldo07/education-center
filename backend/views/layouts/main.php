@@ -482,10 +482,6 @@ use yii\bootstrap5\NavBar;
                             <?= Html::a('<i class="fas fa-book"></i> ' . Yii::t('app', 'Courses'), ['/course/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">
-                            <?= Html::a('<i class="fas fa-layer-group"></i> ' . Yii::t('app', 'Groups'), ['/group/index'], ['class' => 'nav-link']) ?>
-                        </li>
-
-                        <li class="nav-item mb-1">
                             <?= Html::a('<i class="fas fa-money-bill-wave"></i> ' . Yii::t('app', 'Payments'), ['/payment/index'], ['class' => 'nav-link']) ?>
                         </li>
                         <li class="nav-item mb-1">

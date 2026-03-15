@@ -6,8 +6,8 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
 use common\models\Teacher;
-use common\models\Group;
 use common\models\Course;
+use common\models\Enrollment; // Studentlarni topish uchun
 use common\models\Attendance;
 use common\models\Schedule;
 use common\models\Test;
@@ -43,37 +43,38 @@ class TeacherController extends Controller
             return $this->goHome();
         }
 
-        $groups = Group::find()
-            ->where(['teacher_id' => $teacher->id])
-            ->with(['course', 'students'])
-            ->all();
-
         $courses = Course::find()
             ->where(['teacher_id' => $teacher->id])
             ->all();
 
-        // 🔥 YANGI: O'qituvchining dars jadvallarini tortib olamiz
+        // O'qituvchining dars jadvallarini to'g'ridan to'g'ri kurs orqali tortib olamiz
         $schedules = Schedule::find()
             ->where(['teacher_id' => $teacher->id])
-            ->with(['group', 'group.course'])
+            ->with(['course'])
             ->orderBy(['day_of_week' => SORT_ASC, 'start_time' => SORT_ASC])
             ->all();
 
-        $stats = [
-            'totalGroups' => count($groups),
-            'totalCourses' => count($courses),
-            'totalStudents' => 0,
-        ];
-
-        foreach ($groups as $group) {
-            $stats['totalStudents'] += count($group->students);
+        // O'qituvchiga tegishli jami noyob (unique) talabalarni sanash
+        $enrollments = Enrollment::find()
+            ->joinWith('course')
+            ->where(['course.teacher_id' => $teacher->id, 'enrollment.status' => Enrollment::STATUS_ACTIVE])
+            ->all();
+            
+        $uniqueStudents = [];
+        foreach ($enrollments as $enrollment) {
+            $uniqueStudents[$enrollment->student_id] = true;
         }
+
+        $stats = [
+            'totalCourses' => count($courses),
+            'totalSchedules' => count($schedules),
+            'totalStudents' => count($uniqueStudents),
+        ];
 
         return $this->render('dashboard', [
             'teacher' => $teacher,
-            'groups' => $groups,
             'courses' => $courses,
-            'schedules' => $schedules, // 🔥 Dashboardga yuboramiz
+            'schedules' => $schedules,
             'stats' => $stats,
         ]);
     }
@@ -87,21 +88,20 @@ class TeacherController extends Controller
         }
 
         $students = [];
-        $groups = Group::find()
-            ->where(['teacher_id' => $teacher->id])
-            ->with(['students', 'course'])
+        $enrollments = Enrollment::find()
+            ->joinWith(['course', 'student'])
+            ->where(['course.teacher_id' => $teacher->id, 'enrollment.status' => Enrollment::STATUS_ACTIVE])
             ->all();
 
-        foreach ($groups as $group) {
-            foreach ($group->students as $student) {
-                if (!isset($students[$student->id])) {
-                    $students[$student->id] = [
-                        'student' => $student,
-                        'groups' => [],
-                    ];
-                }
-                $students[$student->id]['groups'][] = $group;
+        foreach ($enrollments as $enrollment) {
+            $studentId = $enrollment->student_id;
+            if (!isset($students[$studentId])) {
+                $students[$studentId] = [
+                    'student' => $enrollment->student,
+                    'courses' => [],
+                ];
             }
+            $students[$studentId]['courses'][] = $enrollment->course;
         }
 
         return $this->render('my-students', [
@@ -111,21 +111,21 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function actionGroup($id)
+    // actionGroup endi actionCourse bo'ldi
+    public function actionCourse($id)
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
 
-        $group = Group::find()
+        $course = Course::find()
             ->where(['id' => $id, 'teacher_id' => $teacher->id])
-            ->with(['course', 'students'])
             ->one();
 
-        if (!$group) {
-            throw new \yii\web\NotFoundHttpException('Group not found or access denied.');
+        if (!$course) {
+            throw new \yii\web\NotFoundHttpException('Course not found or access denied.');
         }
 
-        return $this->render('group', [
-            'group' => $group,
+        return $this->render('course', [ // group.php o'rniga course.php bo'ladi
+            'course' => $course,
             'teacher' => $teacher,
         ]);
     }
@@ -133,36 +133,33 @@ class TeacherController extends Controller
     public function actionAttendance($id)
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
+        $course = Course::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
 
-        $group = Group::find()
-            ->where(['id' => $id, 'teacher_id' => $teacher->id])
-            ->with(['course', 'students'])
-            ->one();
-
-        if (!$group) {
-            throw new \yii\web\NotFoundHttpException('Group not found.');
-        }
+        if (!$course) throw new \yii\web\NotFoundHttpException('Course not found.');
 
         $date = Yii::$app->request->get('date', date('Y-m-d'));
+        
+        $enrollments = Enrollment::find()->where(['course_id' => $course->id, 'status' => 'active'])->with('student')->all();
 
         $attendances = [];
-        foreach ($group->students as $student) {
+        foreach ($enrollments as $enrollment) {
+            $student = $enrollment->student;
             $attendance = Attendance::find()
                 ->where([
                     'student_id' => $student->id,
-                    'group_id' => $group->id,
+                    'course_id' => $course->id, // group_id o'rniga course_id
                     'attendance_date' => $date,
                 ])
                 ->one();
-
             $attendances[$student->id] = $attendance;
         }
 
         return $this->render('attendance', [
-            'group' => $group,
+            'course' => $course,
             'teacher' => $teacher,
             'date' => $date,
             'attendances' => $attendances,
+            'enrollments' => $enrollments,
         ]);
     }
 
@@ -172,21 +169,16 @@ class TeacherController extends Controller
 
         $rawBody = Yii::$app->request->getRawBody();
         $data = json_decode($rawBody, true);
+        if (!$data) return ['success' => false, 'message' => 'Invalid data'];
 
-        if (!$data) {
-            return ['success' => false, 'message' => 'Invalid data'];
-        }
-
-        $groupId = $data['group_id'] ?? null;
+        $courseId = $data['course_id'] ?? null; // group_id o'rniga
         $date = $data['date'] ?? null;
         $attendanceData = $data['attendance'] ?? [];
 
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
-
-        $group = Group::findOne(['id' => $groupId, 'teacher_id' => $teacher->id]);
-        if (!$group) {
-            return ['success' => false, 'message' => 'Unauthorized'];
-        }
+        $course = Course::findOne(['id' => $courseId, 'teacher_id' => $teacher->id]);
+        
+        if (!$course) return ['success' => false, 'message' => 'Unauthorized'];
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -194,28 +186,24 @@ class TeacherController extends Controller
                 $attendance = Attendance::find()
                     ->where([
                         'student_id' => $studentId,
-                        'group_id' => $groupId,
+                        'course_id' => $courseId,
                         'attendance_date' => $date,
-                    ])
-                    ->one();
+                    ])->one();
 
                 if ($attendance) {
                     $attendance->status = $status;
                 } else {
                     $attendance = new Attendance();
                     $attendance->student_id = $studentId;
-                    $attendance->group_id = $groupId;
+                    $attendance->course_id = $courseId;
                     $attendance->attendance_date = $date;
                     $attendance->status = $status;
                 }
 
-                if (!$attendance->save()) {
-                    throw new \Exception('Failed to save attendance for student ' . $studentId);
-                }
+                if (!$attendance->save()) throw new \Exception('Failed to save');
             }
-
             $transaction->commit();
-            return ['success' => true, 'message' => 'Attendance saved successfully!'];
+            return ['success' => true, 'message' => 'Attendance saved!'];
         } catch (\Exception $e) {
             $transaction->rollBack();
             return ['success' => false, 'message' => $e->getMessage()];
@@ -225,18 +213,12 @@ class TeacherController extends Controller
     public function actionAttendanceHistory($id)
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
+        $course = Course::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
 
-        $group = Group::find()
-            ->where(['id' => $id, 'teacher_id' => $teacher->id])
-            ->with(['course', 'students'])
-            ->one();
-
-        if (!$group) {
-            throw new \yii\web\NotFoundHttpException('Group not found.');
-        }
+        if (!$course) throw new \yii\web\NotFoundHttpException('Course not found.');
 
         $attendances = Attendance::find()
-            ->where(['group_id' => $id])
+            ->where(['course_id' => $id])
             ->with('student')
             ->orderBy(['attendance_date' => SORT_DESC])
             ->all();
@@ -247,7 +229,7 @@ class TeacherController extends Controller
         }
 
         return $this->render('attendance-history', [
-            'group' => $group,
+            'course' => $course,
             'teacher' => $teacher,
             'attendanceByDate' => $attendanceByDate,
         ]);
@@ -256,23 +238,17 @@ class TeacherController extends Controller
     public function actionSchedule($id)
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
+        $course = Course::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
 
-        $group = Group::find()
-            ->where(['id' => $id, 'teacher_id' => $teacher->id])
-            ->with(['course'])
-            ->one();
-
-        if (!$group) {
-            throw new \yii\web\NotFoundHttpException('Group not found.');
-        }
+        if (!$course) throw new \yii\web\NotFoundHttpException('Course not found.');
 
         $schedules = Schedule::find()
-            ->where(['group_id' => $id, 'teacher_id' => $teacher->id])
+            ->where(['course_id' => $id, 'teacher_id' => $teacher->id])
             ->orderBy(['day_of_week' => SORT_ASC, 'start_time' => SORT_ASC])
             ->all();
 
         return $this->render('schedule', [
-            'group' => $group,
+            'course' => $course,
             'teacher' => $teacher,
             'schedules' => $schedules,
         ]);
@@ -281,14 +257,12 @@ class TeacherController extends Controller
     public function actionCreateSchedule($id)
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
+        $course = Course::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
 
-        $group = Group::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
-        if (!$group) {
-            throw new \yii\web\NotFoundHttpException('Group not found.');
-        }
+        if (!$course) throw new \yii\web\NotFoundHttpException('Course not found.');
 
         $model = new Schedule();
-        $model->group_id = $id;
+        $model->course_id = $id;
         $model->teacher_id = $teacher->id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
@@ -298,32 +272,30 @@ class TeacherController extends Controller
 
         return $this->render('create-schedule', [
             'model' => $model,
-            'group' => $group,
+            'course' => $course,
         ]);
     }
 
     public function actionDeleteSchedule($id)
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
-
         $schedule = Schedule::findOne(['id' => $id, 'teacher_id' => $teacher->id]);
+        
         if ($schedule) {
-            $groupId = $schedule->group_id;
+            $courseId = $schedule->course_id;
             $schedule->delete();
             Yii::$app->session->setFlash('success', 'Schedule deleted.');
-            return $this->redirect(['schedule', 'id' => $groupId]);
+            return $this->redirect(['schedule', 'id' => $courseId]);
         }
-
         throw new \yii\web\NotFoundHttpException();
     }
 
     public function actionCalendar()
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
-
         $schedules = Schedule::find()
             ->where(['teacher_id' => $teacher->id])
-            ->with(['group', 'group.course'])
+            ->with(['course'])
             ->all();
 
         return $this->render('calendar', [
@@ -332,19 +304,14 @@ class TeacherController extends Controller
         ]);
     }
 
-    // ==================== TEST MANAGEMENT ====================
-
     public function actionTests()
     {
         $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
-
-        if (!$teacher) {
-            throw new \yii\web\NotFoundHttpException('Teacher profile not found.');
-        }
+        if (!$teacher) throw new \yii\web\NotFoundHttpException('Teacher profile not found.');
 
         $tests = Test::find()
             ->where(['teacher_id' => $teacher->id])
-            ->with(['course', 'group'])
+            ->with(['course']) // group o'chirildi
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
