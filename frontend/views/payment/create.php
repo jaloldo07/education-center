@@ -20,6 +20,7 @@ $adminNameUzcard = Setting::getValue('uzcard_name', 'O\'quv Markazi');
 
 $adminCardHumo = Setting::getValue('humo_number', '9860 **** **** ****');
 $adminNameHumo = Setting::getValue('humo_name', 'O\'quv Markazi');
+$cashAddress = Setting::getValue('cash_address', 'Toshkent shahar, Chilonzor tumani, 1-mavze');
 ?>
 
 <style>
@@ -45,6 +46,7 @@ $adminNameHumo = Setting::getValue('humo_name', 'O\'quv Markazi');
     .method-btn { flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: bold; transition: 0.3s; cursor: pointer; text-align: center; }
     .method-btn.active { background: #4361ee; border-color: #4361ee; box-shadow: 0 0 15px rgba(67, 97, 238, 0.5); }
     #cash-info { display: none; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+    
 </style>
 
 <div class="payment-page">
@@ -113,7 +115,9 @@ $adminNameHumo = Setting::getValue('humo_name', 'O\'quv Markazi');
                             <i class="fas fa-map-marker-alt fa-3x text-danger mb-3"></i>
                             <h5 class="text-white fw-bold">Ofisga tashrif buyuring</h5>
                             <p class="text-white-50 mb-0">Siz naqd to'lov usulini tanladingiz. Iltimos, arizani yuborganingizdan so'ng markazimizga kelib to'lovni amalga oshiring.</p>
-                            <p class="text-warning small mt-2">Manzil: Toshkent shahar, Chilonzor tumani, 1-mavze</p>
+                            <p class="text-warning small mt-3 fw-bold">
+                                <i class="fas fa-location-arrow"></i> Manzil: <?= Html::encode($cashAddress) ?>
+                            </p>
                         </div>
                         
                         <?php if ($selectedCourse): ?>

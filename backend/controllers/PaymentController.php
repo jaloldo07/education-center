@@ -205,27 +205,34 @@ class PaymentController extends Controller
         return $this->redirect(Yii::$app->request->referrer ?: ['index']);
     }
 
+
     /**
-     * Karta sozlamalarini yangilash
+     * Karta va Manzil sozlamalarini yangilash
      */
     public function actionUpdateCards()
     {
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             
-            $keys = ['uzcard_number', 'uzcard_name', 'humo_number', 'humo_name'];
+            // cash_address (Manzil) kalitini ham qo'shdik
+            $keys = ['uzcard_number', 'uzcard_name', 'humo_number', 'humo_name', 'cash_address'];
             
             foreach ($keys as $key) {
                 if (isset($post[$key])) {
                     $setting = \common\models\Setting::findOne(['key' => $key]);
-                    if ($setting) {
-                        $setting->value = $post[$key];
-                        $setting->save(false);
+                    
+                    // Agar bazada kalit hali yo'q bo'lsa, yangi yaratamiz
+                    if (!$setting) {
+                        $setting = new \common\models\Setting();
+                        $setting->key = $key;
                     }
+                    
+                    $setting->value = $post[$key];
+                    $setting->save(false);
                 }
             }
             
-            Yii::$app->session->setFlash('success', Yii::t('app', 'Karta ma\'lumotlari muvaffaqiyatli yangilandi!'));
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Sozlamalar muvaffaqiyatli yangilandi!'));
         }
         
         return $this->redirect(['index']);

@@ -233,11 +233,12 @@ foreach ($dataProvider->models as $payment) {
 
 
 <?php
-// Bazadan joriy karta ma'lumotlarini olib kelamiz
+// Bazadan joriy ma'lumotlarni olib kelamiz
 $uzcardNum = \common\models\Setting::getValue('uzcard_number', '');
 $uzcardName = \common\models\Setting::getValue('uzcard_name', '');
 $humoNum = \common\models\Setting::getValue('humo_number', '');
 $humoName = \common\models\Setting::getValue('humo_name', '');
+$cashAddress = \common\models\Setting::getValue('cash_address', 'Toshkent shahar, Chilonzor tumani, 1-mavze'); // YANGLIK
 ?>
 
 <div class="modal fade" id="cardSettingsModal" tabindex="-1" aria-labelledby="cardSettingsModalLabel" aria-hidden="true">
@@ -276,6 +277,14 @@ $humoName = \common\models\Setting::getValue('humo_name', '');
               <div class="mb-3">
                   <label class="form-label text-muted small mb-1">Karta egasining FISH</label>
                   <input type="text" name="humo_name" class="form-control" value="<?= Html::encode($humoName) ?>" placeholder="Ism familiya" required>
+              </div>
+
+              <hr>
+
+              <h6 class="text-danger mt-3 fw-bold"><i class="fas fa-map-marker-alt"></i> NAQD TO'LOV MANZILI</h6>
+              <div class="mb-3">
+                  <label class="form-label text-muted small mb-1">O'quv markazi manzili va mo'ljal</label>
+                  <textarea name="cash_address" class="form-control" rows="2" required><?= Html::encode($cashAddress) ?></textarea>
               </div>
           </div>
           
