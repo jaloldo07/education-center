@@ -26,7 +26,8 @@ class Course extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'duration', 'price', 'teacher_id', 'type'], 'required'],
+            // DIQQAT: 'duration' va 'price' bu yerdan olib tashlandi, faqat nom, tur va o'qituvchi majburiy
+            [['name', 'teacher_id', 'type'], 'required'], 
             [['duration', 'teacher_id'], 'integer'],
             [['price'], 'number', 'min' => 0],
             [['description'], 'string'],
@@ -70,9 +71,10 @@ class Course extends ActiveRecord
         return $this->hasOne(Teacher::class, ['id' => 'teacher_id'])->inverseOf('courses');
     }
 
-    public function getGroups()
+    // getGroups() o'chirildi, o'rniga to'g'ridan-to'g'ri enrollments chaqiriladi
+    public function getEnrollments()
     {
-        return $this->hasMany(Group::class, ['course_id' => 'id'])->inverseOf('course');
+        return $this->hasMany(Enrollment::class, ['course_id' => 'id']);
     }
 
     public function getPayments()
