@@ -7,7 +7,6 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use common\models\Teacher;
 use common\models\Course;
-use common\models\Group;
 use common\models\Test;
 use common\models\TestQuestion;
 use common\models\TestAttempt;
@@ -54,7 +53,7 @@ class TestController extends Controller
 
         $tests = Test::find()
             ->where(['teacher_id' => $teacher->id])
-            ->with(['course', 'group'])
+            ->with(['course']) // 🔥 group olib tashlandi
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
@@ -78,12 +77,11 @@ class TestController extends Controller
         }
 
         $courses = Course::find()->where(['teacher_id' => $teacher->id])->all();
-        $groups = Group::find()->where(['teacher_id' => $teacher->id])->all();
 
         return $this->render('create', [
             'model' => $model,
             'courses' => $courses,
-            'groups' => $groups,
+            // 🔥 groups olib tashlandi
         ]);
     }
 
@@ -103,12 +101,11 @@ class TestController extends Controller
         }
 
         $courses = Course::find()->where(['teacher_id' => $teacher->id])->all();
-        $groups = Group::find()->where(['teacher_id' => $teacher->id])->all();
 
         return $this->render('update', [
             'model' => $model,
             'courses' => $courses,
-            'groups' => $groups,
+            // 🔥 groups olib tashlandi
         ]);
     }
 
@@ -164,15 +161,11 @@ class TestController extends Controller
         ]);
     }
 
-    // SAVOLLARNI TOZALASH UCHUN YORDAMCHI FUNKSIYA
     private function cleanAnswerString($val) {
         if ($val === null) return '';
         $val = trim(strval($val));
-        // HTML kodlarni oddiy belgilarga o'tkazamiz
         $val = html_entity_decode($val, ENT_QUOTES, 'UTF-8');
-        // O'zbek tilidagi barcha xil tutuq belgilarni bitta qolipga (') tushiramiz
         $val = str_replace(["‘", "’", "`", "´", "ʼ", "ʻ"], "'", $val);
-        // Matnni kichik harflarga o'tkazamiz (solishtirishda qulay bo'lishi uchun)
         return mb_strtolower($val, 'UTF-8');
     }
 
@@ -207,7 +200,6 @@ class TestController extends Controller
 
             if (isset($post['correctAnswerArray'])) {
                 if ($model->question_type === TestQuestion::TYPE_TEXT || $model->question_type == 'text') {
-                    // MATNLI JAVOBLAR UCHUN: Matnni saqlashdan oldin "yuvib, tozalab" olamiz
                     $cleanedAnswer = $this->cleanAnswerString($post['correctAnswerArray']);
                     $model->correctAnswerArray = [$cleanedAnswer];
                 } elseif ($model->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE || $model->question_type == 'multiple_choice') {
@@ -262,7 +254,6 @@ class TestController extends Controller
 
             if (isset($post['correctAnswerArray'])) {
                 if ($model->question_type === TestQuestion::TYPE_TEXT || $model->question_type == 'text') {
-                    // MATNLI JAVOBLAR UCHUN: Tahrirlanganda ham matn tozalanadi
                     $cleanedAnswer = $this->cleanAnswerString($post['correctAnswerArray']);
                     $model->correctAnswerArray = [$cleanedAnswer];
                 } elseif ($model->question_type === TestQuestion::TYPE_MULTIPLE_CHOICE || $model->question_type == 'multiple_choice') {

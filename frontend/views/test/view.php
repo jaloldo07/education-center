@@ -6,195 +6,45 @@ $this->title = $model->title;
 ?>
 
 <style>
-    /* 1. Page Container */
-    .test-view-page {
-        padding: 40px 0;
-        font-family: 'Nunito', sans-serif;
-    }
-
-    /* 2. Header Gradient */
-    .glass-header {
-        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-        padding: 30px;
-        color: white;
-        border-radius: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .header-title h3 {
-        font-weight: 800;
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    /* 3. Main Glass Card */
-    .main-glass-card {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
-
-    /* Title Section */
-    .card-title-section {
-        padding: 30px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .test-main-title {
-        color: white;
-        font-weight: 800;
-        font-size: 2rem;
-        margin-bottom: 10px;
-        text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
-    }
-
-    .test-description {
-        color: rgba(255,255,255,0.7);
-        font-size: 1rem;
-        line-height: 1.6;
-        max-width: 800px;
-    }
-
-    /* Status Badge */
-    .status-badge {
-        padding: 8px 16px;
-        border-radius: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        letter-spacing: 1px;
-        border: 1px solid transparent;
-    }
+    /* ... BARCHA CSS STYLARLAR O'ZGARISHSZ QOLADI ... */
+    .test-view-page { padding: 40px 0; font-family: 'Nunito', sans-serif; }
+    .glass-header { background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); padding: 30px; color: white; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4); display: flex; justify-content: space-between; align-items: center; }
+    .header-title h3 { font-weight: 800; margin: 0; font-size: 1.5rem; }
+    .main-glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+    .card-title-section { padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: flex-start; }
+    .test-main-title { color: white; font-weight: 800; font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 15px rgba(67, 97, 238, 0.5); }
+    .test-description { color: rgba(255,255,255,0.7); font-size: 1rem; line-height: 1.6; max-width: 800px; }
+    .status-badge { padding: 8px 16px; border-radius: 12px; font-weight: 700; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; border: 1px solid transparent; }
     .status-active { background: rgba(74, 222, 128, 0.2); color: #4ade80; border-color: rgba(74, 222, 128, 0.3); }
     .status-draft { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
     .status-closed { background: rgba(248, 113, 113, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
-
-    /* 4. Info Cards Grid */
-    .info-section {
-        padding: 30px;
-    }
-
-    .info-glass-box {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 16px;
-        padding: 20px;
-        height: 100%;
-        transition: 0.3s;
-    }
-    .info-glass-box:hover {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(255,255,255,0.2);
-        transform: translateY(-5px);
-    }
-
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 12px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+    .info-section { padding: 30px; }
+    .info-glass-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; height: 100%; transition: 0.3s; }
+    .info-glass-box:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); transform: translateY(-5px); }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
     .info-label { color: rgba(255,255,255,0.5); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
     .info-val { color: white; font-weight: 600; text-align: right; }
-
-    /* Stats Row */
-    .stats-row {
-        display: flex;
-        gap: 20px;
-        margin-top: 30px;
-    }
-    .stat-mini-box {
-        flex: 1;
-        text-align: center;
-        background: rgba(0,0,0,0.2);
-        padding: 15px;
-        border-radius: 12px;
-    }
+    .stats-row { display: flex; gap: 20px; margin-top: 30px; }
+    .stat-mini-box { flex: 1; text-align: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; }
     .stat-num { font-size: 1.5rem; font-weight: 800; color: #4cc9f0; display: block; }
     .stat-lbl { font-size: 0.8rem; text-transform: uppercase; color: rgba(255,255,255,0.5); }
-
-    /* 5. Schedule Alert */
-    .schedule-glass-alert {
-        background: rgba(67, 97, 238, 0.1);
-        border: 1px solid rgba(67, 97, 238, 0.3);
-        border-radius: 16px;
-        padding: 20px;
-        margin: 0 30px 30px 30px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-    
-    .schedule-icon {
-        font-size: 2rem;
-        color: #4361ee;
-        background: rgba(67, 97, 238, 0.2);
-        width: 60px; height: 60px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-    }
-
-    .schedule-dates {
-        display: flex; gap: 30px;
-        color: rgba(255,255,255,0.8);
-    }
+    .schedule-glass-alert { background: rgba(67, 97, 238, 0.1); border: 1px solid rgba(67, 97, 238, 0.3); border-radius: 16px; padding: 20px; margin: 0 30px 30px 30px; display: flex; align-items: center; gap: 20px; }
+    .schedule-icon { font-size: 2rem; color: #4361ee; background: rgba(67, 97, 238, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .schedule-dates { display: flex; gap: 30px; color: rgba(255,255,255,0.8); }
     .date-item strong { color: white; display: block; font-size: 0.8rem; text-transform: uppercase; opacity: 0.5; margin-bottom: 2px; }
-
-    /* 6. Action Footer */
-    .action-glass-footer {
-        padding: 30px;
-        background: rgba(0,0,0,0.2);
-        border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .btn-action-glass {
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-        border: none;
-        display: flex; align-items: center; gap: 8px;
-        justify-content: center;
-        transition: 0.3s;
-        text-decoration: none;
-        width: 100%;
-    }
-
+    .action-glass-footer { padding: 30px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05); }
+    .btn-action-glass { padding: 12px 20px; border-radius: 12px; font-weight: 600; border: none; display: flex; align-items: center; gap: 8px; justify-content: center; transition: 0.3s; text-decoration: none; width: 100%; }
     .btn-edit { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
     .btn-edit:hover { background: #fbbf24; color: black; }
-
     .btn-manage { background: rgba(67, 97, 238, 0.2); color: #4cc9f0; border: 1px solid rgba(67, 97, 238, 0.3); }
     .btn-manage:hover { background: #4cc9f0; color: white; }
-
     .btn-results { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
     .btn-results:hover { background: #4ade80; color: black; }
-
     .btn-delete { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
     .btn-delete:hover { background: #f87171; color: white; }
-
-    .btn-glass-back {
-        background: rgba(255,255,255,0.1);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.2);
-        padding: 8px 20px;
-        border-radius: 12px;
-        transition: 0.3s;
-        text-decoration: none;
-    }
+    .btn-glass-back { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 12px; transition: 0.3s; text-decoration: none; }
     .btn-glass-back:hover { background: white; color: black; }
-
 </style>
 
 <div class="test-view-page">
@@ -236,11 +86,7 @@ $this->title = $model->title;
                                 <div class="info-glass-box">
                                     <div class="info-row">
                                         <span class="info-label"><i class="bi bi-book"></i> <?= Yii::t('app', 'Course') ?></span>
-                                        <span class="info-val"><?= Html::encode($model->course->name) ?></span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label"><i class="bi bi-people"></i> <?= Yii::t('app', 'Group') ?></span>
-                                        <span class="info-val"><?= $model->group ? Html::encode($model->group->name) : '<em>All Students</em>' ?></span>
+                                        <span class="info-val"><?= Html::encode($model->course->name ?? '-') ?></span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label"><i class="bi bi-person-badge"></i> <?= Yii::t('app', 'Teacher') ?></span>

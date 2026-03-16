@@ -3,7 +3,6 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 use common\models\Course;
-use common\models\Group;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Test */
@@ -12,165 +11,29 @@ $this->title = Yii::t('app', 'Create New Test');
 ?>
 
 <style>
-    /* 1. Page Container */
-    .create-test-page {
-        padding: 40px 0;
-        font-family: 'Nunito', sans-serif;
-    }
-
-    /* 2. Glass Card */
-    .glass-card {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        overflow: hidden;
-    }
-
-    /* 3. Header Gradient */
-    .glass-header {
-        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-        padding: 30px;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .header-title h2 {
-        font-weight: 800;
-        margin: 0;
-        font-size: 1.8rem;
-        text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
-    }
-
-    /* 4. Form Sections with Neon Borders */
-    .form-section {
-        background: rgba(255,255,255,0.03);
-        padding: 25px;
-        border-radius: 16px;
-        margin-bottom: 25px;
-        border: 1px solid rgba(255,255,255,0.05);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .form-section::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; bottom: 0;
-        width: 4px;
-    }
-
-    /* Blue Section */
-    .section-blue::before { background: #4361ee; }
-    .title-blue { color: #4361ee; }
-
-    /* Pink Section */
-    .section-pink::before { background: #f72585; }
-    .title-pink { color: #f72585; }
-
-    /* Green Section */
-    .section-green::before { background: #4ade80; }
-    .title-green { color: #4ade80; }
-
-    .section-title {
-        font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 20px;
-        display: flex; align-items: center; gap: 10px;
-    }
-
-    /* 5. Inputs (Dark Mode) */
-    .form-glass-control {
-        background: rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: white !important;
-        border-radius: 12px;
-        padding: 12px 15px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-glass-control:focus {
-        background: rgba(0, 0, 0, 0.5) !important;
-        border-color: #4361ee !important;
-        color: white !important;
-        box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2) !important;
-        outline: none;
-    }
-
-    /* Placeholder rangi (Muted) - YANGI QO'SHILDI */
-    .form-glass-control::placeholder {
-        color: rgba(255, 255, 255, 0.4) !important;
-    }
-
-    /* Select Input ichidagi Optionlar qora bo'lishi kerak - YANGI QO'SHILDI */
-    .form-glass-control option {
-        background-color: #1e293b; /* To'q fon */
-        color: white;
-    }
-
-    /* Fix Date Input Icon Color */
-    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-        cursor: pointer;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.7);
-        margin-bottom: 8px;
-        font-size: 0.9rem;
-    }
-
-    .form-text {
-        color: rgba(255,255,255,0.4);
-        font-size: 0.8rem;
-        margin-top: 5px;
-    }
-
-    /* 6. Buttons */
-    .btn-create-neon {
-        background: linear-gradient(135deg, #4ade80, #22c55e);
-        color: #064e3b;
-        border: none;
-        padding: 12px 40px;
-        border-radius: 12px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
-        transition: 0.3s;
-    }
-    .btn-create-neon:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0 30px rgba(74, 222, 128, 0.6);
-        color: #064e3b;
-    }
-
-    .btn-glass-back {
-        background: rgba(255,255,255,0.1);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.2);
-        padding: 10px 20px;
-        border-radius: 12px;
-        transition: 0.3s;
-        text-decoration: none;
-        display: inline-flex; align-items: center; gap: 8px;
-    }
+    /* ... BARCHA CSS STYLARLAR O'ZGARISHSZ QOLADI ... */
+    .create-test-page { padding: 40px 0; font-family: 'Nunito', sans-serif; }
+    .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; }
+    .glass-header { background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); padding: 30px; color: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .header-title h2 { font-weight: 800; margin: 0; font-size: 1.8rem; text-shadow: 0 0 15px rgba(67, 97, 238, 0.5); }
+    .form-section { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 16px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+    .form-section::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; }
+    .section-blue::before { background: #4361ee; } .title-blue { color: #4361ee; }
+    .section-pink::before { background: #f72585; } .title-pink { color: #f72585; }
+    .section-green::before { background: #4ade80; } .title-green { color: #4ade80; }
+    .section-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .form-glass-control { background: rgba(0, 0, 0, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: white !important; border-radius: 12px; padding: 12px 15px; font-size: 1rem; transition: all 0.3s ease; }
+    .form-glass-control:focus { background: rgba(0, 0, 0, 0.5) !important; border-color: #4361ee !important; color: white !important; box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2) !important; outline: none; }
+    .form-glass-control::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+    .form-glass-control option { background-color: #1e293b; color: white; }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+    .form-label { font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; font-size: 0.9rem; }
+    .form-text { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 5px; }
+    .btn-create-neon { background: linear-gradient(135deg, #4ade80, #22c55e); color: #064e3b; border: none; padding: 12px 40px; border-radius: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4); transition: 0.3s; }
+    .btn-create-neon:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(74, 222, 128, 0.6); color: #064e3b; }
+    .btn-glass-back { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 12px; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
     .btn-glass-back:hover { background: white; color: black; }
-
-    /* Custom Checkbox Container */
-    .checkbox-glass {
-        background: rgba(255,255,255,0.05);
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-
+    .checkbox-glass { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
 </style>
 
 <div class="create-test-page">
@@ -216,17 +79,11 @@ $this->title = Yii::t('app', 'Create New Test');
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <?= $form->field($model, 'course_id')->dropDownList(
-                                        ArrayHelper::map(Course::find()->all(), 'id', 'name'),
+                                        ArrayHelper::map(Course::find()->where(['teacher_id' => Yii::$app->user->identity->id])->all(), 'id', 'name'),
                                         ['prompt' => Yii::t('app', 'Select Course...'), 'class' => 'form-select form-glass-control']
                                     )->label(Yii::t('app', 'Course')) ?>
-                                </div>
-                                <div class="col-md-6">
-                                    <?= $form->field($model, 'group_id')->dropDownList(
-                                        ArrayHelper::map(Group::find()->all(), 'id', 'name'),
-                                        ['prompt' => Yii::t('app', 'All Students (Optional)'), 'class' => 'form-select form-glass-control']
-                                    )->label(Yii::t('app', 'Specific Group'))->hint(Yii::t('app', 'Leave empty to assign to all students in the course')) ?>
                                 </div>
                             </div>
 
@@ -289,7 +146,7 @@ $this->title = Yii::t('app', 'Create New Test');
 
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <?= Html::a(Yii::t('app', 'Cancel'), ['index'], ['class' => 'text-white-50 text-decoration-none']) ?>
-                            <?= Html::submitButton('<i class="bi bi-check-lg me-2"></i> ' . Yii::t('app', 'Create Test'), ['class' => 'btn-create-neon']) ?>
+                            <?= Html::submitButton('<i class="bi bi-check-lg me-2"></i> ' . Yii::t('app', 'Save Test'), ['class' => 'btn-create-neon']) ?>
                         </div>
 
                         <?php ActiveForm::end(); ?>
