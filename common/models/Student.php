@@ -73,11 +73,6 @@ class Student extends ActiveRecord
         return $this->hasMany(Payment::class, ['student_id' => 'id'])->inverseOf('student');
     }
 
-    public function getGroups()
-    {
-        return $this->hasMany(Group::class, ['id' => 'group_id'])
-            ->viaTable('{{%enrollment}}', ['student_id' => 'id']);
-    }
 
     public function getAttendances()
     {

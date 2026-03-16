@@ -13,210 +13,37 @@ $role = $user ? $user->role : null;
 
 <style>
     /* 1. Umumiy Sahifa */
-    .homepage {
-        padding: 60px 0;
-        font-family: 'Nunito', sans-serif;
-    }
-
+    .homepage { padding: 60px 0; font-family: 'Nunito', sans-serif; }
     /* 2. Katta Glass Hero (Umumiy Qobiq) */
-    .glass-hero {
-        background: rgba(15, 23, 42, 0.6);
-        /* To'q ko'k shaffof */
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 30px;
-        padding: 50px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        color: white;
-        overflow: hidden;
-        position: relative;
-    }
-
-    /* Orqa fondagi yorug'lik effekti */
-    .glass-hero::before {
-        content: '';
-        position: absolute;
-        top: -100px;
-        right: -100px;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(67, 97, 238, 0.3) 0%, transparent 70%);
-        filter: blur(50px);
-        z-index: 0;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 1;
-    }
-
+    .glass-hero { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px; padding: 50px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); color: white; overflow: hidden; position: relative; }
+    .glass-hero::before { content: ''; position: absolute; top: -100px; right: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(67, 97, 238, 0.3) 0%, transparent 70%); filter: blur(50px); z-index: 0; }
+    .hero-content { position: relative; z-index: 1; }
     /* 3. Typography */
-    .hero-title {
-        font-weight: 800;
-        font-size: 3rem;
-        margin-bottom: 20px;
-        background: linear-gradient(90deg, #fff, #a5b4fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 30px rgba(67, 97, 238, 0.5);
-    }
-
-    .hero-subtitle {
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.7);
-        max-width: 700px;
-        margin: 0 auto 40px auto;
-    }
-
+    .hero-title { font-weight: 800; font-size: 3rem; margin-bottom: 20px; background: linear-gradient(90deg, #fff, #a5b4fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(67, 97, 238, 0.5); }
+    .hero-subtitle { font-size: 1.2rem; color: rgba(255, 255, 255, 0.7); max-width: 700px; margin: 0 auto 40px auto; }
     /* 4. Role Cards (Guest View) */
-    .role-card {
-        display: block;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 40px 20px;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .role-card:hover {
-        transform: translateY(-10px);
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.3);
-        color: white;
-    }
-
-    /* Teacher Card Hover */
-    .role-card.teacher:hover {
-        box-shadow: 0 0 30px rgba(247, 37, 133, 0.4);
-        /* Neon Pink */
-        border-color: #f72585;
-    }
-
-    .role-card.teacher .role-icon {
-        color: #f72585;
-    }
-
-    /* Student Card Hover */
-    .role-card.student:hover {
-        box-shadow: 0 0 30px rgba(67, 97, 238, 0.4);
-        /* Neon Blue */
-        border-color: #4361ee;
-    }
-
-    .role-card.student .role-icon {
-        color: #4361ee;
-    }
-
-    .role-icon {
-        font-size: 3.5rem;
-        margin-bottom: 20px;
-        transition: 0.3s;
-        text-shadow: 0 0 15px currentColor;
-    }
-
-    .role-title {
-        font-weight: 700;
-        font-size: 1.5rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
+    .role-card { display: block; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 40px 20px; text-align: center; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: white; position: relative; overflow: hidden; }
+    .role-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); color: white; }
+    .role-card.teacher:hover { box-shadow: 0 0 30px rgba(247, 37, 133, 0.4); border-color: #f72585; }
+    .role-card.teacher .role-icon { color: #f72585; }
+    .role-card.student:hover { box-shadow: 0 0 30px rgba(67, 97, 238, 0.4); border-color: #4361ee; }
+    .role-card.student .role-icon { color: #4361ee; }
+    .role-icon { font-size: 3.5rem; margin-bottom: 20px; transition: 0.3s; text-shadow: 0 0 15px currentColor; }
+    .role-title { font-weight: 700; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
     /* 5. Dashboard Stats (Student/Teacher View) */
-    .stat-mini-box {
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 16px;
-        padding: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        transition: 0.3s;
-    }
-
-    .stat-mini-box:hover {
-        background: rgba(255, 255, 255, 0.05);
-        transform: scale(1.02);
-    }
-
-    .stat-mini-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .bg-icon-primary {
-        background: rgba(67, 97, 238, 0.2);
-        color: #4361ee;
-    }
-
-    .bg-icon-success {
-        background: rgba(74, 222, 128, 0.2);
-        color: #4ade80;
-    }
-
-    .bg-icon-warning {
-        background: rgba(251, 191, 36, 0.2);
-        color: #fbbf24;
-    }
-
-    .stat-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .stat-label {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.6);
-    }
-
+    .stat-mini-box { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+    .stat-mini-box:hover { background: rgba(255, 255, 255, 0.05); transform: scale(1.02); }
+    .stat-mini-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .bg-icon-primary { background: rgba(67, 97, 238, 0.2); color: #4361ee; }
+    .bg-icon-success { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+    .bg-icon-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .stat-label { font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
     /* Buttons */
-    .btn-neon-primary {
-        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 50px;
-        font-weight: 700;
-        box-shadow: 0 0 15px rgba(67, 97, 238, 0.4);
-        transition: 0.3s;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-neon-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0 25px rgba(67, 97, 238, 0.6);
-        color: white;
-    }
-
-    .btn-neon-outline {
-        background: transparent;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 12px 30px;
-        border-radius: 50px;
-        font-weight: 700;
-        transition: 0.3s;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-neon-outline:hover {
-        border-color: #4cc9f0;
-        color: #4cc9f0;
-        box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
-    }
+    .btn-neon-primary { background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 700; box-shadow: 0 0 15px rgba(67, 97, 238, 0.4); transition: 0.3s; text-decoration: none; display: inline-block; }
+    .btn-neon-primary:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(67, 97, 238, 0.6); color: white; }
+    .btn-neon-outline { background: transparent; border: 2px solid rgba(255, 255, 255, 0.2); color: white; padding: 12px 30px; border-radius: 50px; font-weight: 700; transition: 0.3s; text-decoration: none; display: inline-block; }
+    .btn-neon-outline:hover { border-color: #4cc9f0; color: #4cc9f0; box-shadow: 0 0 15px rgba(76, 201, 240, 0.3); }
 </style>
 
 <div class="homepage">
@@ -320,12 +147,22 @@ $role = $user ? $user->role : null;
         <?php elseif ($role === 'teacher'): ?>
             <?php
             $teacher = \common\models\Teacher::findOne(['email' => $user->email]);
-            $groups = $teacher ? $teacher->groups : [];
             $courses = $teacher ? $teacher->courses : [];
-            $totalStudents = 0;
-            foreach ($groups as $group) {
-                $totalStudents += count($group->students);
+            
+            // 🔥 GURUH O'RNIGA TO'G'RIDAN-TO'G'RI KURS ORQALI TALABALARNI SANAYMIZ
+            $uniqueStudents = [];
+            $totalEnrollments = 0;
+            if ($teacher) {
+                $enrollments = \common\models\Enrollment::find()
+                    ->joinWith('course')
+                    ->where(['course.teacher_id' => $teacher->id, 'enrollment.status' => 'active'])
+                    ->all();
+                $totalEnrollments = count($enrollments);
+                foreach ($enrollments as $enrollment) {
+                    $uniqueStudents[$enrollment->student_id] = true;
+                }
             }
+            $totalStudents = count($uniqueStudents);
             ?>
             <div class="glass-hero animate__animated animate__fadeIn">
                 <div class="hero-content">
@@ -346,7 +183,7 @@ $role = $user ? $user->role : null;
 
                             <div class="d-flex gap-3">
                                 <?= Html::a('<i class="fas fa-chalkboard me-2"></i> ' . Yii::t('app', 'My Dashboard'), ['/teacher/dashboard'], ['class' => 'btn-neon-primary']) ?>
-                                <?= Html::a('<i class="fas fa-users me-2"></i> ' . Yii::t('app', 'My Groups'), ['/teacher/dashboard'], ['class' => 'btn-neon-outline']) ?>
+                                <?= Html::a('<i class="fas fa-users me-2"></i> ' . Yii::t('app', 'My Students'), ['/teacher/my-students'], ['class' => 'btn-neon-outline']) ?>
                             </div>
                         </div>
 
@@ -364,10 +201,10 @@ $role = $user ? $user->role : null;
                                 </div>
                                 <div class="col-6">
                                     <div class="stat-mini-box">
-                                        <div class="stat-mini-icon bg-icon-warning"><i class="fas fa-users"></i></div>
+                                        <div class="stat-mini-icon bg-icon-warning"><i class="fas fa-clipboard-check"></i></div>
                                         <div>
-                                            <div class="stat-value"><?= count($groups) ?></div>
-                                            <div class="stat-label">Groups</div>
+                                            <div class="stat-value"><?= $totalEnrollments ?></div>
+                                            <div class="stat-label">Enrollments</div>
                                         </div>
                                     </div>
                                 </div>
@@ -376,7 +213,7 @@ $role = $user ? $user->role : null;
                                         <div class="stat-mini-icon bg-icon-success"><i class="fas fa-user-graduate"></i></div>
                                         <div>
                                             <div class="stat-value"><?= $totalStudents ?></div>
-                                            <div class="stat-label"><?= Yii::t('app', 'Total Students Taught') ?></div>
+                                            <div class="stat-label"><?= Yii::t('app', 'Unique Students Taught') ?></div>
                                         </div>
                                     </div>
                                 </div>
