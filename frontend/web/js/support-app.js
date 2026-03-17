@@ -369,18 +369,53 @@
                 });
         }
 
+        // 🔥 Yangi xabarlarni kuzatish uchun o'zgaruvchini e'lon qilamiz
+        var previousUnreadCount = -1;
+
         function updateUnreadCount() {
-            fetch('/message/count') // support-api dan message ga o'zgardi (balki shunday bo'lishi kerakdir? Siz tashlagan controllerda 'Count' MessageControllerda edi)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        var badge = document.getElementById('total-unread');
-                        if (badge) { 
-                            badge.textContent = data.count;
-                            badge.style.display = data.count > 0 ? 'flex' : 'none';
-                        }
+            // Chat va Support xabarlarini bir vaqtda (parallel) tekshiramiz
+            Promise.all([
+                fetch('/message/count').then(r => r.json()).catch(() => ({ success: false, count: 0 })),
+                fetch('/support-api/count').then(r => r.json()).catch(() => ({ success: false, count: 0 }))
+            ]).then(results => {
+                var chatData = results[0];
+                var supportData = results[1];
+
+                // Umumiy o'qilmagan xabarlar sonini hisoblaymiz
+                var totalUnread = 0;
+                if (chatData.success) totalUnread += parseInt(chatData.count) || 0;
+                if (supportData.success) totalUnread += parseInt(supportData.count) || 0;
+
+                // Qizil dumaloq (badge) ni yangilaymiz
+                var badge = document.getElementById('total-unread');
+                if (badge) {
+                    badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
+                    badge.style.display = totalUnread > 0 ? 'flex' : 'none';
+                }
+
+                // 🔥 PUSH NOTIFICATION VA OVOZ MANTIG'I
+                if (previousUnreadCount !== -1 && totalUnread > previousUnreadCount) {
+                    // Ekranga toast chiqarish
+                    if (typeof showToast === 'function') {
+                        showToast("Sizda yangi xabar bor! 💬", "success");
                     }
-                });
+                    
+                    // Ovoz chiqarish
+                    try {
+                        var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                        audio.volume = 0.5; // Ovoz balandligi (0.0 dan 1.0 gacha)
+                        
+                        // Brauzer siyosatiga ko'ra ovoz ishlashi uchun foydalanuvchi saytga biror marta bosgan bo'lishi kerak
+                        let playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => { console.log("Brauzer ovozni blokladi."); });
+                        }
+                    } catch(e) { }
+                }
+
+                // Joriy holatni saqlab qo'yamiz
+                previousUnreadCount = totalUnread;
+            });
         }
 
         function startPolling() {
