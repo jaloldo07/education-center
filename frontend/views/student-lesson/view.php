@@ -175,6 +175,11 @@ $isLocked = !$isCompleted && $requiredSeconds > 0 && $resumeTime < $requiredSeco
 
                         <?php elseif ($lesson->content_type === 'pdf'): ?>
                             <embed src="<?= $lesson->file_path ?>" type="application/pdf" width="100%" height="600px" class="rounded-3 border border-secondary mb-4">
+                        
+                        <?php elseif ($lesson->content_type === 'image' || in_array(strtolower(pathinfo($lesson->file_path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'])): ?>
+                            <div class="text-center mb-4">
+                                <img src="<?= Html::encode($lesson->file_path) ?>" alt="Lesson Image" class="img-fluid rounded-4 shadow" style="max-height: 700px; object-fit: contain;">
+                            </div>
                         <?php endif; ?>
 
                     </div>
