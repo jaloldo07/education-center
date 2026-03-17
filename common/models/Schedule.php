@@ -22,7 +22,6 @@ class Schedule extends ActiveRecord
     public function rules()
     {
         return [
-            // group_id o'rniga course_id
             [['course_id', 'teacher_id', 'day_of_week', 'start_time', 'end_time'], 'required'],
             [['course_id', 'teacher_id', 'day_of_week'], 'integer'],
             [['start_time', 'end_time'], 'safe'],
@@ -36,7 +35,7 @@ class Schedule extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'course_id' => 'Course', // Group o'rniga Course
+            'course_id' => 'Course',
             'teacher_id' => 'Teacher',
             'day_of_week' => 'Day',
             'start_time' => 'Start Time',
@@ -45,7 +44,6 @@ class Schedule extends ActiveRecord
         ];
     }
 
-    // getGroup() o'rniga getCourse()
     public function getCourse()
     {
         return $this->hasOne(Course::class, ['id' => 'course_id']);

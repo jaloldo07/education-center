@@ -27,14 +27,14 @@ class Attendance extends ActiveRecord
     public function rules()
     {
         return [
-            [['student_id', 'group_id', 'attendance_date'], 'required'],
-            [['student_id', 'group_id'], 'integer'],
+            [['student_id', 'course_id', 'attendance_date'], 'required'], // group_id olib tashlandi
+            [['student_id', 'course_id'], 'integer'],
             [['attendance_date'], 'date', 'format' => 'php:Y-m-d'],
             [['status'], 'string', 'max' => 20],
             [['status'], 'in', 'range' => [self::STATUS_PRESENT, self::STATUS_ABSENT, self::STATUS_LATE, self::STATUS_EXCUSED]],
             [['note'], 'string'],
             [['student_id'], 'exist', 'skipOnError' => true, 'targetClass' => Student::class, 'targetAttribute' => ['student_id' => 'id']],
-            [['group_id'], 'exist', 'skipOnError' => true, 'targetClass' => Group::class, 'targetAttribute' => ['group_id' => 'id']],
+            [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],
         ];
     }
 
@@ -43,7 +43,7 @@ class Attendance extends ActiveRecord
         return [
             'id' => 'ID',
             'student_id' => 'Student',
-            'group_id' => 'Group',
+            'course_id' => 'Course',
             'attendance_date' => 'Date',
             'status' => 'Status',
             'note' => 'Note',
@@ -54,12 +54,12 @@ class Attendance extends ActiveRecord
 
     public function getStudent()
     {
-        return $this->hasOne(Student::class, ['id' => 'student_id'])->inverseOf('attendances');
+        return $this->hasOne(Student::class, ['id' => 'student_id']);
     }
 
-    public function getGroup()
+    public function getCourse()
     {
-        return $this->hasOne(Group::class, ['id' => 'group_id'])->inverseOf('attendances');
+        return $this->hasOne(Course::class, ['id' => 'course_id']);
     }
 
     public static function getStatusOptions()
