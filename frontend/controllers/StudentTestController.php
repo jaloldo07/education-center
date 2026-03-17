@@ -152,7 +152,8 @@ class StudentTestController extends Controller
                 $imageData = base64_decode($faceData);
                 
                 $filename = 'face_' . $student->id . '_' . time() . '.png';
-                $uploadPath = Yii::getAlias('@frontend/web/uploads/faces/');
+                // 🔥 @frontend/web o'rniga @webroot ishlatamiz
+                $uploadPath = Yii::getAlias('@webroot/uploads/faces/'); 
                 if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
                 
                 file_put_contents($uploadPath . $filename, $imageData);
