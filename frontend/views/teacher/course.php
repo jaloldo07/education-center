@@ -1,12 +1,20 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = Yii::t('app', 'Group') . ': ' . $group->name;
+$this->title = Yii::t('app', 'Course') . ': ' . $course->name;
+
+// Faqat faol a'zolarni ajratib olamiz
+$activeEnrollments = [];
+if (!empty($course->enrollments)) {
+    $activeEnrollments = array_filter($course->enrollments, function($e) {
+        return $e->status === 'active';
+    });
+}
 ?>
 
 <style>
     /* 1. Container */
-    .teacher-group-view {
+    .teacher-course-view {
         padding: 40px 0 80px 0;
         font-family: 'Nunito', sans-serif;
     }
@@ -33,7 +41,7 @@ $this->title = Yii::t('app', 'Group') . ': ' . $group->name;
         text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
     }
 
-    .group-course-label {
+    .course-label {
         color: rgba(255, 255, 255, 0.6);
         margin-top: 5px;
         font-size: 1rem;
@@ -133,14 +141,14 @@ $this->title = Yii::t('app', 'Group') . ': ' . $group->name;
 
 </style>
 
-<div class="teacher-group-view">
+<div class="teacher-course-view">
     <div class="container">
         
         <div class="page-header animate__animated animate__fadeInDown">
             <div class="header-title">
-                <h1><i class="fas fa-users text-primary me-2"></i> <?= Html::encode($group->name) ?></h1>
-                <div class="group-course-label">
-                    <?= Yii::t('app', 'Course') ?>: <span class="text-white fw-bold"><?= Html::encode($group->course->name) ?></span>
+                <h1><i class="fas fa-book-open text-primary me-2"></i> <?= Html::encode($course->name) ?></h1>
+                <div class="course-label">
+                    <?= Yii::t('app', 'Teacher') ?>: <span class="text-white fw-bold"><?= Html::encode($teacher->full_name) ?></span>
                 </div>
             </div>
             <?= Html::a('<i class="fas fa-arrow-left"></i> ' . Yii::t('app', 'Back'), ['/teacher/dashboard'], ['class' => 'btn-glass-back']) ?>
@@ -150,25 +158,21 @@ $this->title = Yii::t('app', 'Group') . ': ' . $group->name;
             <div class="col-md-4">
                 <div class="info-glass-card animate__animated animate__fadeInLeft">
                     <div class="card-title-glass">
-                        <i class="fas fa-info-circle"></i> <?= Yii::t('app', 'Group Details') ?>
+                        <i class="fas fa-info-circle"></i> <?= Yii::t('app', 'Course Details') ?>
                     </div>
                     
                     <div class="info-row">
-                        <span class="info-label"><?= Yii::t('app', 'Teacher') ?></span>
-                        <span class="info-val"><?= Html::encode($teacher->full_name) ?></span>
-                    </div>
-                    <div class="info-row">
                         <span class="info-label"><?= Yii::t('app', 'Duration') ?></span>
-                        <span class="info-val"><?= $group->course->duration ?> <?= Yii::t('app', 'months') ?></span>
+                        <span class="info-val"><?= $course->duration ?> <?= Yii::t('app', 'months') ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label"><?= Yii::t('app', 'Price') ?></span>
-                        <span class="info-val text-success"><?= number_format($group->course->price, 0) ?> UZS</span>
+                        <span class="info-val text-success"><?= number_format($course->price, 0) ?> UZS</span>
                     </div>
                     <div class="info-row border-0">
-                        <span class="info-label"><?= Yii::t('app', 'Students') ?></span>
+                        <span class="info-label"><?= Yii::t('app', 'Active Students') ?></span>
                         <span class="info-val badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">
-                            <?= count($group->students) ?>
+                            <?= count($activeEnrollments) ?>
                         </span>
                     </div>
                 </div>
@@ -180,10 +184,10 @@ $this->title = Yii::t('app', 'Group') . ': ' . $group->name;
                         <i class="fas fa-user-graduate"></i> <?= Yii::t('app', 'Enrolled Students') ?>
                     </div>
 
-                    <?php if (empty($group->students)): ?>
+                    <?php if (empty($activeEnrollments)): ?>
                         <div class="empty-glass">
                             <i class="fas fa-user-slash fa-3x mb-3"></i>
-                            <p><?= Yii::t('app', 'No students enrolled in this group yet.') ?></p>
+                            <p><?= Yii::t('app', 'No active students enrolled in this course yet.') ?></p>
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
@@ -197,9 +201,13 @@ $this->title = Yii::t('app', 'Group') . ': ' . $group->name;
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($group->students as $i => $student): ?>
+                                    <?php 
+                                    $i = 1;
+                                    foreach ($activeEnrollments as $enrollment): 
+                                        $student = $enrollment->student;
+                                    ?>
                                         <tr>
-                                            <td class="text-white-50"><?= $i + 1 ?></td>
+                                            <td class="text-white-50"><?= $i++ ?></td>
                                             <td>
                                                 <div class="fw-bold"><?= Html::encode($student->full_name) ?></div>
                                                 <small class="text-white-50"><?= Html::encode($student->email) ?></small>
@@ -208,7 +216,7 @@ $this->title = Yii::t('app', 'Group') . ': ' . $group->name;
                                                 <span class="text-info"><i class="fas fa-phone-alt me-1"></i> <?= Html::encode($student->phone) ?></span>
                                             </td>
                                             <td class="text-white-50">
-                                                <?= Yii::$app->formatter->asDate($student->enrolled_date) ?>
+                                                <?= Yii::$app->formatter->asDate($enrollment->enrolled_on) ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
