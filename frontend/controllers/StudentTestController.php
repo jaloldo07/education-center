@@ -147,13 +147,14 @@ class StudentTestController extends Controller
         if ($test->require_face_control && Yii::$app->request->isPost) {
             $faceData = Yii::$app->request->post('face_photo');
             if ($faceData) {
-                $faceData = str_replace('data:image/png;base64,', '', $faceData);
-                $faceData = str_replace(' ', '+', $faceData);
-                $imageData = base64_decode($faceData);
+                // 🔥 YECHIM: Rasm formati qanaqa bo'lishidan qat'i nazar, verguldan keyingi haqiqiy kodni ajratib olamiz
+                $parts = explode(',', $faceData);
+                $base64String = end($parts);
+                $base64String = str_replace(' ', '+', $base64String);
+                $imageData = base64_decode($base64String);
                 
                 $filename = 'face_' . $student->id . '_' . time() . '.png';
-                // 🔥 @frontend/web o'rniga @webroot ishlatamiz
-                $uploadPath = Yii::getAlias('@webroot/uploads/faces/'); 
+                $uploadPath = Yii::getAlias('@frontend/web/uploads/faces/');
                 if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
                 
                 file_put_contents($uploadPath . $filename, $imageData);
