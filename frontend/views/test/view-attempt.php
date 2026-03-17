@@ -253,7 +253,7 @@ $this->title = Yii::t('app', 'View Attempt Details');
                                 <div class="d-flex gap-4 align-items-start">
                                     <?php if (!empty($attempt->face_photo)): ?>
                                         <div class="face-photo-wrapper">
-                                            <img src="/uploads/faces/<?= Html::encode($attempt->face_photo) ?>" alt="Face Control">
+                                            <img src="/frontend/web/uploads/faces/<?= Html::encode($attempt->face_photo) ?>" alt="Face Control">
                                             <div class="face-label"><i class="bi bi-camera me-1"></i> Verified</div>
                                         </div>
                                     <?php endif; ?>
