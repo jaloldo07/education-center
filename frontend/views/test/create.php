@@ -81,7 +81,7 @@ $this->title = Yii::t('app', 'Create New Test');
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <?= $form->field($model, 'course_id')->dropDownList(
-                                        ArrayHelper::map(Course::find()->where(['teacher_id' => Yii::$app->user->identity->id])->all(), 'id', 'name'),
+                                        ArrayHelper::map($courses, 'id', 'name'),
                                         ['prompt' => Yii::t('app', 'Select Course...'), 'class' => 'form-select form-glass-control']
                                     )->label(Yii::t('app', 'Course')) ?>
                                 </div>

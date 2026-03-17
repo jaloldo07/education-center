@@ -47,28 +47,17 @@ class StudentTestController extends Controller
     {
         $student = $this->getStudent();
 
-        $myGroupIds = Enrollment::find()
-            ->select('group_id')
+        // 🔥 Guruhlar orqali emas, to'g'ridan-to'g'ri kurslarni olamiz
+        $myCourseIds = Enrollment::find()
+            ->select('course_id')
             ->where(['student_id' => $student->id, 'status' => Enrollment::STATUS_ACTIVE])
             ->column();
 
-        $myCourseIds = Enrollment::find()
-            ->select(['course.id'])
-            ->leftJoin('group', 'enrollment.group_id = group.id')
-            ->leftJoin('course', 'group.course_id = course.id')
-            ->where(['enrollment.student_id' => $student->id])
-            ->distinct()
-            ->column();
-
+        // 🔥 Faqat talaba o'qiyotgan kurslardagi testlarni topamiz (group_id tekshiruvi o'chirildi)
         $tests = Test::find()
             ->where(['status' => Test::STATUS_ACTIVE])
             ->andWhere(['course_id' => $myCourseIds])
-            ->andWhere([
-                'or',
-                ['group_id' => null],
-                ['group_id' => $myGroupIds]
-            ])
-            ->with(['course', 'group', 'teacher'])
+            ->with(['course', 'teacher']) // group olib tashlandi
             ->orderBy(['created_at' => SORT_DESC])
             ->all();
 
@@ -108,7 +97,6 @@ class StudentTestController extends Controller
             return $this->redirect(['index']);
         }
 
-        // 🔥 URINISHLAR SONINI TEKSHIRISH (START) 🔥
         $attemptCount = TestAttempt::find()
             ->where(['test_id' => $test->id, 'student_id' => $student->id])
             ->count();
@@ -139,7 +127,6 @@ class StudentTestController extends Controller
             return $this->redirect(['index']);
         }
 
-        // 🔥 URINISHLAR SONINI TEKSHIRISH (BEGIN) 🔥
         $attemptCount = TestAttempt::find()
             ->where(['test_id' => $test->id, 'student_id' => $student->id])
             ->count();
@@ -333,24 +320,13 @@ class StudentTestController extends Controller
 
     protected function checkTestAccess($student, $test)
     {
-        $myGroupIds = Enrollment::find()
-            ->select('group_id')
+        // 🔥 Xavfsizlik qismi ham tozalandi. Faqat kurs tekshiriladi
+        $myCourseIds = Enrollment::find()
+            ->select('course_id')
             ->where(['student_id' => $student->id, 'status' => Enrollment::STATUS_ACTIVE])
             ->column();
 
-        $myCourseIds = Enrollment::find()
-            ->select(['course.id'])
-            ->leftJoin('group', 'enrollment.group_id = group.id')
-            ->leftJoin('course', 'group.course_id = course.id')
-            ->where(['enrollment.student_id' => $student->id])
-            ->distinct()
-            ->column();
-
         if (!in_array($test->course_id, $myCourseIds)) {
-            return false;
-        }
-
-        if ($test->group_id !== null && !in_array($test->group_id, $myGroupIds)) {
             return false;
         }
 
