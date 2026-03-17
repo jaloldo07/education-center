@@ -370,10 +370,10 @@
         }
 
         // 🔥 Yangi xabarlarni kuzatish uchun o'zgaruvchini e'lon qilamiz
+        // Bu o'zgaruvchi init() funksiyasining eng boshida yoki shu yerda turishi kerak
         var previousUnreadCount = -1;
 
         function updateUnreadCount() {
-            // Chat va Support xabarlarini bir vaqtda (parallel) tekshiramiz
             Promise.all([
                 fetch('/message/count').then(r => r.json()).catch(() => ({ success: false, count: 0 })),
                 fetch('/support-api/count').then(r => r.json()).catch(() => ({ success: false, count: 0 }))
@@ -381,41 +381,44 @@
                 var chatData = results[0];
                 var supportData = results[1];
 
-                // Umumiy o'qilmagan xabarlar sonini hisoblaymiz
                 var totalUnread = 0;
                 if (chatData.success) totalUnread += parseInt(chatData.count) || 0;
                 if (supportData.success) totalUnread += parseInt(supportData.count) || 0;
 
-                // Qizil dumaloq (badge) ni yangilaymiz
                 var badge = document.getElementById('total-unread');
                 if (badge) {
                     badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
                     badge.style.display = totalUnread > 0 ? 'flex' : 'none';
                 }
 
-                // 🔥 PUSH NOTIFICATION VA OVOZ MANTIG'I
+                // 🔥 PUSH NOTIFICATION (Faqat xabar soni KO'PAYGANDA chiqadi)
                 if (previousUnreadCount !== -1 && totalUnread > previousUnreadCount) {
-                    // Ekranga toast chiqarish
+                    
+                    // 1. Toast chiqarish
                     if (typeof showToast === 'function') {
                         showToast("Sizda yangi xabar bor! 💬", "success");
+                    } else {
+                        console.log("Sizda yangi xabar bor!"); // Agar showToast topilmasa, konsolga yozadi
                     }
                     
-                    // Ovoz chiqarish
+                    // 2. Ovoz chiqarish (Brauzer bloklasa, xato bermay o'tib ketadi)
                     try {
                         var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                        audio.volume = 0.5; // Ovoz balandligi (0.0 dan 1.0 gacha)
+                        audio.volume = 0.5;
+                        var playPromise = audio.play();
                         
-                        // Brauzer siyosatiga ko'ra ovoz ishlashi uchun foydalanuvchi saytga biror marta bosgan bo'lishi kerak
-                        let playPromise = audio.play();
                         if (playPromise !== undefined) {
-                            playPromise.catch(error => { console.log("Brauzer ovozni blokladi."); });
+                            playPromise.catch(function(error) {
+                                console.log("Brauzer ovozni blokladi. Sababi: Foydalanuvchi ekranga click qilmagan.");
+                            });
                         }
-                    } catch(e) { }
+                    } catch(e) { 
+                        console.error("Ovozda xatolik:", e); 
+                    }
                 }
 
-                // Joriy holatni saqlab qo'yamiz
                 previousUnreadCount = totalUnread;
-            });
+            }).catch(err => console.error("Xabarlarni tekshirishda xato:", err));
         }
 
         function startPolling() {

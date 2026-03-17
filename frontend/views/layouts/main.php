@@ -446,14 +446,10 @@ $this->beginPage()
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `glass-toast ${type}`;
-        
         const icon = type === 'success' ? '<i class="fas fa-check-circle fs-5"></i>' : '<i class="fas fa-exclamation-circle fs-5"></i>';
         toast.innerHTML = `${icon} <span>${message}</span>`;
-        
         document.body.appendChild(toast);
-        
         setTimeout(() => toast.classList.add('show'), 10);
-        
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);
