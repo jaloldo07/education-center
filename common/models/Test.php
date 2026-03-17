@@ -28,8 +28,8 @@ class Test extends ActiveRecord
     {
         return [
             [['teacher_id', 'course_id', 'title', 'duration', 'passing_score'], 'required'],
-            // max_attempts qo'shildi:
-            [['teacher_id', 'course_id', 'group_id', 'duration', 'passing_score', 'total_questions', 'max_attempts'], 'integer'],
+            // 🔥 group_id bu yerdan olib tashlandi
+            [['teacher_id', 'course_id', 'duration', 'passing_score', 'total_questions', 'max_attempts'], 'integer'],
             [['description'], 'string'],
             [['start_date', 'end_date'], 'safe'],
             [['require_face_control'], 'boolean'],
@@ -38,11 +38,10 @@ class Test extends ActiveRecord
             [['status'], 'in', 'range' => [self::STATUS_DRAFT, self::STATUS_ACTIVE, self::STATUS_CLOSED]],
             [['passing_score'], 'integer', 'min' => 0, 'max' => 100],
             [['duration'], 'integer', 'min' => 1],
-            // max_attempts qoidalari: minimum 0 (cheksiz) bo'lishi mumkin.
             [['max_attempts'], 'integer', 'min' => 0],
             [['teacher_id'], 'exist', 'skipOnError' => true, 'targetClass' => Teacher::class, 'targetAttribute' => ['teacher_id' => 'id']],
             [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],
-            [['group_id'], 'exist', 'skipOnError' => true, 'targetClass' => Group::class, 'targetAttribute' => ['group_id' => 'id']],
+            // 🔥 group_id ga qilingan ulanish qoidasi butunlay o'chirildi
         ];
     }
 
@@ -52,12 +51,12 @@ class Test extends ActiveRecord
             'id' => 'ID',
             'teacher_id' => 'Teacher',
             'course_id' => 'Course',
-            'group_id' => 'Group (Optional)',
+            // 🔥 group_id yozuvi o'chirildi
             'title' => 'Test Title',
             'description' => 'Description',
             'duration' => 'Duration (Minutes)',
             'passing_score' => 'Passing Score (%)',
-            'max_attempts' => 'Max Attempts', // Yangi qo'shildi
+            'max_attempts' => 'Max Attempts',
             'total_questions' => 'Total Questions',
             'status' => 'Status',
             'start_date' => 'Start Date',
@@ -78,10 +77,7 @@ class Test extends ActiveRecord
         return $this->hasOne(Course::class, ['id' => 'course_id']);
     }
 
-    public function getGroup()
-    {
-        return $this->hasOne(Group::class, ['id' => 'group_id']);
-    }
+    // 🔥 public function getGroup() funksiyasi butunlay yo'q qilindi
 
     public function getQuestions()
     {
