@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $this->title = Yii::t('app', 'Course') . ': ' . $course->name;
 
@@ -13,132 +14,63 @@ if (!empty($course->enrollments)) {
 ?>
 
 <style>
-    /* 1. Container */
-    .teacher-course-view {
-        padding: 40px 0 80px 0;
-        font-family: 'Nunito', sans-serif;
-    }
-
-    /* 2. Page Header */
-    .page-header {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 30px;
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .header-title h1 {
-        font-weight: 800;
-        color: white;
-        margin: 0;
-        font-size: 2rem;
-        text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
-    }
-
-    .course-label {
-        color: rgba(255, 255, 255, 0.6);
-        margin-top: 5px;
-        font-size: 1rem;
-    }
-
-    /* 3. Info Cards (Glass) */
-    .info-glass-card {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 25px;
-        margin-bottom: 30px;
-        color: white;
-    }
-
-    .card-title-glass {
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 15px;
-        margin-bottom: 20px;
-        font-size: 1.2rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #4cc9f0;
-    }
-
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 12px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+    /* ... OLDINGI BARCHA CSS STYLARLAR O'ZGARISHSZ QOLADI ... */
+    .teacher-course-view { padding: 40px 0 80px 0; font-family: 'Nunito', sans-serif; }
+    .page-header { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .header-title h1 { font-weight: 800; color: white; margin: 0; font-size: 2rem; text-shadow: 0 0 15px rgba(67, 97, 238, 0.5); }
+    .course-label { color: rgba(255, 255, 255, 0.6); margin-top: 5px; font-size: 1rem; }
+    .info-glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 25px; margin-bottom: 30px; color: white; }
+    .card-title-glass { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #4cc9f0; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .info-row:last-child { border-bottom: none; }
-
     .info-label { color: rgba(255,255,255,0.5); }
     .info-val { font-weight: 600; color: white; }
+    .table-glass-container { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; overflow: hidden; }
+    .table-glass { width: 100%; color: white; margin: 0; }
+    .table-glass th { background: rgba(67, 97, 238, 0.2); padding: 15px 20px; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; color: rgba(255,255,255,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .table-glass td { padding: 15px 20px; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .table-glass tr:hover td { background: rgba(255,255,255,0.05); }
+    .btn-glass-back { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 12px; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-glass-back:hover { background: white; color: black; }
+    .empty-glass { text-align: center; padding: 50px; color: rgba(255,255,255,0.5); }
 
-    /* 4. Student Table */
-    .table-glass-container {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        overflow: hidden;
-    }
-
-    .table-glass {
+    /* 🔥 YANGI QO'SHILDI: Harakatlar tugmasi */
+    .btn-course-action {
         width: 100%;
-        color: white;
-        margin: 0;
-    }
-
-    .table-glass th {
-        background: rgba(67, 97, 238, 0.2);
-        padding: 15px 20px;
+        padding: 12px;
+        border-radius: 12px;
         font-weight: 700;
         text-transform: uppercase;
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.8);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .table-glass td {
-        padding: 15px 20px;
-        vertical-align: middle;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .table-glass tr:hover td {
-        background: rgba(255,255,255,0.05);
-    }
-
-    /* Buttons */
-    .btn-glass-back {
-        background: rgba(255,255,255,0.1);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.2);
-        padding: 10px 20px;
-        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
         transition: 0.3s;
         text-decoration: none;
-        display: inline-flex; align-items: center; gap: 8px;
     }
-    .btn-glass-back:hover {
-        background: white; color: black;
+    
+    .btn-schedule-action {
+        background: rgba(76, 201, 240, 0.2);
+        color: #4cc9f0;
+        border: 1px solid rgba(76, 201, 240, 0.3);
+    }
+    .btn-schedule-action:hover {
+        background: #4cc9f0;
+        color: white;
+        box-shadow: 0 0 15px rgba(76, 201, 240, 0.4);
     }
 
-    /* Empty State */
-    .empty-glass {
-        text-align: center;
-        padding: 50px;
-        color: rgba(255,255,255,0.5);
+    .btn-attendance-action {
+        background: rgba(74, 222, 128, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
     }
-
+    .btn-attendance-action:hover {
+        background: #4ade80;
+        color: #064e3b;
+        box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+    }
 </style>
 
 <div class="teacher-course-view">
@@ -176,6 +108,25 @@ if (!empty($course->enrollments)) {
                         </span>
                     </div>
                 </div>
+
+                <div class="info-glass-card animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
+                    <div class="card-title-glass">
+                        <i class="fas fa-cogs"></i> <?= Yii::t('app', 'Quick Actions') ?>
+                    </div>
+
+                    <?= Html::a(
+                        '<i class="fas fa-calendar-alt"></i> ' . Yii::t('app', 'Manage Schedule'),
+                        ['/teacher/schedule', 'id' => $course->id],
+                        ['class' => 'btn-course-action btn-schedule-action']
+                    ) ?>
+
+                    <?= Html::a(
+                        '<i class="fas fa-clipboard-check"></i> ' . Yii::t('app', 'Take Attendance'),
+                        ['/teacher/attendance', 'id' => $course->id],
+                        ['class' => 'btn-course-action btn-attendance-action']
+                    ) ?>
+                </div>
+
             </div>
 
             <div class="col-md-8">
