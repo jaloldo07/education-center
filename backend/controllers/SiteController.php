@@ -11,7 +11,7 @@ use common\models\User;
 use common\models\Student;
 use common\models\Teacher;
 use common\models\Course;
-use common\models\Group;
+// 🔥 Group modeli chaqiruvi olib tashlandi
 use common\models\Payment;
 
 
@@ -67,16 +67,13 @@ class SiteController extends Controller
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post())) {
 
-            // ✅ Check user before login
             $user = User::findByUsername($model->username);
 
-            // ❌ Block student/teacher from backend
             if ($user && in_array($user->role, ['student', 'teacher'])) {
                 Yii::$app->session->setFlash('error', 'Access denied. This panel is for administrators only.');
                 return $this->refresh();
             }
 
-            //login for admin/director
             if ($model->login()) {
                 return $this->redirect(['/dashboard/index']);
             }
@@ -164,23 +161,7 @@ class SiteController extends Controller
                 ];
             }
 
-            // Groups 
-            $groups = Group::find()
-                ->where(['like', 'name', $query])
-                ->with(['course', 'teacher'])
-                ->limit(5)
-                ->all();
-
-            foreach ($groups as $group) {
-                $results[] = [
-                    'type' => 'Group',
-                    'icon' => 'fa-users',
-                    'title' => $group->name,
-                    'subtitle' => ($group->course ? $group->course->name : 'No course'), 
-                    'url' => \yii\helpers\Url::to(['/group/view', 'id' => $group->id]),
-                    'color' => 'warning'
-                ];
-            }
+            // 🔥 Groups qidiruvi butunlay olib tashlandi
 
             // Payments 
             $payments = Payment::find()
@@ -203,7 +184,6 @@ class SiteController extends Controller
             }
 
         } catch (\Exception $e) {
-            // Added error handling
             Yii::error('Search error: ' . $e->getMessage(), __METHOD__);
             return ['results' => [], 'error' => 'Search failed'];
         }

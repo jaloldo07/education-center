@@ -34,7 +34,7 @@ class MessageController extends Controller
     }
 
     /**
-     * Get conversation list
+     * Kontaktlarni olish (Talabalar o'qituvchilarini, o'qituvchilar o'z talabalarini ko'radi)
      */
     public function actionGetContacts()
     {
@@ -44,11 +44,11 @@ class MessageController extends Controller
         if ($currentUser->teacher) {
             $teacher = $currentUser->teacher;
 
-            // Get students enrolled in teacher's groups
+            // 🔥 O'qituvchining kurslariga a'zo bo'lgan talabalarni olish
             $students = \common\models\Student::find()
                 ->joinWith(['enrollments' => function ($query) use ($teacher) {
-                    $query->joinWith('group')
-                        ->where(['group.teacher_id' => $teacher->id]);
+                    $query->joinWith('course')
+                          ->where(['course.teacher_id' => $teacher->id, 'enrollment.status' => 'active']);
                 }])
                 ->groupBy('student.id')
                 ->all();
@@ -68,11 +68,11 @@ class MessageController extends Controller
         } elseif ($currentUser->student) {
             $student = $currentUser->student;
 
-            // Get teachers from groups student is enrolled in
+            // 🔥 Talaba o'qiyotgan kurslarning o'qituvchilarini olish
             $teachers = \common\models\Teacher::find()
-                ->joinWith(['groups' => function ($query) use ($student) {
+                ->joinWith(['courses' => function ($query) use ($student) {
                     $query->joinWith('enrollments')
-                        ->where(['enrollment.student_id' => $student->id]);
+                          ->where(['enrollment.student_id' => $student->id, 'enrollment.status' => 'active']);
                 }])
                 ->groupBy('teacher.id')
                 ->all();
@@ -94,15 +94,11 @@ class MessageController extends Controller
         return ['success' => true, 'contacts' => $contacts];
     }
 
-    /**
-     * Get messages with specific user
-     */
     public function actionGetMessages($userId)
     {
         $currentUserId = Yii::$app->user->id;
         $messages = ChatMessage::getConversation($currentUserId, $userId);
 
-        // Mark as read
         ChatMessage::markAsRead($userId, $currentUserId);
 
         $result = [];
@@ -111,8 +107,8 @@ class MessageController extends Controller
                 'id' => $msg->id,
                 'message' => $msg->message,
                 'is_mine' => $msg->sender_id == $currentUserId,
-                'is_group' => (bool)$msg->is_group_message,
-                'group_id' => $msg->group_id,
+                'is_course' => (bool)$msg->is_course_message, // group o'rniga course
+                'course_id' => $msg->course_id,
                 'created_at' => Yii::$app->formatter->asRelativeTime($msg->created_at),
             ];
         }
@@ -120,9 +116,6 @@ class MessageController extends Controller
         return ['success' => true, 'messages' => $result];
     }
 
-    /**
-     * Send message
-     */
     public function actionSend()
     {
         $receiverId = Yii::$app->request->post('receiver_id');
@@ -152,9 +145,6 @@ class MessageController extends Controller
         return ['success' => false, 'error' => 'Failed to send'];
     }
 
-    /**
-     * Get new messages (for polling)
-     */
     public function actionGetNew($userId, $lastId = 0)
     {
         $currentUserId = Yii::$app->user->id;
@@ -169,7 +159,6 @@ class MessageController extends Controller
             ->orderBy(['id' => SORT_ASC])
             ->all();
 
-        // Mark as read
         ChatMessage::markAsRead($userId, $currentUserId);
 
         $result = [];
@@ -178,8 +167,8 @@ class MessageController extends Controller
                 'id' => $msg->id,
                 'message' => $msg->message,
                 'is_mine' => $msg->sender_id == $currentUserId,
-                'is_group' => (bool)$msg->is_group_message,
-                'group_id' => $msg->group_id,
+                'is_course' => (bool)$msg->is_course_message,
+                'course_id' => $msg->course_id,
                 'created_at' => Yii::$app->formatter->asRelativeTime($msg->created_at),
             ];
         }
@@ -187,7 +176,6 @@ class MessageController extends Controller
         return ['success' => true, 'messages' => $result];
     }
 
-    // Nomini o'zgartirdik: GetUnreadCount -> Count
     public function actionCount()
     {
         $currentUserId = Yii::$app->user->id;
@@ -200,9 +188,9 @@ class MessageController extends Controller
     }
 
     /**
-     * Get teacher's groups
+     * O'qituvchining KURSLARI (Guruh o'rniga)
      */
-    public function actionGetGroups()
+    public function actionGetCourses()
     {
         $currentUser = Yii::$app->user->identity;
 
@@ -212,43 +200,40 @@ class MessageController extends Controller
 
         $teacher = $currentUser->teacher;
 
-        $groups = \common\models\Group::find()
+        $courses = \common\models\Course::find()
             ->where(['teacher_id' => $teacher->id])
             ->all();
 
         $result = [];
-        foreach ($groups as $group) {
+        foreach ($courses as $course) {
             $studentCount = \common\models\Enrollment::find()
-                ->where(['group_id' => $group->id, 'status' => 'active'])
+                ->where(['course_id' => $course->id, 'status' => 'active'])
                 ->count();
 
-            // FIXED: Alias and Table name
             $lastMessage = \common\models\ChatMessage::find()
-                ->select(['chat_message.created_at'])
-                ->alias('chat_message')
-                ->where(['chat_message.sender_id' => $currentUser->id])
-                ->innerJoin('user', 'user.id = chat_message.receiver_id')
-                ->innerJoin('student', 'student.user_id = user.id')
-                ->innerJoin('enrollment', 'enrollment.student_id = student.id')
-                ->andWhere(['enrollment.group_id' => $group->id])
-                ->orderBy(['chat_message.created_at' => SORT_DESC])
+                ->where([
+                    'sender_id' => $currentUser->id,
+                    'is_course_message' => 1,
+                    'course_id' => $course->id
+                ])
+                ->orderBy(['created_at' => SORT_DESC])
                 ->one();
 
             $result[] = [
-                'id' => $group->id,
-                'name' => $group->name,
+                'id' => $course->id,
+                'name' => $course->name,
                 'student_count' => $studentCount,
                 'last_message' => $lastMessage ? Yii::$app->formatter->asRelativeTime($lastMessage->created_at) : 'No messages',
             ];
         }
 
-        return $this->asJson(['success' => true, 'groups' => $result]);
+        return $this->asJson(['success' => true, 'courses' => $result]); // groups o'rniga courses
     }
 
     /**
-     * Send message to all students in a group (broadcast)
+     * Barcha talabalarga kurs orqali xabar yuborish
      */
-    public function actionSendGroupMessage()
+    public function actionSendCourseMessage()
     {
         $currentUser = Yii::$app->user->identity;
 
@@ -256,29 +241,29 @@ class MessageController extends Controller
             return $this->asJson(['success' => false, 'error' => 'Not a teacher']);
         }
 
-        $groupId = Yii::$app->request->post('group_id');
+        $courseId = Yii::$app->request->post('course_id');
         $message = Yii::$app->request->post('message');
 
-        if (empty($groupId) || empty($message)) {
+        if (empty($courseId) || empty($message)) {
             return $this->asJson(['success' => false, 'error' => 'Invalid data']);
         }
 
-        $group = \common\models\Group::findOne([
-            'id' => $groupId,
+        $course = \common\models\Course::findOne([
+            'id' => $courseId,
             'teacher_id' => $currentUser->teacher->id
         ]);
 
-        if (!$group) {
-            return $this->asJson(['success' => false, 'error' => 'Group not found']);
+        if (!$course) {
+            return $this->asJson(['success' => false, 'error' => 'Course not found']);
         }
 
         $students = \common\models\Student::find()
             ->joinWith('enrollments')
-            ->where(['enrollment.group_id' => $groupId, 'enrollment.status' => 'active'])
+            ->where(['enrollment.course_id' => $courseId, 'enrollment.status' => 'active'])
             ->all();
 
         if (empty($students)) {
-            return $this->asJson(['success' => false, 'error' => 'No students in group']);
+            return $this->asJson(['success' => false, 'error' => 'No students in course']);
         }
 
         $sentCount = 0;
@@ -287,8 +272,8 @@ class MessageController extends Controller
             $chat->sender_id = $currentUser->id;
             $chat->receiver_id = $student->user_id;
             $chat->message = $message;
-            $chat->is_group_message = 1;
-            $chat->group_id = $groupId;
+            $chat->is_course_message = 1; // 🔥 group_id o'rniga
+            $chat->course_id = $courseId;
 
             if ($chat->save()) {
                 $sentCount++;
@@ -307,9 +292,9 @@ class MessageController extends Controller
     }
 
     /**
-     * Get group history
+     * Kurs tarixini olish
      */
-    public function actionGetGroupMessages($groupId)
+    public function actionGetCourseMessages($courseId)
     {
         $currentUser = Yii::$app->user->identity;
 
@@ -317,25 +302,21 @@ class MessageController extends Controller
             return $this->asJson(['success' => false, 'error' => 'Not a teacher']);
         }
 
-        $group = \common\models\Group::findOne([
-            'id' => $groupId,
+        $course = \common\models\Course::findOne([
+            'id' => $courseId,
             'teacher_id' => $currentUser->teacher->id
         ]);
 
-        if (!$group) {
-            return $this->asJson(['success' => false, 'error' => 'Group not found']);
+        if (!$course) {
+            return $this->asJson(['success' => false, 'error' => 'Course not found']);
         }
 
         $messages = ChatMessage::find()
             ->select(['message', 'MIN(created_at) as created_at'])
-            ->where(['sender_id' => $currentUser->id])
-            ->andWhere([
-                'IN',
-                'receiver_id',
-                \common\models\Student::find()
-                    ->select('user_id')
-                    ->joinWith('enrollments')
-                    ->where(['enrollment.group_id' => $groupId])
+            ->where([
+                'sender_id' => $currentUser->id,
+                'is_course_message' => 1,
+                'course_id' => $courseId
             ])
             ->groupBy(['message', 'DATE_FORMAT(FROM_UNIXTIME(created_at), "%Y-%m-%d %H:%i")'])
             ->orderBy(['created_at' => SORT_ASC])
@@ -355,9 +336,6 @@ class MessageController extends Controller
         return $this->asJson(['success' => true, 'messages' => $result]);
     }
 
-    /**
-     * Clear history (Nomini o'zgartirdik: ClearChat -> ClearData)
-     */
     public function actionClearData()
     {
         $currentUserId = Yii::$app->user->id;
@@ -381,9 +359,9 @@ class MessageController extends Controller
     }
 
     /**
-     * Clear group history (Nomini o'zgartirdik: ClearGroupChat -> ClearGroupData)
+     * Kurs xabarlarini tozalash
      */
-    public function actionClearGroupData()
+    public function actionClearCourseData()
     {
         $currentUser = Yii::$app->user->identity;
 
@@ -391,41 +369,32 @@ class MessageController extends Controller
             return $this->asJson(['success' => false, 'error' => 'Only teachers can clear']);
         }
 
-        $groupId = Yii::$app->request->post('group_id');
+        $courseId = Yii::$app->request->post('course_id');
 
-        if (empty($groupId)) {
-            return $this->asJson(['success' => false, 'error' => 'Invalid group ID']);
+        if (empty($courseId)) {
+            return $this->asJson(['success' => false, 'error' => 'Invalid course ID']);
         }
 
-        $group = \common\models\Group::findOne([
-            'id' => $groupId,
+        $course = \common\models\Course::findOne([
+            'id' => $courseId,
             'teacher_id' => $currentUser->teacher->id
         ]);
 
-        if (!$group) {
-            return $this->asJson(['success' => false, 'error' => 'Group not found or access denied']);
+        if (!$course) {
+            return $this->asJson(['success' => false, 'error' => 'Course not found or access denied']);
         }
 
-        $studentUserIds = \common\models\Student::find()
-            ->select('user_id')
-            ->joinWith('enrollments')
-            ->where(['enrollment.group_id' => $groupId])
-            ->column();
-
-        if (empty($studentUserIds)) {
-            return $this->asJson(['success' => true, 'deleted' => 0, 'message' => 'No messages to clear']);
-        }
-
+        // O'qituvchining ushbu kurs bo'yicha yuborgan barcha xabarlarini o'chirish
         $deleted = ChatMessage::deleteAll([
-            'and',
-            ['sender_id' => $currentUser->id],
-            ['in', 'receiver_id', $studentUserIds]
+            'sender_id' => $currentUser->id,
+            'is_course_message' => 1,
+            'course_id' => $courseId
         ]);
 
         return $this->asJson([
             'success' => true,
             'deleted' => $deleted,
-            'message' => 'Group history cleared'
+            'message' => 'Course history cleared'
         ]);
     }
 }

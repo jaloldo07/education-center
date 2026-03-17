@@ -72,11 +72,7 @@ $statusClass = EnrollmentApplication::getStatusBadgeClass($model->status);
                                 'label' => Yii::t('app', 'Course Type'),
                                 'value' => strtoupper($model->course->type),
                             ],
-                            [
-                                'attribute' => 'group_id',
-                                'label' => Yii::t('app', 'Group'),
-                                'value' => $model->group->name,
-                            ],
+                            // 🔥 Group_id qatori butunlay olib tashlandi
                             [
                                 'attribute' => 'created_at',
                                 'format' => ['date', 'php:Y-m-d H:i'],

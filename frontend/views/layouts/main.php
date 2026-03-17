@@ -33,292 +33,96 @@ $this->beginPage()
             --dark-color: #1e293b;
             --light-color: #f8fafc;
             --gray-color: #64748b;
-            /* Navbar rangi endi shaffofroq */
             --navbar-bg: rgba(67, 97, 238, 0.85);
             --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* --- YANGI ORQA FON SOZLAMALARI --- */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: transparent;
-            /* Canvas ko'rinishi uchun */
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Canvas (Jonli fon) */
         #canvas-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            /* To'q ko'k gradient fon */
+            top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: radial-gradient(circle at center, #1a1f35 0%, #0b0e14 100%);
         }
-
-        /* ---------------------------------- */
 
         .navbar {
             background: var(--navbar-bg) !important;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(15px);
-            /* Glass effect */
             -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.3rem;
-            letter-spacing: -0.5px;
-            color: white !important;
-        }
+        .navbar-brand { font-weight: 700; font-size: 1.3rem; letter-spacing: -0.5px; color: white !important; }
+        .navbar-brand i { margin-right: 8px; animation: pulse 2s infinite; }
+        .nav-link { color: rgba(255, 255, 255, 0.9) !important; transition: all 0.3s; }
+        .nav-link:hover { color: var(--accent-color) !important; transform: translateY(-2px); }
 
-        .navbar-brand i {
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            transition: all 0.3s;
-        }
-
-        .nav-link:hover {
-            color: var(--accent-color) !important;
-            transform: translateY(-2px);
-        }
-
-        .search-container {
-            position: relative;
-            width: 300px;
-            margin: 0 15px;
-        }
-
+        .search-container { position: relative; width: 300px; margin: 0 15px; }
         .search-input {
-            width: 100%;
-            padding: 10px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            color: white;
+            width: 100%; padding: 10px 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px; font-size: 14px; transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); color: white;
         }
-
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.6); }
         .search-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.25);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.3);
-            transform: translateY(-2px);
-            color: white;
+            outline: none; background: rgba(255, 255, 255, 0.25); border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.3); transform: translateY(-2px); color: white;
         }
 
         #search-results-frontend {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            margin-top: 12px;
-            display: none;
-            z-index: 9999;
-            max-height: 400px;
-            overflow-y: auto;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: absolute; top: 100%; left: 0; right: 0; background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); margin-top: 12px;
+            display: none; z-index: 9999; max-height: 400px; overflow-y: auto;
+            backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .search-item-frontend {
-            padding: 16px 20px;
-            text-decoration: none;
-            color: var(--dark-color);
-            border-bottom: 1px solid #f1f5f9;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            padding: 16px 20px; text-decoration: none; color: var(--dark-color);
+            border-bottom: 1px solid #f1f5f9; transition: all 0.3s ease; display: flex; align-items: center; gap: 12px;
         }
+        .search-item-frontend:hover { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); color: white; }
+        .search-item-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(0, 0, 0, 0.05); }
 
-        .search-item-frontend:hover {
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-            color: white;
-        }
+        .main-content { min-height: calc(100vh - 200px); padding: 40px 0; }
 
-        .search-item-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .main-content {
-            min-height: calc(100vh - 200px);
-            padding: 40px 0;
-        }
-
-        /* Footer endi shaffofroq */
         footer {
-            background: rgba(15, 23, 42, 0.8);
-            /* Semi-transparent dark */
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 60px 0 30px;
-            margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); color: white;
+            padding: 60px 0 30px; margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
+        .footer-section h5 { font-weight: 600; margin-bottom: 20px; position: relative; color: var(--accent-color); }
+        .footer-section h5::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 50px; height: 3px; background: var(--primary-color); border-radius: 2px; }
+        .footer-social a { display: inline-block; width: 45px; height: 45px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; text-align: center; line-height: 45px; color: white; transition: all 0.3s ease; margin-right: 10px; }
+        .footer-social a:hover { background: var(--accent-color); transform: translateY(-3px) rotate(360deg); }
+        .footer-divider { border: none; height: 1px; background: rgba(255, 255, 255, 0.1); margin: 30px 0; }
 
-        .footer-section h5 {
-            font-weight: 600;
-            margin-bottom: 20px;
-            position: relative;
-            color: var(--accent-color);
-        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .fade-in { animation: fadeInUp 0.8s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .footer-section h5::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background: var(--primary-color);
-            border-radius: 2px;
-        }
-
-        .footer-social a {
-            display: inline-block;
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 45px;
-            color: white;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-        }
-
-        .footer-social a:hover {
-            background: var(--accent-color);
-            transform: translateY(-3px) rotate(360deg);
-        }
-
-        .footer-divider {
-            border: none;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 30px 0;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.8s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Scrollbar dizayni */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-color);
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
         .glass-toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 15px 25px;
-            border-radius: 12px;
-            color: white;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 99999;
-            transform: translateY(100px);
-            /* Boshida pastda turadi */
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            /* Sakrab chiqish effekti */
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 12px; color: white;
+            font-family: 'Nunito', sans-serif; font-weight: 600; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 99999;
+            transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex; align-items: center; gap: 10px;
         }
-
-        .glass-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Holatiga qarab ranglar */
-        .glass-toast.success {
-            background: rgba(16, 185, 129, 0.85);
-            /* Yashil */
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .glass-toast.error {
-            background: rgba(239, 68, 68, 0.85);
-            /* Qizil */
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
+        .glass-toast.show { transform: translateY(0); opacity: 1; }
+        .glass-toast.success { background: rgba(16, 185, 129, 0.85); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .glass-toast.error { background: rgba(239, 68, 68, 0.85); border: 1px solid rgba(239, 68, 68, 0.3); }
     </style>
 </head>
 
@@ -367,10 +171,8 @@ $this->beginPage()
             . '</li>';
     }
 
-
-    // --- TIL MENYUSI ---
     $currentLang = Yii::$app->language;
-    $langLabel = strtoupper(substr($currentLang, 0, 2)); // EN, UZ, RU
+    $langLabel = strtoupper(substr($currentLang, 0, 2));
 
     $menuItems[] = [
         'label' => '<i class="fas fa-globe"></i> ' . $langLabel,
@@ -381,8 +183,6 @@ $this->beginPage()
         ],
         'options' => ['class' => 'nav-item dropdown'],
     ];
-    // -------------------
-
 
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav ms-auto'],
@@ -459,152 +259,71 @@ $this->beginPage()
     $noResultsText = Yii::t('app', 'No results found');
 
     $this->registerJs("
-    // CANVAS ANIMATION (ORQA FON)
     const canvas = document.getElementById('canvas-bg');
     const ctx = canvas.getContext('2d');
     let particlesArray;
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     let mouse = { x: null, y: null, radius: (canvas.height/80) * (canvas.width/80) }
-
-    window.addEventListener('mousemove', function(event) {
-        mouse.x = event.x;
-        mouse.y = event.y;
-    });
-
+    window.addEventListener('mousemove', function(event) { mouse.x = event.x; mouse.y = event.y; });
     class Particle {
-        constructor(x, y, directionX, directionY, size, color) {
-            this.x = x; this.y = y;
-            this.directionX = directionX; this.directionY = directionY;
-            this.size = size; this.color = color;
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.fill();
-        }
+        constructor(x, y, directionX, directionY, size, color) { this.x = x; this.y = y; this.directionX = directionX; this.directionY = directionY; this.size = size; this.color = color; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false); ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.fill(); }
         update() {
             if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
             if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
-            
-            // Mouse interaction
-            let dx = mouse.x - this.x;
-            let dy = mouse.y - this.y;
-            let distance = Math.sqrt(dx*dx + dy*dy);
+            let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx*dx + dy*dy);
             if(distance < mouse.radius + this.size){
                 if(mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 10;
                 if(mouse.x > this.x && this.x > this.size * 10) this.x -= 10;
                 if(mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 10;
                 if(mouse.y > this.y && this.y > this.size * 10) this.y -= 10;
             }
-
-            this.x += this.directionX;
-            this.y += this.directionY;
-            this.draw();
+            this.x += this.directionX; this.y += this.directionY; this.draw();
         }
     }
-
     function init() {
-        particlesArray = [];
-        let numberOfParticles = (canvas.height * canvas.width) / 9000;
+        particlesArray = []; let numberOfParticles = (canvas.height * canvas.width) / 9000;
         for (let i = 0; i < numberOfParticles; i++) {
-            let size = (Math.random() * 2) + 1;
-            let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
-            let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
-            let directionX = (Math.random() * 0.5) - 0.25;
-            let directionY = (Math.random() * 0.5) - 0.25;
+            let size = (Math.random() * 2) + 1; let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2); let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+            let directionX = (Math.random() * 0.5) - 0.25; let directionY = (Math.random() * 0.5) - 0.25;
             particlesArray.push(new Particle(x, y, directionX, directionY, size, '#fff'));
         }
     }
-
     function connect() {
         let opacityValue = 1;
         for (let a = 0; a < particlesArray.length; a++) {
             for (let b = a; b < particlesArray.length; b++) {
-                let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
-                + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
                 if (distance < (canvas.width/7) * (canvas.height/7)) {
-                    opacityValue = 1 - (distance / 20000);
-                    ctx.strokeStyle = 'rgba(76, 201, 240,' + opacityValue + ')'; // Accent color
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                    ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                    ctx.stroke();
+                    opacityValue = 1 - (distance / 20000); ctx.strokeStyle = 'rgba(76, 201, 240,' + opacityValue + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(particlesArray[a].x, particlesArray[a].y); ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke();
                 }
             }
         }
     }
+    function animate() { requestAnimationFrame(animate); ctx.clearRect(0, 0, innerWidth, innerHeight); for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); } connect(); }
+    window.addEventListener('resize', function() { canvas.width = innerWidth; canvas.height = innerHeight; mouse.radius = ((canvas.height/80) * (canvas.height/80)); init(); });
+    window.addEventListener('mouseout', function() { mouse.x = undefined; mouse.y = undefined; });
+    init(); animate();
 
-    function animate() {
-        requestAnimationFrame(animate);
-        ctx.clearRect(0, 0, innerWidth, innerHeight);
-        for (let i = 0; i < particlesArray.length; i++) {
-            particlesArray[i].update();
-        }
-        connect();
-    }
-
-    window.addEventListener('resize', function() {
-        canvas.width = innerWidth;
-        canvas.height = innerHeight;
-        mouse.radius = ((canvas.height/80) * (canvas.height/80));
-        init();
-    });
-    window.addEventListener('mouseout', function() {
-        mouse.x = undefined; mouse.y = undefined;
-    });
-
-    init();
-    animate();
-
-    // SEARCH LOGIC
     let searchTimeout;
     jQuery('#frontend-search').on('input', function(e) {
-        e.preventDefault();
-        clearTimeout(searchTimeout);
-        let query = jQuery(this).val().trim();
-        
-        if(query.length < 2) {
-            jQuery('#search-results-frontend').fadeOut();
-            return;
-        }
-        
+        e.preventDefault(); clearTimeout(searchTimeout); let query = jQuery(this).val().trim();
+        if(query.length < 2) { jQuery('#search-results-frontend').fadeOut(); return; }
         searchTimeout = setTimeout(function() {
             jQuery.ajax({
-                url: '$searchUrl',
-                method: 'GET',
-                data: {q: query},
-                dataType: 'json',
+                url: '$searchUrl', method: 'GET', data: {q: query}, dataType: 'json',
                 success: function(data) {
-                    if(!data.results || data.results.length === 0) {
-                        jQuery('#search-results-frontend').html('<div class=\"search-item-frontend text-center text-muted py-4\"><i class=\"fas fa-search me-2\"></i>$noResultsText</div>').fadeIn();
-                        return;
-                    }
-                    
+                    if(!data.results || data.results.length === 0) { jQuery('#search-results-frontend').html('<div class=\"search-item-frontend text-center text-muted py-4\"><i class=\"fas fa-search me-2\"></i>$noResultsText</div>').fadeIn(); return; }
                     let html = '';
                     jQuery.each(data.results, function(i, item) {
-                        html += '<a href=\"' + item.url + '\" class=\"search-item-frontend hover-lift\">';
-                        html += '  <div class=\"search-item-icon bg-gradient-' + item.color + '\"> <i class=\"fas ' + item.icon + '\"></i> </div>';
-                        html += '  <div class=\"search-item-content\">';
-                        html += '    <h4>' + item.title + '</h4>';
-                        html += '    <p>' + item.subtitle + '</p>';
-                        html += '  </div>';
-                        html += '</a>';
+                        html += '<a href=\"' + item.url + '\" class=\"search-item-frontend hover-lift\"> <div class=\"search-item-icon bg-gradient-' + item.color + '\"> <i class=\"fas ' + item.icon + '\"></i> </div> <div class=\"search-item-content\"> <h4>' + item.title + '</h4> <p>' + item.subtitle + '</p> </div> </a>';
                     });
-                    
                     jQuery('#search-results-frontend').html(html).fadeIn();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Search error:', error);
                 }
             });
         }, 300);
     });
-
     jQuery('#frontend-search').closest('form').on('submit', function(e) { e.preventDefault(); return false; });
     jQuery(document).click(function(e) { if(!jQuery(e.target).closest('.search-container').length) { jQuery('#search-results-frontend').fadeOut(); } });
     jQuery(document).on('click', '.search-item-frontend', function() { jQuery('#search-results-frontend').fadeOut(); jQuery('#frontend-search').val(''); });
@@ -633,12 +352,13 @@ $this->beginPage()
 
             <div style="height:calc(100% - 70px);">
                 <div class="tab-content active" id="tab-messages" style="display:flex;flex-direction:column;height:100%;">
+                    
                     <div id="teacher-toggle" style="display:none;gap:5px;padding:10px;background:#f8f9fa;border-bottom:1px solid #e0e0e0;">
                         <button id="show-students-btn" style="flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;background:#667eea;color:white;font-size:14px;font-weight:600;">
                             👥 <?= Yii::t('app', 'Students') ?>
                         </button>
-                        <button id="show-groups-btn" style="flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;background:#e0e0e0;color:#666;font-size:14px;">
-                            📢 <?= Yii::t('app', 'Groups') ?>
+                        <button id="show-courses-btn" style="flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;background:#e0e0e0;color:#666;font-size:14px;">
+                            📢 <?= Yii::t('app', 'Courses') ?>
                         </button>
                     </div>
 
@@ -646,8 +366,8 @@ $this->beginPage()
                         <div style="text-align:center;padding:20px;"><?= Yii::t('app', 'Loading contacts...') ?></div>
                     </div>
 
-                    <div id="group-list" style="display:none;overflow-y:auto;padding:10px;flex:1;">
-                        <div style="text-align:center;padding:20px;"><?= Yii::t('app', 'Loading groups...') ?></div>
+                    <div id="course-list" style="display:none;overflow-y:auto;padding:10px;flex:1;">
+                        <div style="text-align:center;padding:20px;"><?= Yii::t('app', 'Loading courses...') ?></div>
                     </div>
 
                     <div id="chat-window" style="display:none;flex-direction:column;height:100%;position:absolute;top:0;left:0;width:100%;background:white;z-index:5;">
@@ -663,19 +383,19 @@ $this->beginPage()
                         </div>
                     </div>
 
-                    <div id="group-chat-window" style="display:none;flex-direction:column;height:100%;position:absolute;top:0;left:0;width:100%;background:white;z-index:10;">
+                    <div id="course-chat-window" style="display:none;flex-direction:column;height:100%;position:absolute;top:0;left:0;width:100%;background:white;z-index:10;">
                         <div style="flex:0 0 60px;padding:15px;background:linear-gradient(135deg,#ff9800,#ff5722);color:white;display:flex;align-items:center;gap:10px;">
-                            <button id="back-to-groups" style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;">←</button>
+                            <button id="back-to-courses" style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;">←</button>
                             <div style="flex:1;">
-                                <div id="current-group-name" style="font-weight:600;"><?= Yii::t('app', 'Group') ?></div>
-                                <small id="group-student-count" style="font-size:12px;opacity:0.8;"><?= Yii::t('app', 'Students') ?></small>
+                                <div id="current-course-name" style="font-weight:600;"><?= Yii::t('app', 'Course') ?></div>
+                                <small id="course-student-count" style="font-size:12px;opacity:0.8;"><?= Yii::t('app', 'Students') ?></small>
                             </div>
-                            <button id="clear-group-chat-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;">🗑️</button>
+                            <button id="clear-course-chat-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;">🗑️</button>
                         </div>
-                        <div id="group-messages-container" style="flex:1;overflow-y:auto;padding:15px;background:#f5f5f5;"></div>
+                        <div id="course-messages-container" style="flex:1;overflow-y:auto;padding:15px;background:#f5f5f5;"></div>
                         <div style="flex:0 0 64px;display:flex;gap:10px;padding:12px;border-top:1px solid #e0e0e0;">
-                            <input type="text" id="group-message-input" placeholder="<?= Yii::t('app', 'Broadcast to all students...') ?>" style="flex:1;padding:10px 15px;border:1px solid #ddd;border-radius:20px;outline:none;">
-                            <button id="group-send-btn" style="width:40px;height:40px;border-radius:50%;border:none;background:#ff9800;color:white;cursor:pointer;">📢</button>
+                            <input type="text" id="course-message-input" placeholder="<?= Yii::t('app', 'Broadcast to all students...') ?>" style="flex:1;padding:10px 15px;border:1px solid #ddd;border-radius:20px;outline:none;">
+                            <button id="course-send-btn" style="width:40px;height:40px;border-radius:50%;border:none;background:#ff9800;color:white;cursor:pointer;">📢</button>
                         </div>
                     </div>
                 </div>
@@ -723,24 +443,20 @@ $this->beginPage()
 </body>
 
 <script>
-    // Istalgan joydan showToast('Xabar', 'success' yoki 'error') deb chaqirasiz
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `glass-toast ${type}`;
         
-        // Ikonka qo'shish
         const icon = type === 'success' ? '<i class="fas fa-check-circle fs-5"></i>' : '<i class="fas fa-exclamation-circle fs-5"></i>';
         toast.innerHTML = `${icon} <span>${message}</span>`;
         
         document.body.appendChild(toast);
         
-        // Animatsiya bilan ko'rsatish
         setTimeout(() => toast.classList.add('show'), 10);
         
-        // 3 soniyadan keyin o'chirish
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 400); // DOM dan tozalash
+            setTimeout(() => toast.remove(), 400);
         }, 3000);
     }
 </script>

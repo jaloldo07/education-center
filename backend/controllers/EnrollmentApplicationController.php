@@ -39,7 +39,7 @@ class EnrollmentApplicationController extends Controller
     {
         $dataProvider = new ActiveDataProvider([
             'query' => EnrollmentApplication::find()
-                ->with(['student', 'course', 'group'])
+                ->with(['student', 'course']) // 🔥 group olib tashlandi
                 ->orderBy(['created_at' => SORT_DESC]),
             'pagination' => ['pageSize' => 20],
         ]);
@@ -70,10 +70,9 @@ class EnrollmentApplicationController extends Controller
             // Create Enrollment
             $enrollment = new Enrollment();
             $enrollment->student_id = $application->student_id;
-            $enrollment->group_id = $application->group_id;
+            $enrollment->course_id = $application->course_id; // 🔥 group_id o'rniga course_id
             $enrollment->enrolled_on = date('Y-m-d');
             
-            // 🔥 MUHIM: Statusni Waiting Payment qilamiz
             $enrollment->status = Enrollment::STATUS_WAITING_PAYMENT;
 
             if (!$enrollment->save()) {
@@ -91,7 +90,7 @@ class EnrollmentApplicationController extends Controller
                 '✅ Application Approved!',
                 'Your application for "' . $application->course->name . '" is approved. Please verify payment to start.',
                 Notification::TYPE_SUCCESS,
-                '/student/dashboard' // Ular dashboardda pay tugmasini ko'rishadi
+                '/student/dashboard'
             );
 
             $transaction->commit();
@@ -138,7 +137,7 @@ class EnrollmentApplicationController extends Controller
         if ($application->status === EnrollmentApplication::STATUS_APPROVED) {
             $enrollment = Enrollment::findOne([
                 'student_id' => $application->student_id,
-                'group_id' => $application->group_id,
+                'course_id' => $application->course_id, // 🔥 group_id o'rniga course_id
             ]);
             if ($enrollment) {
                 $enrollment->delete();

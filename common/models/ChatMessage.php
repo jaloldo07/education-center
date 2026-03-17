@@ -16,9 +16,9 @@ class ChatMessage extends ActiveRecord
     {
         return [
             [['sender_id', 'receiver_id', 'message'], 'required'],
-            [['sender_id', 'receiver_id'], 'integer'],
+            [['sender_id', 'receiver_id', 'course_id'], 'integer'],
             [['message'], 'string'],
-            [['is_read'], 'boolean'],
+            [['is_read', 'is_course_message'], 'boolean'],
         ];
     }
 

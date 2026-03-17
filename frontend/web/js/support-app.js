@@ -8,7 +8,7 @@
     function init() {
         var state = {
             currentContact: null,
-            currentGroup: null,
+            currentCourse: null, // 🔥 currentGroup o'rniga
             currentTicket: null,
             lastMessageId: 0,
             pollInterval: null
@@ -69,29 +69,29 @@
             });
         });
 
-        // Student/Group toggle
+        // 🔥 Student/Course toggle (Group o'rniga Course)
         var showStudentsBtn = document.getElementById('show-students-btn');
-        var showGroupsBtn = document.getElementById('show-groups-btn');
-        if (showStudentsBtn && showGroupsBtn) {
+        var showCoursesBtn = document.getElementById('show-courses-btn'); // show-groups-btn edi
+        if (showStudentsBtn && showCoursesBtn) {
             showStudentsBtn.onclick = function () {
                 this.style.background = '#667eea';
                 this.style.color = 'white';
-                showGroupsBtn.style.background = '#e0e0e0';
-                showGroupsBtn.style.color = '#666';
+                showCoursesBtn.style.background = '#e0e0e0';
+                showCoursesBtn.style.color = '#666';
                 document.getElementById('contact-list').style.display = 'block';
-                var gl = document.getElementById('group-list');
-                if (gl) gl.style.display = 'none';
+                var cl = document.getElementById('course-list'); // group-list edi
+                if (cl) cl.style.display = 'none';
                 loadContacts();
             };
-            showGroupsBtn.onclick = function () {
+            showCoursesBtn.onclick = function () {
                 this.style.background = '#667eea';
                 this.style.color = 'white';
                 showStudentsBtn.style.background = '#e0e0e0';
                 showStudentsBtn.style.color = '#666';
                 document.getElementById('contact-list').style.display = 'none';
-                var gl = document.getElementById('group-list');
-                if (gl) gl.style.display = 'block';
-                loadGroups();
+                var cl = document.getElementById('course-list');
+                if (cl) cl.style.display = 'block';
+                loadCourses(); // loadGroups() edi
             };
         }
 
@@ -103,12 +103,12 @@
             document.getElementById('contact-list').style.display = 'block';
         };
 
-        var backToGroupsBtn = document.getElementById('back-to-groups');
-        if (backToGroupsBtn) {
-            backToGroupsBtn.onclick = function (e) {
+        var backToCoursesBtn = document.getElementById('back-to-courses'); // back-to-groups edi
+        if (backToCoursesBtn) {
+            backToCoursesBtn.onclick = function (e) {
                 e.preventDefault();
-                document.getElementById('group-chat-window').style.display = 'none';
-                document.getElementById('group-list').style.display = 'block';
+                document.getElementById('course-chat-window').style.display = 'none'; // group-chat-window edi
+                document.getElementById('course-list').style.display = 'block'; // group-list edi
             };
         }
 
@@ -118,11 +118,11 @@
             if (e.key === 'Enter') sendMessage();
         };
 
-        var groupSendBtn = document.getElementById('group-send-btn');
-        if (groupSendBtn) {
-            groupSendBtn.onclick = sendGroupMessage;
-            document.getElementById('group-message-input').onkeypress = function (e) {
-                if (e.key === 'Enter') sendGroupMessage();
+        var courseSendBtn = document.getElementById('course-send-btn'); // group-send-btn edi
+        if (courseSendBtn) {
+            courseSendBtn.onclick = sendCourseMessage; // sendGroupMessage edi
+            document.getElementById('course-message-input').onkeypress = function (e) { // group-message-input edi
+                if (e.key === 'Enter') sendCourseMessage();
             };
         }
 
@@ -135,7 +135,6 @@
                 var fd = new FormData();
                 fd.append('user_id', state.currentContact);
                 
-                // YANGI LINK (clear-data):
                 fetch('/message/clear-data', { method: 'POST', body: fd })
                     .then(r => r.json())
                     .then(data => {
@@ -147,21 +146,20 @@
             };
         }
 
-        var clearGroupBtn = document.getElementById('clear-group-chat-btn');
-        if (clearGroupBtn) {
-            clearGroupBtn.onclick = function (e) {
+        var clearCourseBtn = document.getElementById('clear-course-chat-btn'); // clear-group-chat-btn edi
+        if (clearCourseBtn) {
+            clearCourseBtn.onclick = function (e) {
                 e.preventDefault();
-                if (!state.currentGroup || !confirm('Guruh chatini tozalamoqchimisiz? Bu amalni ortga qaytarib bo\'lmaydi.')) return;
+                if (!state.currentCourse || !confirm('Kurs chatini tozalamoqchimisiz? Bu amalni ortga qaytarib bo\'lmaydi.')) return;
                 var fd = new FormData();
-                fd.append('group_id', state.currentGroup);
+                fd.append('course_id', state.currentCourse); // group_id edi
                 
-                // YANGI LINK (clear-group-data):
-                fetch('/message/clear-group-data', { method: 'POST', body: fd })
+                fetch('/message/clear-course-data', { method: 'POST', body: fd }) // clear-group-data edi
                     .then(r => r.json())
                     .then(data => {
                         if (data.success) {
-                            document.getElementById('group-messages-container').innerHTML = '<div style="text-align:center;padding:20px;color:#999">Guruh tozalandi</div>';
-                            showNotification('✅ Guruh tozalandi!');
+                            document.getElementById('course-messages-container').innerHTML = '<div style="text-align:center;padding:20px;color:#999">Kurs chati tozalandi</div>'; // group-messages-container edi
+                            showNotification('✅ Kurs chati tozalandi!');
                         }
                     });
             };
@@ -205,13 +203,13 @@
             startPolling();
         };
 
-        window.chatOpenGroup = function (groupId, groupName, studentCount) {
-            state.currentGroup = groupId;
-            document.getElementById('current-group-name').textContent = groupName;
-            document.getElementById('group-student-count').textContent = '(' + studentCount + ' talaba)';
-            document.getElementById('group-list').style.display = 'none';
-            document.getElementById('group-chat-window').style.display = 'flex';
-            loadGroupMessages(groupId);
+        window.chatOpenCourse = function (courseId, courseName, studentCount) { // chatOpenGroup edi
+            state.currentCourse = courseId; // currentGroup edi
+            document.getElementById('current-course-name').textContent = courseName; // current-group-name edi
+            document.getElementById('course-student-count').textContent = '(' + studentCount + ' talaba)'; // group-student-count edi
+            document.getElementById('course-list').style.display = 'none'; // group-list edi
+            document.getElementById('course-chat-window').style.display = 'flex'; // group-chat-window edi
+            loadCourseMessages(courseId); // loadGroupMessages edi
         };
 
         window.chatOpenTicket = function (ticketId) {
@@ -234,7 +232,6 @@
         function loadContacts() {
             var container = document.getElementById('contact-list');
             container.innerHTML = '<div style="text-align:center;padding:20px;">Yuklanmoqda...</div>';
-            // YANGI LINK:
             fetch('/message/get-contacts')
                 .then(r => r.json())
                 .then(data => {
@@ -254,24 +251,23 @@
                 });
         }
 
-        function loadGroups() {
-            var container = document.getElementById('group-list');
+        function loadCourses() { // loadGroups edi
+            var container = document.getElementById('course-list'); // group-list edi
             if (!container) return;
             container.innerHTML = '<div style="text-align:center;padding:20px;">Yuklanmoqda...</div>';
-            // YANGI LINK:
-            fetch('/message/get-groups')
+            fetch('/message/get-courses') // get-groups edi
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success && data.groups.length > 0) {
+                    if (data.success && data.courses.length > 0) { // groups edi
                         var html = '';
-                        data.groups.forEach(g => {
-                            html += '<div onclick="window.chatOpenGroup(' + g.id + ',\'' + g.name.replace(/'/g, "\\'") + '\',' + g.student_count + ')" style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;border-radius:8px;margin:8px 0;">';
+                        data.courses.forEach(c => { // groups edi
+                            html += '<div onclick="window.chatOpenCourse(' + c.id + ',\'' + c.name.replace(/'/g, "\\'") + '\',' + c.student_count + ')" style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;border-radius:8px;margin:8px 0;">';
                             html += '<div style="width:40px;height:40px;background:#ff9800;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;">📢</div>';
-                            html += '<div style="flex:1"><strong>' + escapeHtml(g.name) + '</strong><br><small style="color:#999">' + g.student_count + ' ta talaba</small></div></div>';
+                            html += '<div style="flex:1"><strong>' + escapeHtml(c.name) + '</strong><br><small style="color:#999">' + c.student_count + ' ta talaba</small></div></div>';
                         });
                         container.innerHTML = html;
                     } else {
-                        container.innerHTML = '<div style="text-align:center;padding:20px;color:#999">Guruhlar mavjud emas</div>';
+                        container.innerHTML = '<div style="text-align:center;padding:20px;color:#999">Kurslar mavjud emas</div>';
                     }
                 });
         }
@@ -279,7 +275,6 @@
         function loadMessages(userId) {
             var container = document.getElementById('messages-container');
             container.innerHTML = '<div style="text-align:center;padding:20px;">Yuklanmoqda...</div>';
-            // YANGI LINK:
             fetch('/message/get-messages?userId=' + userId)
                 .then(r => r.json())
                 .then(data => {
@@ -290,7 +285,7 @@
                             var html = '';
                             data.messages.forEach(m => {
                                 var bgColor = m.is_mine
-                                    ? (m.is_group ? 'linear-gradient(135deg,#ff9800 0%,#ff5722 100%)' : 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)')
+                                    ? (m.is_course ? 'linear-gradient(135deg,#ff9800 0%,#ff5722 100%)' : 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)') // is_group edi
                                     : 'white';
                                 var textColor = m.is_mine ? 'white' : '#333';
                                 var shadow = m.is_mine ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.1);';
@@ -298,7 +293,7 @@
                                 html += '<div style="margin-bottom:12px;display:flex;' + (m.is_mine ? 'justify-content:flex-end;' : '') + '">';
                                 html += '<div style="max-width:70%;padding:10px 15px;border-radius:18px;background:' + bgColor + ';color:' + textColor + ';' + shadow + '">';
                                 html += escapeHtml(m.message);
-                                if (m.is_group) html += '<div style="font-size:10px;opacity:0.8;margin-top:2px;">📢 Guruh xabari</div>';
+                                if (m.is_course) html += '<div style="font-size:10px;opacity:0.8;margin-top:2px;">📢 Kurs xabari</div>'; // is_group edi
                                 html += '<div style="font-size:11px;opacity:0.7;margin-top:4px;">' + m.created_at + '</div></div></div>';
                             });
                             container.innerHTML = html;
@@ -310,12 +305,11 @@
                 });
         }
 
-        function loadGroupMessages(groupId) {
-            var container = document.getElementById('group-messages-container');
+        function loadCourseMessages(courseId) { // loadGroupMessages edi
+            var container = document.getElementById('course-messages-container'); // group-messages-container edi
             if (!container) return;
             container.innerHTML = '<div style="text-align:center;padding:20px;">Yuklanmoqda...</div>';
-            // YANGI LINK:
-            fetch('/message/get-group-messages?groupId=' + groupId)
+            fetch('/message/get-course-messages?courseId=' + courseId) // get-group-messages edi
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
@@ -341,7 +335,6 @@
             var fd = new FormData();
             fd.append('receiver_id', state.currentContact);
             fd.append('message', msg);
-            // YANGI LINK:
             fetch('/message/send', { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(data => {
@@ -355,20 +348,19 @@
                 });
         }
 
-        function sendGroupMessage() {
-            var input = document.getElementById('group-message-input');
+        function sendCourseMessage() { // sendGroupMessage edi
+            var input = document.getElementById('course-message-input'); // group-message-input edi
             var msg = input.value.trim();
             if (!msg) return;
             var fd = new FormData();
-            fd.append('group_id', state.currentGroup);
+            fd.append('course_id', state.currentCourse); // group_id edi
             fd.append('message', msg);
-            // YANGI LINK:
-            fetch('/message/send-group-message', { method: 'POST', body: fd })
+            fetch('/message/send-course-message', { method: 'POST', body: fd }) // send-group-message edi
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
                         input.value = '';
-                        var container = document.getElementById('group-messages-container');
+                        var container = document.getElementById('course-messages-container'); // group-messages-container edi
                         if (container.innerHTML.includes('Xabarlar yo\'q')) container.innerHTML = '';
                         container.innerHTML += '<div style="margin-bottom:12px;display:flex;justify-content:flex-end;"><div style="max-width:70%;padding:10px 15px;border-radius:18px;background:linear-gradient(135deg,#ff9800 0%,#ff5722 100%);color:white;">' + escapeHtml(msg) + '<div style="font-size:11px;opacity:0.7;margin-top:4px;">📢 Yuborildi: ' + data.sent_count + '</div></div></div>';
                         container.scrollTop = container.scrollHeight;
@@ -378,12 +370,12 @@
         }
 
         function updateUnreadCount() {
-            fetch('/support-api/count')
+            fetch('/message/count') // support-api dan message ga o'zgardi (balki shunday bo'lishi kerakdir? Siz tashlagan controllerda 'Count' MessageControllerda edi)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
                         var badge = document.getElementById('total-unread');
-                        if (badge) { // Element borligini tekshiramiz
+                        if (badge) { 
                             badge.textContent = data.count;
                             badge.style.display = data.count > 0 ? 'flex' : 'none';
                         }
@@ -395,7 +387,6 @@
             stopPolling();
             state.pollInterval = setInterval(() => {
                 if (!state.currentContact) return;
-                // YANGI LINK (get-new):
                 fetch('/message/get-new?userId=' + state.currentContact + '&lastId=' + state.lastMessageId)
                     .then(r => r.json())
                     .then(data => {
@@ -403,13 +394,13 @@
                             var container = document.getElementById('messages-container');
                             data.messages.forEach(m => {
                                 var bgColor = m.is_mine
-                                    ? (m.is_group ? 'linear-gradient(135deg,#ff9800 0%,#ff5722 100%)' : 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)')
+                                    ? (m.is_course ? 'linear-gradient(135deg,#ff9800 0%,#ff5722 100%)' : 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)') // is_group edi
                                     : 'white';
                                 var textColor = m.is_mine ? 'white' : '#333';
                                 var shadow = m.is_mine ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.1);';
 
                                 var html = '<div style="margin-bottom:12px;display:flex;' + (m.is_mine ? 'justify-content:flex-end;' : '') + '"><div style="max-width:70%;padding:10px 15px;border-radius:18px;background:' + bgColor + ';color:' + textColor + ';' + shadow + '">' + escapeHtml(m.message);
-                                if (m.is_group) html += '<div style="font-size:10px;opacity:0.8;margin-top:2px;">📢 Guruh xabari</div>';
+                                if (m.is_course) html += '<div style="font-size:10px;opacity:0.8;margin-top:2px;">📢 Kurs xabari</div>'; // is_group edi
                                 html += '<div style="font-size:11px;opacity:0.7;margin-top:4px;">' + m.created_at + '</div></div></div>';
                                 container.innerHTML += html;
                                 state.lastMessageId = m.id;
@@ -486,7 +477,6 @@
                 });
         }
 
-        // Birlamchi Notification Funksiyasi (showToast nomini ham shunga uladik)
         function showNotification(msg) {
             var n = document.createElement('div');
             n.textContent = msg;
@@ -495,7 +485,6 @@
             setTimeout(() => document.body.removeChild(n), 3000);
         }
         
-        // Agar kodingizda showToast ishlatilgan bo'lsa, uni showNotification ga yo'naltiramiz
         function showToast(msg) {
             showNotification(msg);
         }
@@ -507,15 +496,14 @@
         }
 
         // Check if user is teacher
-        // YANGI LINK:
         fetch('/message/get-contacts')
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    fetch('/message/get-groups')
+                    fetch('/message/get-courses') // get-groups edi
                         .then(r => r.json())
-                        .then(groupData => {
-                            if (groupData.success) {
+                        .then(courseData => { // groupData edi
+                            if (courseData.success) {
                                 var toggle = document.getElementById('teacher-toggle');
                                 if (toggle) toggle.style.display = 'flex';
                             }
