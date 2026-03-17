@@ -8,7 +8,6 @@ $this->title = Yii::t('app', 'Enrollment Applications');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-
 <style>
     .enrollment-application-index table thead a {
         color: #fff !important;
@@ -21,7 +20,6 @@ $this->params['breadcrumbs'][] = $this->title;
         text-decoration: none !important;
     }
 </style>
-
 
 <div class="enrollment-application-index">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -56,18 +54,13 @@ $this->params['breadcrumbs'][] = $this->title;
                             return $model->course->name . ' (' . strtoupper($model->course->type) . ')';
                         }
                     ],
-                    [
-                        'attribute' => 'group_id',
-                        'label' => Yii::t('app', 'Group'),
-                        'value' => 'group.name',
-                    ],
+                    // 🔥 Guruh ustuni (Group) bu yerdan to'liq olib tashlandi
                     [
                         'attribute' => 'status',
                         'format' => 'raw',
                         'label' => Yii::t('app', 'Status'),
                         'value' => function ($model) {
                             $class = EnrollmentApplication::getStatusBadgeClass($model->status);
-                            // Tarjima qilingan status matni
                             $statusText = Yii::t('app', ucfirst($model->status));
                             return '<span class="badge bg-' . $class . '">' . $statusText . '</span>';
                         },

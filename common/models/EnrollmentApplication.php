@@ -26,8 +26,9 @@ class EnrollmentApplication extends ActiveRecord
     public function rules()
     {
         return [
-            [['student_id', 'course_id', 'group_id'], 'required'],
-            [['student_id', 'course_id', 'group_id', 'reviewed_by', 'reviewed_at'], 'integer'],
+            // 🔥 group_id olib tashlandi
+            [['student_id', 'course_id'], 'required'],
+            [['student_id', 'course_id', 'reviewed_by', 'reviewed_at'], 'integer'],
             [['message', 'admin_comment'], 'string'],
             [['status'], 'string', 'max' => 20],
             [['status'], 'in', 'range' => [self::STATUS_PENDING, self::STATUS_APPROVED, self::STATUS_REJECTED]],
@@ -40,7 +41,7 @@ class EnrollmentApplication extends ActiveRecord
             'id' => 'ID',
             'student_id' => 'Student',
             'course_id' => 'Course',
-            'group_id' => 'Group',
+            // 🔥 group_id olib tashlandi
             'message' => 'Message',
             'status' => 'Status',
             'admin_comment' => 'Admin Comment',
@@ -57,10 +58,7 @@ class EnrollmentApplication extends ActiveRecord
         return $this->hasOne(Course::class, ['id' => 'course_id']);
     }
 
-    public function getGroup()
-    {
-        return $this->hasOne(Group::class, ['id' => 'group_id']);
-    }
+    // 🔥 getGroup() funksiyasi butunlay o'chirib tashlandi!
 
     public static function getStatusOptions()
     {
