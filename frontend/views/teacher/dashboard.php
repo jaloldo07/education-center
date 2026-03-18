@@ -48,7 +48,7 @@ $daysOfWeek = [
             <h1 class="text-white fw-bold mb-1">
                 <?= Yii::t('app', 'Welcome') ?>, <span style="color: #4cc9f0;"><?= Html::encode($teacher->full_name) ?></span>!
             </h1>
-            <p class="text-white-50 mb-0">Here is what's happening with your courses today.</p>
+            <p class="text-white-50 mb-0"><?= Yii::t('app', 'Here is what\'s happening with your courses today.') ?></p>
         </div>
         <?= Html::a('<i class="fas fa-calendar-alt"></i> ' . Yii::t('app', 'Full Calendar'), ['calendar'], ['class' => 'btn-calendar']) ?>
     </div>

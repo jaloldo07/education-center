@@ -1108,6 +1108,8 @@ return [
     '{subject} Specialist' => '{subject} mutaxassisi',
     '{rating} Rating' => '{rating} reyting',
     '{years} Years Exp.' => '{years} yillik tajriba',
+    'Here is what\'s happening with your courses today.' => 'Bugun kurslaringizda nimalar bo\'lyapti.',
+    'CLASS SCHEDULES' => 'DARS JADVALI'
 
 
 

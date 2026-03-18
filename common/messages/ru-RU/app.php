@@ -1196,6 +1196,8 @@ return [
     '{subject} Specialist' => '{subject} специалист',
     '{rating} Rating' => '{rating} рейтинг',
     '{years} Years Exp.' => '{years} лет опыта',
+    'Here is what\'s happening with your courses today.' => 'Вот что происходит с вашими курсами сегодня.',
+    'CLASS SCHEDULES' => 'РАСПИСАНИЕ ЗАНЯТИЙ',
 
 
 ];
