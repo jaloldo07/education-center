@@ -1098,6 +1098,7 @@ return [
     'Room / Location' => 'O\'quv xonasi / Joy',
     'Ready to continue your learning journey? Your dashboard is ready.' => 'O\'rganishni davom ettirishga tayyormisiz? Boshqaruv panelingiz tayyor.',
 
+    'Your Impact' => 'Sizning ta\'siringiz',
 
 
 
