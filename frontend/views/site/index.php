@@ -188,7 +188,7 @@ $role = $user ? $user->role : null;
                         </div>
 
                         <div class="col-lg-5">
-                            <h5 class="text-white mb-3 ps-1"><i class="fas fa-chart-pie me-2 text-warning"></i> Your Impact</h5>
+                            <h5 class="text-white mb-3 ps-1"><i class="fas fa-chart-pie me-2 text-warning"></i> <?= Yii::t('app', 'Your Impact') ?></h5>
                             <div class="row g-3">
                                 <div class="col-6">
                                     <div class="stat-mini-box">
