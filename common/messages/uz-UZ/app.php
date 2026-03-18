@@ -1099,7 +1099,15 @@ return [
     'Ready to continue your learning journey? Your dashboard is ready.' => 'O\'rganishni davom ettirishga tayyormisiz? Boshqaruv panelingiz tayyor.',
 
     'Your Impact' => 'Sizning ta\'siringiz',
-
+    'Active Courses' => 'Faol kurslar',
+    'Enrollments' => 'A\'zoliklar',
+    'Total Revenue' => 'Jami daromad',
+    'Unique Students Taught' => 'Mening talablarim',
+    'INSTRUCTOR PORTAL' => 'O\'QITUVCHI PORTALI',
+    'Hello, Professor {name}!' => 'Salom, Professor {name}!',
+    '{subject} Specialist' => '{subject} mutaxassisi',
+    '{rating} Rating' => '{rating} reyting',
+    '{years} Years Exp.' => '{years} yillik tajriba',
 
 
 

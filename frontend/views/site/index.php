@@ -168,18 +168,24 @@ $role = $user ? $user->role : null;
                 <div class="hero-content">
                     <div class="row align-items-center">
                         <div class="col-lg-7 mb-4 mb-lg-0">
-                            <span class="badge bg-danger mb-2">INSTRUCTOR PORTAL</span>
+                            <span class="badge bg-danger mb-2"><?= Yii::t('app', 'INSTRUCTOR PORTAL') ?></span>
                             <h1 class="display-4 fw-bold mb-2 text-white">
                                 <?= Yii::t('app', 'Hello, Professor {name}!', ['name' => Html::encode(explode(' ', $teacher->full_name)[0])]) ?> 👨‍🏫
                             </h1>
                             <p class="text-info fw-bold mb-3 text-uppercase letter-spacing-1">
-                                <?= Html::encode($teacher->subject) ?> Specialist
+                    <?= Yii::t('app', '{subject} Specialist', ['subject' => Html::encode($teacher->subject)]) ?>
                             </p>
 
                             <div class="d-flex align-items-center gap-4 mb-4 text-white-50">
-                                <span><i class="fas fa-star text-warning me-1"></i> <?= $teacher->rating ?> Rating</span>
-                                <span><i class="fas fa-briefcase text-success me-1"></i> <?= $teacher->experience_years ?> Years Exp.</span>
-                            </div>
+    <span>
+        <i class="fas fa-star text-warning me-1"></i> 
+        <?= Yii::t('app', '{rating} Rating', ['rating' => $teacher->rating]) ?>
+    </span>
+    <span>
+        <i class="fas fa-briefcase text-success me-1"></i> 
+        <?= Yii::t('app', '{years} Years Exp.', ['years' => $teacher->experience_years]) ?>
+    </span>
+</div>
 
                             <div class="d-flex gap-3">
                                 <?= Html::a('<i class="fas fa-chalkboard me-2"></i> ' . Yii::t('app', 'My Dashboard'), ['/teacher/dashboard'], ['class' => 'btn-neon-primary']) ?>
