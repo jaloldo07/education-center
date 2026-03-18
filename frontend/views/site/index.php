@@ -201,7 +201,7 @@ $role = $user ? $user->role : null;
                                         <div class="stat-mini-icon bg-icon-primary"><i class="fas fa-laptop-code"></i></div>
                                         <div>
                                             <div class="stat-value"><?= count($courses) ?></div>
-                                            <div class="stat-label">Active Courses</div>
+                                            <div class="stat-label"><?= Yii::t('app', 'Active Courses') ?></div>
                                         </div>
                                     </div>
                                 </div>
@@ -210,7 +210,7 @@ $role = $user ? $user->role : null;
                                         <div class="stat-mini-icon bg-icon-warning"><i class="fas fa-clipboard-check"></i></div>
                                         <div>
                                             <div class="stat-value"><?= $totalEnrollments ?></div>
-                                            <div class="stat-label">Enrollments</div>
+                                            <div class="stat-label"><?= Yii::t('app', 'Enrollments') ?></div>
                                         </div>
                                     </div>
                                 </div>

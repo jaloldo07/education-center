@@ -1183,6 +1183,19 @@ return [
     'Finished' => 'Завершен',
     'Ready to continue your learning journey? Your dashboard is ready.' => 'Готовы продолжить обучение? Ваша панель управления готова.',
     
+    'Room / Location' => 'Комната / Место',
+    'Ready to continue your learning journey? Your dashboard is ready.' => 'Готовы продолжить обучение? Ваша панель управления готова.',
+
+    'Your Impact' => 'Ваше влияние',
+    'Active Courses' => 'Активные курсы',
+    'Enrollments' => 'Зачисления',
+    'Total Revenue' => 'Общий доход',
+    'Unique Students Taught' => 'Уникальные студенты',
+    'INSTRUCTOR PORTAL' => 'ПОРТАЛ ИНСТРУКТОРА',
+    'Hello, Professor {name}!' => 'Привет, Профессор {name}!',
+    '{subject} Specialist' => '{subject} специалист',
+    '{rating} Rating' => '{rating} рейтинг',
+    '{years} Years Exp.' => '{years} лет опыта',
 
 
 ];
