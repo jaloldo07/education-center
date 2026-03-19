@@ -320,4 +320,25 @@ class TeacherController extends Controller
             'tests' => $tests,
         ]);
     }
+
+    public function actionProfile()
+    {
+        // O'qituvchini topish
+        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        if (!$teacher) {
+            $teacher = Teacher::findOne(['email' => Yii::$app->user->identity->email]);
+        }
+        if (!$teacher) {
+            throw new \yii\web\NotFoundHttpException('Teacher profile not found.');
+        }
+
+        if ($teacher->load(Yii::$app->request->post()) && $teacher->save()) {
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Profile updated successfully.'));
+            return $this->refresh();
+        }
+
+        return $this->render('profile', [
+            'model' => $teacher,
+        ]);
+    }
 }

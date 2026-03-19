@@ -115,4 +115,22 @@ class StudentController extends Controller
             'notifications' => $notifications,
         ]);
     }
+
+    public function actionProfile()
+    {
+        $student = Student::findOne(['user_id' => Yii::$app->user->id]);
+
+        if (!$student) {
+            throw new \yii\web\NotFoundHttpException('Student profile not found.');
+        }
+
+        if ($student->load(Yii::$app->request->post()) && $student->save()) {
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Profile updated successfully.'));
+            return $this->refresh();
+        }
+
+        return $this->render('profile', [
+            'model' => $student,
+        ]);
+    }
 }
