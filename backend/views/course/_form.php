@@ -13,7 +13,7 @@ use common\models\Course;
 
 <style>
     .help-block, .help-block-error, .invalid-feedback {
-        color: #dc3545 !important; /* Qip-qizil rang */
+        color: #dc3545 !important;
         font-weight: bold;
         font-size: 0.9rem;
         margin-top: 5px;
@@ -22,6 +22,12 @@ use common\models\Course;
     .has-error .form-control {
         border-color: #dc3545;
         box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    /* Qulflangan input uchun dizayn */
+    .form-control[readonly] {
+        background-color: #e9ecef;
+        opacity: 1;
+        cursor: not-allowed;
     }
 </style>
 
@@ -32,7 +38,6 @@ use common\models\Course;
         'fieldConfig' => [
             'template' => "{label}\n<div class=\"col-md-12\">{input}</div>\n<div class=\"col-md-12\">{error}</div>",
             'labelOptions' => ['class' => 'control-label fw-bold mb-1'],
-            // 🔥 Xatolik klassini qo'shdik
             'errorOptions' => ['class' => 'help-block-error text-danger'], 
             'inputOptions' => ['class' => 'form-control'],
         ],
@@ -54,7 +59,10 @@ use common\models\Course;
                 <div class="col-md-4">
                     <?= $form->field($model, 'type')->dropDownList(
                         Course::getTypeOptions(), 
-                        ['class' => 'form-select']
+                        [
+                            'class' => 'form-select',
+                            'id' => 'course-type' // JS uchun ID
+                        ]
                     )->label(Yii::t('app', 'Enrollment Type')) ?>
                 </div>
             </div>
@@ -85,6 +93,7 @@ use common\models\Course;
                         'type' => 'number',
                         'min' => 0,
                         'step' => '1000',
+                        'id' => 'course-price', // JS uchun ID
                         'placeholder' => Yii::t('app', 'Price in UZS'),
                     ])->label(Yii::t('app', 'Price (UZS)')) ?>
                 </div>
@@ -110,3 +119,31 @@ use common\models\Course;
     <?php ActiveForm::end(); ?>
 
 </div>
+
+<?php
+// 🔥 YANI QO'SHILDI: Free va Premium mantig'i uchun JavaScript
+$this->registerJs("
+    function togglePriceInput() {
+        var type = $('#course-type').val();
+        var priceInput = $('#course-price');
+        
+        // Agar kurs 'free' bo'lsa
+        if (type === 'free') {
+            priceInput.val(0); // Narxni 0 qilamiz
+            priceInput.prop('readonly', true); // Kiritishni qulflaymiz
+        } else {
+            // Agar 'premium' yoki boshqa bo'lsa
+            priceInput.prop('readonly', false); // Qulfni ochamiz
+            if (priceInput.val() == 0) {
+                priceInput.val(''); // 0 ni tozalab, kiritishga tayyorlaymiz
+            }
+        }
+    }
+
+    // Turi o'zgarganda ishlashi uchun
+    $('#course-type').on('change', togglePriceInput);
+    
+    // Sahifa yuklanganda bir marta tekshirib qo'yish uchun
+    togglePriceInput();
+");
+?>
