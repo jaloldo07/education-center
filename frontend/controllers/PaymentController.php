@@ -9,7 +9,8 @@ use common\models\Course;
 use common\models\Payment;
 use common\models\Student;
 use common\models\Enrollment;
-use yii\web\UploadedFile; // 🔥 Rasmni yuklash uchun kerak
+use common\models\EnrollmentApplication; // 🔥 Arizani saqlash uchun modelni chaqirdik
+use yii\web\UploadedFile;
 
 class PaymentController extends Controller
 {
@@ -52,7 +53,6 @@ class PaymentController extends Controller
         $courses = Course::find()->all();
         $selectedCourse = $course_id ? Course::findOne($course_id) : null;
         
-        // 🔥 GURUH (GROUP) ORQALI QIDIRISH O'CHIRILDI, TO'G'RIDAN-TO'G'RI COURSE_ID GA QARAYMIZ
         $enrollment = null;
         if ($selectedCourse) {
             $enrollment = Enrollment::find()
@@ -78,7 +78,7 @@ class PaymentController extends Controller
                 
                 // Rasmni ushlab olish (Faqat karta orqali to'lov bo'lsa)
                 if ($model->payment_method === 'card') {
-                    $receiptFile = \yii\web\UploadedFile::getInstance($model, 'receipt_file'); 
+                    $receiptFile = UploadedFile::getInstance($model, 'receipt_file'); 
                     
                     if ($receiptFile) {
                         $uploadPath = Yii::getAlias('@frontend/web/uploads/receipts/');
@@ -98,6 +98,24 @@ class PaymentController extends Controller
                 }
 
                 if ($model->save()) {
+                    
+                    // 🔥 MUAMMO YECHIMI: To'lov saqlangach, Avtomatik Ariza ham yaratamiz!
+                    // Avval bu kursga ariza topshirganmi yo'qmi tekshiramiz
+                    $application = EnrollmentApplication::findOne([
+                        'student_id' => $student->id,
+                        'course_id' => $model->course_id,
+                    ]);
+
+                    // Agar arizasi yo'q bo'lsa, yangisini ochamiz
+                    if (!$application) {
+                        $application = new EnrollmentApplication();
+                        $application->student_id = $student->id;
+                        $application->course_id = $model->course_id;
+                        $application->status = EnrollmentApplication::STATUS_PENDING;
+                        $application->message = "Tizim avto-xabari: To'lov amalga oshirildi (yoki chek yuklandi). To'lov ID: #" . $model->id;
+                        $application->save(false); // Validatsiyasiz saqlaymiz, chunki bazaga to'g'ri qiymatlar beryapmiz
+                    }
+
                     if ($model->payment_method === 'cash') {
                         Yii::$app->session->setFlash('success', Yii::t('app', 'Arizangiz qabul qilindi. Iltimos, o\'quv markazimizga kelib to\'lovni amalga oshiring.'));
                     } else {
