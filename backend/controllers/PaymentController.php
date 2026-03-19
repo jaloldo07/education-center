@@ -109,7 +109,27 @@ class PaymentController extends Controller
         $model->status = Payment::STATUS_PAID; // Admin yaratganda to'langan deb hisoblaymiz
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', Yii::t('app', 'Payment has been recorded successfully.'));
+            // 🔥 MUAMMO YECHIMI: Admin qo'lda to'lov qilganda ham kurs ochilishi kerak
+            $enrollment = \common\models\Enrollment::findOne([
+                'student_id' => $model->student_id,
+                'course_id' => $model->course_id
+            ]);
+            if (!$enrollment) {
+                $enrollment = new \common\models\Enrollment();
+                $enrollment->student_id = $model->student_id;
+                $enrollment->course_id = $model->course_id;
+                $enrollment->enrolled_on = date('Y-m-d H:i:s');
+            }
+            $enrollment->status = \common\models\Enrollment::STATUS_ACTIVE;
+            $enrollment->save(false);
+
+            // Kutilayotgan arizasi (Pending) bo'lsa uni ham avtomatik tasdiqlaymiz
+            \common\models\EnrollmentApplication::updateAll(
+                ['status' => \common\models\EnrollmentApplication::STATUS_APPROVED, 'reviewed_at' => time(), 'admin_comment' => 'Approved manually via Payment'],
+                ['student_id' => $model->student_id, 'course_id' => $model->course_id, 'status' => \common\models\EnrollmentApplication::STATUS_PENDING]
+            );
+
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Payment recorded successfully and course is activated.'));
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -183,6 +203,12 @@ class PaymentController extends Controller
             // Va uni faol (Active) qilib qo'yamiz
             $enrollment->status = \common\models\Enrollment::STATUS_ACTIVE; 
             $enrollment->save(false);
+
+            // 🔥 MUAMMO YECHIMI: Arizani ham 'Approved' qilib yopib qo'yish (Dublikat bo'lmasligi uchun)
+            \common\models\EnrollmentApplication::updateAll(
+                ['status' => \common\models\EnrollmentApplication::STATUS_APPROVED, 'reviewed_at' => time(), 'admin_comment' => 'Auto-approved via Payment Approval.'],
+                ['student_id' => $model->student_id, 'course_id' => $model->course_id, 'status' => \common\models\EnrollmentApplication::STATUS_PENDING]
+            );
 
             Yii::$app->session->setFlash('success', Yii::t('app', 'To\'lov muvaffaqiyatli tasdiqlandi va talabaga kurs ochildi.'));
         } else {

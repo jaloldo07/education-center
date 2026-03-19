@@ -104,6 +104,7 @@ class PaymentController extends Controller
                     $application = EnrollmentApplication::findOne([
                         'student_id' => $student->id,
                         'course_id' => $model->course_id,
+                        'status' => EnrollmentApplication::STATUS_PENDING // 🔥 Eski tasdiqlanganlarini ushlab olmasligi uchun
                     ]);
 
                     // Agar arizasi yo'q bo'lsa, yangisini ochamiz

@@ -11,6 +11,8 @@ use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use common\models\Test;
 use common\models\CourseTest;
+use yii\helpers\ArrayHelper;
+use yii\web\UploadedFile;
 
 class LessonController extends Controller
 {
@@ -26,9 +28,14 @@ class LessonController extends Controller
         ];
     }
 
+    protected function getTeacher()
+    {
+        return Teacher::findOne(['user_id' => Yii::$app->user->id]);
+    }
+
     public function actionIndex()
     {
-        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        $teacher = $this->getTeacher();
 
         if (!$teacher) {
             Yii::$app->session->setFlash('error', 'You are not a teacher.');
@@ -38,9 +45,7 @@ class LessonController extends Controller
         $courses = Course::find()->where(['teacher_id' => $teacher->id])->all();
 
         $lessons = Lesson::find()
-            ->where(['IN', 'course_id', array_map(function ($c) {
-                return $c->id;
-            }, $courses)])
+            ->where(['course_id' => ArrayHelper::getColumn($courses, 'id')])
             ->orderBy(['course_id' => SORT_ASC, 'order_number' => SORT_ASC])
             ->all();
 
@@ -52,7 +57,7 @@ class LessonController extends Controller
 
     public function actionCreate()
     {
-        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        $teacher = $this->getTeacher();
         if (!$teacher) {
             return $this->redirect(['/site/index']);
         }
@@ -67,10 +72,9 @@ class LessonController extends Controller
             }
 
             // 🔥 Barcha fayl turlari uchun (Video, PDF, Rasm) yuklash mantiqiy to'g'rilandi
-            if (isset($_FILES['Lesson']['tmp_name']['file']) && $_FILES['Lesson']['error']['file'] === UPLOAD_ERR_OK) {
-                $tmpName = $_FILES['Lesson']['tmp_name']['file'];
-                $originalName = $_FILES['Lesson']['name']['file'];
-                $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+            $uploadedFile = UploadedFile::getInstanceByName('Lesson[file]');
+            if ($uploadedFile && $uploadedFile->error === UPLOAD_ERR_OK) {
+                $extension = strtolower($uploadedFile->extension);
 
                 $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'mp4', 'webm', 'ogg'];
                 if (in_array($extension, $allowedExtensions)) {
@@ -85,7 +89,7 @@ class LessonController extends Controller
                     $fileName = time() . '_' . uniqid() . '.' . $extension;
                     $destinationPath = $uploadPath . $fileName;
 
-                    if (move_uploaded_file($tmpName, $destinationPath)) {
+                    if ($uploadedFile->saveAs($destinationPath)) {
                         if (in_array($extension, ['mp4', 'webm', 'ogg'])) {
                             $model->video_url = '/uploads/videos/' . $fileName;
                         } else {
@@ -109,7 +113,7 @@ class LessonController extends Controller
 
     public function actionUpdate($id)
     {
-        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        $teacher = $this->getTeacher();
         $model = $this->findModel($id);
 
         $course = Course::findOne(['id' => $model->course_id, 'teacher_id' => $teacher->id]);
@@ -122,10 +126,9 @@ class LessonController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
             
-            if (isset($_FILES['Lesson']['tmp_name']['file']) && $_FILES['Lesson']['error']['file'] === UPLOAD_ERR_OK) {
-                $tmpName = $_FILES['Lesson']['tmp_name']['file'];
-                $originalName = $_FILES['Lesson']['name']['file'];
-                $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+            $uploadedFile = UploadedFile::getInstanceByName('Lesson[file]');
+            if ($uploadedFile && $uploadedFile->error === UPLOAD_ERR_OK) {
+                $extension = strtolower($uploadedFile->extension);
 
                 $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'mp4', 'webm', 'ogg'];
                 if (in_array($extension, $allowedExtensions)) {
@@ -140,7 +143,7 @@ class LessonController extends Controller
                     $fileName = time() . '_' . uniqid() . '.' . $extension;
                     $destinationPath = $uploadPath . $fileName;
 
-                    if (move_uploaded_file($tmpName, $destinationPath)) {
+                    if ($uploadedFile->saveAs($destinationPath)) {
                         // Eski faylni o'chirish
                         if ($oldFile && file_exists(Yii::getAlias('@webroot') . $oldFile)) {
                             unlink(Yii::getAlias('@webroot') . $oldFile);
@@ -175,7 +178,7 @@ class LessonController extends Controller
 
     public function actionDelete($id)
     {
-        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        $teacher = $this->getTeacher();
         $model = $this->findModel($id);
 
         $course = Course::findOne(['id' => $model->course_id, 'teacher_id' => $teacher->id]);
@@ -207,7 +210,7 @@ class LessonController extends Controller
     // Link test qismlari o'zgarishsiz qoldirildi...
     public function actionLinkTest($course_id)
     {
-        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        $teacher = $this->getTeacher();
         $course = Course::findOne(['id' => $course_id, 'teacher_id' => $teacher->id]);
         if (!$course) throw new NotFoundHttpException();
 
@@ -232,7 +235,7 @@ class LessonController extends Controller
 
     public function actionUnlinkTest($id)
     {
-        $teacher = Teacher::findOne(['user_id' => Yii::$app->user->id]);
+        $teacher = $this->getTeacher();
         $courseTest = CourseTest::findOne($id);
         if (!$courseTest) throw new NotFoundHttpException('Test link not found.');
 
