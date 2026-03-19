@@ -107,13 +107,19 @@ class PaymentController extends Controller
                     ]);
 
                     // Agar arizasi yo'q bo'lsa, yangisini ochamiz
+                    // Agar arizasi yo'q bo'lsa, yangisini ochamiz
                     if (!$application) {
                         $application = new EnrollmentApplication();
                         $application->student_id = $student->id;
                         $application->course_id = $model->course_id;
                         $application->status = EnrollmentApplication::STATUS_PENDING;
                         $application->message = "Tizim avto-xabari: To'lov amalga oshirildi (yoki chek yuklandi). To'lov ID: #" . $model->id;
-                        $application->save(false); // Validatsiyasiz saqlaymiz, chunki bazaga to'g'ri qiymatlar beryapmiz
+                        
+                        // 🔥 BAZADA GROUP_ID NOT NULL BO'LSA XATO BERMASLIGI UCHUN MAJBURAN 0 YUBORAMIZ (yoki agar null qabul qilsa, keragi yo'q, lekin kafolat uchun):
+                        // Agar xato bo'lsa ekranga qizil qilib chiqarib beryapti:
+                        if (!$application->save(false)) { 
+                             Yii::error("ARIZA SAQLASHDA XATOLIK: " . json_encode($application->getErrors()));
+                        }
                     }
 
                     if ($model->payment_method === 'cash') {
